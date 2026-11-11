@@ -1,3 +1,5 @@
+import { useI18n } from './i18n'
+import { interfaceDiagnostic } from './interfaceDiagnostics'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 
 type Point = { x: number; y: number }
@@ -42,6 +44,9 @@ export default function ImageRoiCollection({ assetId, indices, roi, initialItems
   onItemsChange: (items: Item[]) => void
   onSelect: (item: Item) => void
 }) {
+  const { locale } = useI18n()
+  const tx = (text: string) => interfaceDiagnostic(locale, text)
+
   const measureRequest = useRef<AbortController | null>(null)
   useEffect(() => () => measureRequest.current?.abort(), [])
   const [source, setSource] = useState<Source | null>(null)
@@ -265,40 +270,40 @@ export default function ImageRoiCollection({ assetId, indices, roi, initialItems
 
   return <div className="iw-roi-collection">
 {!source && <button type="button" disabled={sourceLoading}
-      onClick={() => { setSourceLoading(true); setSourceAttempt((attempt) => attempt + 1) }}>{sourceLoading ? '正在核验源图…' : '重新核验源图'}</button>}
-<div><strong>命名 ROI 集合</strong><p>每项保留形状与 C/Z/T 位置；可保存本机 JSON，或与 ImageJ ROI Manager 交换 ZIP。</p></div>
+      onClick={() => { setSourceLoading(true); setSourceAttempt((attempt) => attempt + 1) }}>{sourceLoading ? tx('正在核验源图…') : tx('重新核验源图')}</button>}
+<div><strong>{tx("命名 ROI 集合")}</strong><p>{tx("每项保留形状与 C/Z/T 位置；可保存本机 JSON，或与 ImageJ ROI Manager 交换 ZIP。")}</p></div>
 
     <div className="iw-roi-actions">
-      <label>名称 <input value={name} maxLength={80} onChange={(event) => setName(event.target.value)} /></label>
-      <button type="button" disabled={busy || !source || !roi || items.length >= 64} onClick={() => void add()}>加入当前 ROI</button>
-      <button type="button" disabled={busy || !selectedId} onClick={() => void rename()}>重命名</button>
-      <button type="button" disabled={busy || !selectedId} onClick={() => void remove()}>移除</button>
-      <button type="button" disabled={busy || !source} onClick={() => void save()}>保存集合 JSON</button>
-      <label className="iw-file-picker">重新载入集合 <input type="file" accept="application/json,.json" disabled={busy || !source}
+      <label>{tx("名称")}<input value={name} maxLength={80} onChange={(event) => setName(event.target.value)} /></label>
+      <button type="button" disabled={busy || !source || !roi || items.length >= 64} onClick={() => void add()}>{tx("加入当前 ROI")}</button>
+      <button type="button" disabled={busy || !selectedId} onClick={() => void rename()}>{tx("重命名")}</button>
+      <button type="button" disabled={busy || !selectedId} onClick={() => void remove()}>{tx("移除")}</button>
+      <button type="button" disabled={busy || !source} onClick={() => void save()}>{tx("保存集合 JSON")}</button>
+      <label className="iw-file-picker">{tx("重新载入集合")}<input type="file" accept="application/json,.json" disabled={busy || !source}
         onChange={(event) => void load(event)} /></label>
-      <button type="button" disabled={busy || !source || items.length === 0} onClick={() => void exportNative()}>导出 ImageJ ROI ZIP</button>
-      <label className="iw-file-picker">导入 ImageJ ROI ZIP <input type="file" accept="application/zip,.zip" disabled={busy || !source}
+      <button type="button" disabled={busy || !source || items.length === 0} onClick={() => void exportNative()}>{tx("导出 ImageJ ROI ZIP")}</button>
+      <label className="iw-file-picker">{tx("导入 ImageJ ROI ZIP")}<input type="file" accept="application/zip,.zip" disabled={busy || !source}
         onChange={(event) => void importNative(event)} /></label>
     </div>
     <div className="iw-roi-actions">
       {measurementOptions.map(([key, label]) => <label key={key}><input type="checkbox" checked={measureExtras.includes(key)}
         disabled={busy} onChange={(event) => setMeasureExtras((current) => event.target.checked
-          ? [...current, key] : current.filter((value) => value !== key))} />{label}</label>)}
-      <button type="button" disabled={busy || !source || items.length === 0} onClick={() => void measureCollection()}>按集合逐 ROI 测量</button>
-      {measureJobId && <button type="button" onClick={() => void cancelMeasure()}>取消测量</button>}
+          ? [...current, key] : current.filter((value) => value !== key))} />{tx(label)}</label>)}
+      <button type="button" disabled={busy || !source || items.length === 0} onClick={() => void measureCollection()}>{tx("按集合逐 ROI 测量")}</button>
+      {measureJobId && <button type="button" onClick={() => void cancelMeasure()}>{tx("取消测量")}</button>}
     </div>
-    <p>逐条在保存的 C/Z/T 平面用原生 ImageJ1 Analyzer 测量；与 ROI Manager 的跨切片 Multi Measure 表格不同。</p>
+    <p>{tx("逐条在保存的 C/Z/T 平面用原生 ImageJ1 Analyzer 测量；与 ROI Manager 的跨切片 Multi Measure 表格不同。")}</p>
     {items.length > 0 && <ul>{items.map((item) => <li key={item.id}>
       <button type="button" className={selectedId === item.id ? 'active' : ''} onClick={() => {
         setSelectedId(item.id); setName(item.name); onSelect(item)
-      }}>{item.name} · {item.roi.kind === 'ellipse' ? '椭圆' : item.roi.kind === 'polygon' ? '多边形' : item.roi.kind === 'full' ? '全平面' : '矩形'} · {JSON.stringify(item.indices)}</button>
+      }}>{item.name} · {item.roi.kind === 'ellipse' ? tx('椭圆') : item.roi.kind === 'polygon' ? tx('多边形') : item.roi.kind === 'full' ? tx('全平面') : tx('矩形')} · {JSON.stringify(item.indices)}</button>
     </li>)}</ul>}
     {measureResult && <div className="iw-roi-measure-results">
-      <strong>逐 ROI 测量结果</strong>
-      <div className="iw-roi-actions"><button type="button" onClick={() => saveMeasurements('json')}>下载结果 JSON</button>
-        <button type="button" onClick={() => saveMeasurements('csv')}>下载结果 CSV</button></div>
-      <div style={{ overflowX: 'auto' }}><table><thead><tr><th>名称</th><th>C/Z/T</th><th>形状</th><th>像素数</th>
-        <th>面积</th><th>均值</th><th>最小</th><th>最大</th><th>标准差</th><th>中位数</th><th>众数</th><th>IntDen</th><th>RawIntDen</th>
+      <strong>{tx("逐 ROI 测量结果")}</strong>
+      <div className="iw-roi-actions"><button type="button" onClick={() => saveMeasurements('json')}>{tx("下载结果 JSON")}</button>
+        <button type="button" onClick={() => saveMeasurements('csv')}>{tx("下载结果 CSV")}</button></div>
+      <div style={{ overflowX: 'auto' }}><table><thead><tr><th>{tx("名称")}</th><th>C/Z/T</th><th>{tx("形状")}</th><th>{tx("像素数")}</th>
+        <th>{tx("面积")}</th><th>{tx("均值")}</th><th>{tx("最小")}</th><th>{tx("最大")}</th><th>{tx("标准差")}</th><th>{tx("中位数")}</th><th>{tx("众数")}</th><th>IntDen</th><th>RawIntDen</th>
       </tr></thead><tbody>{measureResult.rows.map((row) => { const values = row.imagej1_analyzer; return <tr key={row.id}>
         <td>{row.name}</td><td>{JSON.stringify(row.indices)}</td><td>{row.roi.kind}</td><td>{row.sample_count}</td>
         <td>{values.area} {values.area_unit}</td><td>{values.mean}</td><td>{values.min}</td><td>{values.max}</td>
@@ -306,6 +311,6 @@ export default function ImageRoiCollection({ assetId, indices, roi, initialItems
         <td>{values.integrated_density ?? '—'}</td><td>{values.raw_integrated_density ?? '—'}</td>
       </tr> })}</tbody></table></div>
     </div>}
-    {message && <p role="status">{message}</p>}
+    {message && <p role="status">{tx(message)}</p>}
   </div>
 }

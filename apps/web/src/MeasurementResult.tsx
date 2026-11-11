@@ -1,3 +1,5 @@
+import { useI18n } from './i18n'
+import { interfaceDiagnostic } from './interfaceDiagnostics'
 export type MeasurementStatistics = {
   area: number; area_unit: string; mean: number; min: number; max: number
   std_dev?: number; median?: number; mode?: number
@@ -17,18 +19,21 @@ export default function MeasurementResult({ jobId, selection, sampleCount, stati
   sampleCount?: number
   statistics?: MeasurementStatistics
 }) {
+  const { locale } = useI18n()
+  const tx = (text: string) => interfaceDiagnostic(locale, text)
+
   const roi = selection?.roi
   return <div className="iw-measure-report">
-    <p>C/Z/T：{JSON.stringify(selection?.indices ?? {})} · {shapeNames[roi?.kind ?? ''] ?? roi?.kind} ROI：
-      {roi?.x},{roi?.y} / {roi?.width}×{roi?.height} · {sampleCount} 个像素 · ImageJ1 Measure 面积 {statistics?.area} {statistics?.area_unit}
-      {' · '}均值 {statistics?.mean} · 最小 {statistics?.min} · 最大 {statistics?.max}
+    <p>C/Z/T：{JSON.stringify(selection?.indices ?? {})} · {tx(shapeNames[roi?.kind ?? ''] ?? roi?.kind ?? '')} ROI：
+      {roi?.x},{roi?.y} / {roi?.width}×{roi?.height} · {sampleCount} {tx("个像素 · ImageJ1 Measure 面积")}{statistics?.area} {statistics?.area_unit}
+      {' · '}{tx("均值")}{statistics?.mean} {tx("· 最小")}{statistics?.min} {tx("· 最大")}{statistics?.max}
       {optionalStatistics.map(([key, label]) => statistics?.[key] !== undefined
-        ? <span key={key}> · {label} {statistics[key]}</span> : null)}
+        ? <span key={key}> · {tx(label)} {statistics[key]}</span> : null)}
     </p>
     <div className="iw-measure-downloads">
-      <a href={`/api/image/jobs/${jobId}/measurement.csv`} download>下载测量 CSV</a>
-      <a href={`/api/image/jobs/${jobId}/measurement.json`} download>保存完整测量记录 JSON</a>
-      <small>近期任务只在当前会话保留，请及时下载。JSON 包含来源摘要、ROI、轴位置和完整结果，不含源图文件。</small>
+      <a href={`/api/image/jobs/${jobId}/measurement.csv`} download>{tx("下载测量 CSV")}</a>
+      <a href={`/api/image/jobs/${jobId}/measurement.json`} download>{tx("保存完整测量记录 JSON")}</a>
+      <small>{tx("近期任务只在当前会话保留，请及时下载。JSON 包含来源摘要、ROI、轴位置和完整结果，不含源图文件。")}</small>
     </div>
   </div>
 }

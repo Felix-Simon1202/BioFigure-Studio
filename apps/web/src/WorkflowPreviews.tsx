@@ -1,5 +1,7 @@
+import { useI18n } from './i18n'
+import { workbenchText } from './workbenchEnglish'
 import type { CSSProperties, ReactNode } from 'react'
-import { ecologyDirections, omicsDirections, type EcologyDirection, type OmicsDirection } from './WorkflowCatalog'
+import { getWorkflowCatalog, type EcologyDirection, type OmicsDirection } from './WorkflowCatalog'
 
 const virtualSpatialPoints = [
   { x: 48, y: 42, c: '#527c78' },
@@ -25,7 +27,11 @@ const virtualRPoints = [
   { x: 187, y: 30 },
 ]
 export function OmicsPreview({ direction, compact = false, colors = ['#527c78', '#d6806c', '#9eae79'] }: { direction: OmicsDirection; compact?: boolean; colors?: string[] }) {
-  const title = `${omicsDirections[direction].title}虚拟数据示意`
+  const { locale, t } = useI18n()
+  const ui = (text: string) => workbenchText(locale, text)
+
+  const { omicsDirections } = getWorkflowCatalog(t)
+  const title = `${omicsDirections[direction].title} · ${ui('虚拟数据示意')}`
   const frame = (
     <>
       <line x1="34" y1="122" x2="208" y2="122" className="preview-axis" />
@@ -120,12 +126,16 @@ export function OmicsPreview({ direction, compact = false, colors = ['#527c78', 
       <svg viewBox="0 0 240 145" role="img" aria-label={title}>
         {graphic}
       </svg>
-      <span>虚拟数据示意</span>
+      <span>{ui("虚拟数据示意")}</span>
     </div>
   )
 }
 export function EcologyPreview({ direction, compact = false, variant = 'beta', colors = ['#527c78', '#d6806c', '#9eae79'] }: { direction: EcologyDirection; compact?: boolean; variant?: 'alpha' | 'beta'; colors?: string[] }) {
-  const title = `${ecologyDirections[direction].title}虚拟数据示意`
+  const { locale, t } = useI18n()
+  const ui = (text: string) => workbenchText(locale, text)
+
+  const { ecologyDirections } = getWorkflowCatalog(t)
+  const title = `${ecologyDirections[direction].title} · ${ui('虚拟数据示意')}`
   const frame = (
     <>
       <line x1="34" y1="122" x2="208" y2="122" className="preview-axis" />
@@ -233,7 +243,7 @@ export function EcologyPreview({ direction, compact = false, variant = 'beta', c
       <svg viewBox="0 0 240 145" role="img" aria-label={title}>
         {graphic}
       </svg>
-      <span>虚拟数据示意</span>
+      <span>{ui("虚拟数据示意")}</span>
     </div>
   )
 }

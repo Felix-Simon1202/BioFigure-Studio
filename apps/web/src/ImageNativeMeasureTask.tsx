@@ -1,3 +1,5 @@
+import { useI18n } from './i18n'
+import { interfaceDiagnostic } from './interfaceDiagnostics'
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import type { NativeMeasurementDraft } from './nativeMeasurementDraft'
 import ImageNativeMeasurements from './ImageNativeMeasurements'
@@ -13,6 +15,9 @@ export default function ImageNativeMeasureTask({ asset, availableAssets, indices
   onPlaneChange: (indices: Record<string, number>) => void
   onSubmitted: (job: AnalysisJob) => void
 }) {
+  const { locale } = useI18n()
+  const tx = (text: string) => interfaceDiagnostic(locale, text)
+
   const [capability, setCapability] = useState<unknown>(null)
   const [capabilityError, setCapabilityError] = useState('')
   const task = useImageAnalysisJob(asset.id, 'native_set_measurements', 'native-measure', jobs, onSubmitted)
@@ -28,11 +33,11 @@ export default function ImageNativeMeasureTask({ asset, availableAssets, indices
     return () => controller.abort()
   }, [])
   return <>
-    {task.job && <p role="status">原生测量：{task.job.state === 'queued' ? '排队中' : task.running ? '运行中'
-      : task.job.state === 'succeeded' ? '已完成' : task.job.state === 'cancelled' ? '已取消' : '失败'}</p>}
+    {task.job && <p role="status">{tx("原生测量：")}{task.job.state === 'queued' ? tx('排队中') : task.running ? tx('运行中')
+      : task.job.state === 'succeeded' ? tx('已完成') : task.job.state === 'cancelled' ? tx('已取消') : tx('失败')}</p>}
     <ImageNativeMeasurements draft={draft} onDraftChange={onDraftChange} capability={capability} asset={asset} availableAssets={availableAssets}
-      indices={indices} roi={roi} busy={task.busy} disabledReason={!validPlane ? '请先修正当前 C/Z/T 轴索引。' : undefined}
-      areaDisabledReason={!validSelection ? '请先修正工作台当前面积区域。' : undefined}
+      indices={indices} roi={roi} busy={task.busy} disabledReason={!validPlane ? tx('请先修正当前 C/Z/T 轴索引。') : undefined}
+      areaDisabledReason={!validSelection ? tx('请先修正工作台当前面积区域。') : undefined}
       error={capabilityError || task.error} result={task.job?.state === 'succeeded' ? task.job.result as NativeMeasureResult : null}
       renderRoiFiles={(selectedRoi, valid) => <ImageRoiFile asset={asset} indices={indices} roi={selectedRoi}
         valid={valid} busy={task.busy} jobs={jobs} onSubmitted={onSubmitted} onUse={(item) => {

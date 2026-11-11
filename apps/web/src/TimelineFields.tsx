@@ -1,3 +1,5 @@
+import { useI18n } from './i18n'
+import { workbenchText } from './workbenchEnglish'
 import type { TimelineInput } from './illustrationTimeline'
 
 type Props={value:TimelineInput;onChange:(value:TimelineInput)=>void;disabled?:boolean}
@@ -15,5 +17,8 @@ const fields:{key:keyof Omit<TimelineInput,'intervalGroup'>;label:string;hint:st
   {key:'intervalLabel',label:'干预名称',hint:'示例干预'},
 ]
 export default function TimelineFields({value,onChange,disabled=false}:Props){
-  return <div className="timeline-fields">{fields.map(field=><label key={field.key}>{field.label}<input value={value[field.key]} placeholder={field.hint} maxLength={120} disabled={disabled} onChange={event=>onChange({...value,[field.key]:event.target.value})}/></label>)}<label>干预所属组<select value={value.intervalGroup} disabled={disabled} onChange={event=>onChange({...value,intervalGroup:event.target.value as TimelineInput['intervalGroup']})}><option value="group_a">第一组</option><option value="group_b">第二组</option></select></label></div>
+  const { locale } = useI18n()
+  const ui = (text: string) => workbenchText(locale, text)
+
+  return <div className="timeline-fields">{fields.map(field=><label key={field.key}>{ui(field.label)}<input value={value[field.key]} placeholder={ui(field.hint)} maxLength={120} disabled={disabled} onChange={event=>onChange({...value,[field.key]:event.target.value})}/></label>)}<label>{ui("干预所属组")}<select value={value.intervalGroup} disabled={disabled} onChange={event=>onChange({...value,intervalGroup:event.target.value as TimelineInput['intervalGroup']})}><option value="group_a">{ui("第一组")}</option><option value="group_b">{ui("第二组")}</option></select></label></div>
 }

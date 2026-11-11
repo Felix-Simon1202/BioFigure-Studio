@@ -1,3 +1,5 @@
+import { useI18n } from './i18n'
+import { interfaceDiagnostic } from './interfaceDiagnostics'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ImageResultPreview from './ImageResultPreview'
 import ImageSourcePlanePreview from './ImageSourcePlanePreview'
@@ -111,6 +113,9 @@ async function responseError(response: Response, fallback: string): Promise<Erro
 }
 
 export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
+  const { locale } = useI18n()
+  const tx = (text: string) => interfaceDiagnostic(locale, text)
+
   const [runtime, setRuntime] = useState<Runtime | null>(null)
   const [inventory, setInventory] = useState<PluginInventory | null>(null)
   const [loading, setLoading] = useState(true)
@@ -618,14 +623,14 @@ export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
   const selected = visible.find((item) => item.id === selectedId) ?? visible[0] ?? null
   const counts = inventory?.counts ?? runtime?.counts ?? emptyCounts
   const runtimeLabel = runtime?.state === 'verified' ? '已完成运行核验' : runtime?.state === 'inventory_ready' ? '清单可浏览' : '引擎未就绪'
-  const jobLabel = (job: ImageJob) => job.source_label ?? (job.operation === 'exact_grid_batch' ? '批量原像素网格'
-    : job.operation === 'open_grid_project' ? '重开图像项目'
-    : job.operation === 'open_workspace_project' ? '恢复工作台项目'
-    : job.operation === 'invert_8bit' ? 'Fiji 8 位灰度反相'
-      : job.operation === 'measure_selection' ? 'Fiji 指定区域测量'
-      : job.operation === 'measure_roi_collection' ? '命名 ROI 集合逐项测量'
-      : job.operation === 'native_multi_measure' ? '原生 ROI Manager Multi Measure'
-    : job.operation === 'exact_grid' ? '原像素网格'
+  const jobLabel = (job: ImageJob) => job.source_label ?? (job.operation === 'exact_grid_batch' ? tx('批量原像素网格')
+    : job.operation === 'open_grid_project' ? tx('重开图像项目')
+    : job.operation === 'open_workspace_project' ? tx('恢复工作台项目')
+    : job.operation === 'invert_8bit' ? tx('Fiji 8 位灰度反相')
+      : job.operation === 'measure_selection' ? tx('Fiji 指定区域测量')
+      : job.operation === 'measure_roi_collection' ? tx('命名 ROI 集合逐项测量')
+      : job.operation === 'native_multi_measure' ? tx('原生 ROI Manager Multi Measure')
+    : job.operation === 'exact_grid' ? tx('原像素网格')
       : assets.find((asset) => asset.id === job.asset_id)?.original_name || job.asset_id.slice(0, 8))
   const jobDetails = (job: ImageJob) => {
     if (!job.result) return null
@@ -633,95 +638,95 @@ export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
       return <button type="button" disabled={!job.result.assets?.every((source) => assets.some((asset) => asset.id === source.id))} onClick={() => {
         requestedWorkspaceJobs.current.add(job.id); appliedWorkspaceJobs.current.delete(job.id)
         restoreWorkspaceState(job)
-      }}>恢复此项目状态</button>
+      }}>{tx("恢复此项目状态")}</button>
     }
     if (job.operation === 'open_grid_project') {
-      return <p>已重新检查 {job.result.assets?.length} 张源图并恢复拼版与独立标注。原图和成品已加入下方列表。</p>
+      return <p>{tx("已重新检查")}{job.result.assets?.length} {tx("张源图并恢复拼版与独立标注。原图和成品已加入下方列表。")}</p>
     }
     if (job.operation === 'exact_grid_batch') {
-      return <p>批量任务已完成；请在下方下载 ZIP 成品。</p>
+      return <p>{tx("批量任务已完成；请在下方下载 ZIP 成品。")}</p>
     }
     if (job.operation === 'exact_grid') {
-      return <p>{job.result.proof?.mode} · {job.result.proof?.width} × {job.result.proof?.height} · 已逐区域核验 {job.result.proof?.verified_pixels} 个源像素</p>
+      return <p>{job.result.proof?.mode} · {job.result.proof?.width} × {job.result.proof?.height} {tx("· 已逐区域核验")}{job.result.proof?.verified_pixels} {tx("个源像素")}</p>
     }
     if (job.operation === 'invert_8bit') {
-      return <p>{job.result.proof?.width} × {job.result.proof?.height} · 已逐像素核验 {job.result.proof?.verified_pixels} 个像素</p>
+      return <p>{job.result.proof?.width} × {job.result.proof?.height} {tx("· 已逐像素核验")}{job.result.proof?.verified_pixels} {tx("个像素")}</p>
     }
     if (job.operation === 'measure_selection') {
       return <MeasurementResult jobId={job.id} selection={job.selection}
         sampleCount={job.result.sample_count} statistics={job.result.imagej1_analyzer} />
     }
     if (job.operation === 'measure_roi_collection') {
-      return <p>按每项保存的 C/Z/T 平面使用原生 ImageJ1 Analyzer；结果请在上方命名 ROI 集合中查看与下载。</p>
+      return <p>{tx("按每项保存的 C/Z/T 平面使用原生 ImageJ1 Analyzer；结果请在上方命名 ROI 集合中查看与下载。")}</p>
     }
-    return <p>{job.result.pixel_type || '像素类型未知'} · {job.result.bit_depth ?? '?'} 位 · {job.result.axes?.map((axis) => `${axis.name} ${axis.length}${axis.unit ? ` ${axis.unit}` : ''}`).join(' × ') || '轴信息未知'}</p>
+    return <p>{job.result.pixel_type || tx('像素类型未知')} · {job.result.bit_depth ?? '?'} {tx("位 ·")}{job.result.axes?.map((axis) => `${axis.name} ${axis.length}${axis.unit ? ` ${axis.unit}` : ''}`).join(' × ') || tx('轴信息未知')}</p>
   }
 
   return (
-    <section className="iw" aria-label="图像工作台">
+    <section className="iw" aria-label={tx("图像工作台")}>
       <div className="iw-heading">
         <div>
-          <span className="wf-overline">IMAGE WORKSPACE / FIJI 插件</span>
-          <h1>图像工作台</h1>
-          <p>导入图像、选择区域、测量或拼版，文件与处理都留在本机。功能目录可按需展开查看。</p>
+          <span className="wf-overline">{tx("IMAGE WORKSPACE / FIJI 插件")}</span>
+          <h1>{tx("图像工作台")}</h1>
+          <p>{tx("导入图像、选择区域、测量或拼版，文件与处理都留在本机。功能目录可按需展开查看。")}</p>
         </div>
-        <button type="button" onClick={onBack}>← 返回作品类型</button>
+        <button type="button" onClick={onBack}>{tx("← 返回作品类型")}</button>
       </div>
 
       <div className="iw-runtime" role="status">
         <div className="iw-runtime-title"><span className={`iw-state-dot iw-state-${runtime?.state ?? 'unavailable'}`} />
-          <strong>{loading ? '正在读取本机图像清单' : error ? '本机图像清单不可用' : runtimeLabel}</strong>
-          <button type="button" onClick={() => void refresh()} disabled={loading || uploading}>刷新状态</button>
+          <strong>{loading ? tx('正在读取本机图像清单') : error ? tx('本机图像清单不可用') : tx(runtimeLabel)}</strong>
+          <button type="button" onClick={() => void refresh()} disabled={loading || uploading}>{tx("刷新状态")}</button>
         </div>
-        <p>{error || runtime?.message || '正在连接本机服务。'}</p>
-        {runtime?.snapshot_id && <small>发行快照：{runtime.snapshot_id}</small>}
+        <p>{tx(error || runtime?.message || '正在连接本机服务。')}</p>
+        {runtime?.snapshot_id && <small>{tx("发行快照：")}{runtime.snapshot_id}</small>}
       </div>
 
       <div className="iw-assets">
-        <div><h2>图像资源 <span>Local assets</span></h2><p>保留源文件字节与摘要。可用本机 Fiji 检查格式、位深、轴和标尺。</p></div>
-        <label className="iw-file-picker">{uploading ? '正在导入…' : '选择本机图像'}<input type="file" disabled={loading || uploading} onChange={(event) => {
+        <div><h2>{tx("图像资源")}<span>Local assets</span></h2><p>{tx("保留源文件字节与摘要。可用本机 Fiji 检查格式、位深、轴和标尺。")}</p></div>
+        <label className="iw-file-picker">{uploading ? tx('正在导入…') : tx('选择本机图像')}<input type="file" disabled={loading || uploading} onChange={(event) => {
           const file = event.target.files?.[0]
           if (file) void uploadAsset(file)
           event.target.value = ''
         }} /></label>
-        <label className="iw-file-picker">打开图像项目<input type="file" accept=".bfsimg,.bfswork" disabled={loading || uploading} onChange={(event) => {
+        <label className="iw-file-picker">{tx("打开图像项目")}<input type="file" accept=".bfsimg,.bfswork" disabled={loading || uploading} onChange={(event) => {
           const file = event.target.files?.[0]
           if (file) void openProject(file)
           event.target.value = ''
         }} /></label>
-        <button type="button" disabled={uploading || assets.length === 0} onClick={saveWorkspace}>保存工作台项目</button>
-        {assetMessage && <p className="iw-asset-message" role="status">{assetMessage}</p>}
-        {assets.length > 0 && <ul>{assets.map((asset) => <li key={asset.id}><label className="iw-asset-select"><input type="checkbox" checked={selectedAssets.includes(asset.id)} onChange={(event) => setSelectedAssets((current) => event.target.checked ? [...current, asset.id] : current.filter((id) => id !== asset.id))} /><strong>{asset.original_name}</strong></label><span>{(asset.bytes / 1024 ** 2).toFixed(1)} MiB · SHA-256 {asset.sha256.slice(0, 12)}… · {asset.metadata_status === 'fiji_inspected' ? `Fiji 已检 ${asset.bit_depth ?? '?'} 位` : '元数据待检'}</span><div className="iw-asset-actions"><button type="button" onClick={() => void inspectAsset(asset)}>Fiji 检查</button><button type="button" onClick={() => void invertAsset(asset)}>Fiji 反相（8 位灰度）</button><button type="button" onClick={() => void removeAsset(asset)}>移除</button></div></li>)}</ul>}
+        <button type="button" disabled={uploading || assets.length === 0} onClick={saveWorkspace}>{tx("保存工作台项目")}</button>
+        {assetMessage && <p className="iw-asset-message" role="status">{tx(assetMessage)}</p>}
+        {assets.length > 0 && <ul>{assets.map((asset) => <li key={asset.id}><label className="iw-asset-select"><input type="checkbox" checked={selectedAssets.includes(asset.id)} onChange={(event) => setSelectedAssets((current) => event.target.checked ? [...current, asset.id] : current.filter((id) => id !== asset.id))} /><strong>{asset.original_name}</strong></label><span>{(asset.bytes / 1024 ** 2).toFixed(1)} MiB · SHA-256 {asset.sha256.slice(0, 12)}… · {asset.metadata_status === 'fiji_inspected' ? tx(`Fiji 已检 ${asset.bit_depth ?? '?'} 位`) : tx('元数据待检')}</span><div className="iw-asset-actions"><button type="button" onClick={() => void inspectAsset(asset)}>{tx("Fiji 检查")}</button><button type="button" onClick={() => void invertAsset(asset)}>{tx("Fiji 反相（8 位灰度）")}</button><button type="button" onClick={() => void removeAsset(asset)}>{tx("移除")}</button></div></li>)}</ul>}
         {selectedMeasureAsset && <div className="iw-grid-controls">
-          <strong>区域与基础测量</strong>
-          <label>已检查图像 <select value={selectedMeasureAsset.id} onChange={(event) => {
+          <strong>{tx("区域与基础测量")}</strong>
+          <label>{tx("已检查图像")}<select value={selectedMeasureAsset.id} onChange={(event) => {
             setMeasureAssetId(event.target.value)
           }}>
             {measureCandidates.map((asset) => <option key={asset.id} value={asset.id}>{asset.original_name}</option>)}
           </select></label>
           {selectedMeasureAsset.axes?.filter((axis) => ['Channel', 'Z', 'Time'].includes(axis.name)).map((axis) => {
             const key = axis.name === 'Channel' ? 'C' : axis.name === 'Time' ? 'T' : 'Z'
-            return <label key={key}>{key} 索引（0–{axis.length - 1}）<input type="number" min="0" max={axis.length - 1}
+            return <label key={key}>{key} {tx("索引（0–")}{axis.length - 1}）<input type="number" min="0" max={axis.length - 1}
               value={measureIndices[key] ?? 0}
               onChange={(event) => setMeasureIndices((current) => ({ ...current, [key]: Number(event.target.value) }))} /></label>
           })}
-          <label><input type="checkbox" checked={measureUseRoi} onChange={(event) => setMeasureUseRoi(event.target.checked)} />使用 ROI</label>
+          <label><input type="checkbox" checked={measureUseRoi} onChange={(event) => setMeasureUseRoi(event.target.checked)} />{tx("使用 ROI")}</label>
           {measureUseRoi && <>
-            <label>形状 <select value={measureRoiKind} onChange={(event) => setMeasureRoiKind(event.target.value as 'rectangle' | 'ellipse' | 'polygon')}>
-              <option value="rectangle">矩形</option><option value="ellipse">椭圆</option><option value="polygon">多边形</option></select></label>
-            {measureRoiKind === 'polygon' ? <label>顶点（每行 x,y）<textarea value={measurePolygonText}
+            <label>{tx("形状")}<select value={measureRoiKind} onChange={(event) => setMeasureRoiKind(event.target.value as 'rectangle' | 'ellipse' | 'polygon')}>
+              <option value="rectangle">{tx("矩形")}</option><option value="ellipse">{tx("椭圆")}</option><option value="polygon">{tx("多边形")}</option></select></label>
+            {measureRoiKind === 'polygon' ? <label>{tx("顶点（每行 x,y）")}<textarea value={measurePolygonText}
               onChange={(event) => setMeasurePolygonText(event.target.value)} rows={4} /></label>
               : (['x', 'y', 'width', 'height'] as const).map((key) => <label key={key}>{key}<input type="number" min={key === 'x' || key === 'y' ? 0 : 1}
               value={measureRoi[key]} onChange={(event) => setMeasureRoi((current) => ({ ...current, [key]: Number(event.target.value) }))} /></label>)}
           </>}
-          {([['std_dev', '标准差'], ['median', '中位数'], ['mode', '众数灰度值'], ['integrated_density', '积分密度']] as const).map(([key, label]) =>
+          {([['std_dev', tx('标准差')], ['median', tx('中位数')], ['mode', tx('众数灰度值')], ['integrated_density', tx('积分密度')]] as const).map(([key, label]) =>
             <label key={key}><input type="checkbox" checked={measureExtras.includes(key)}
               onChange={(event) => setMeasureExtras((current) => event.target.checked
                 ? [...current, key] : current.filter((item) => item !== key))} />{label}</label>)}
-          <button type="button" disabled={!measureIndicesValid || !measureRoiValid} onClick={() => void measureAsset(selectedMeasureAsset)}>测量所选区域</button>
-          {!measureIndicesValid && <p role="status">轴索引超出已检查的范围；请修正后再测量。</p>}
-          {!measureRoiValid && <p role="status">ROI 超出已检查图像边界，或顶点未围成有效多边形。</p>}
-          <p>选定平面后，可在预览上圈出区域。基础测量包含面积、均值和极值。</p>
+          <button type="button" disabled={!measureIndicesValid || !measureRoiValid} onClick={() => void measureAsset(selectedMeasureAsset)}>{tx("测量所选区域")}</button>
+          {!measureIndicesValid && <p role="status">{tx("轴索引超出已检查的范围；请修正后再测量。")}</p>}
+          {!measureRoiValid && <p role="status">{tx("ROI 超出已检查图像边界，或顶点未围成有效多边形。")}</p>}
+          <p>{tx("选定平面后，可在预览上圈出区域。基础测量包含面积、均值和极值。")}</p>
           <ImageSourcePlanePreview key={`${selectedMeasureAsset.id}:${measureIndices.C}:${measureIndices.Z}:${measureIndices.T}`}
             assetId={selectedMeasureAsset.id} axes={selectedMeasureAsset.axes ?? []}
             bytes={selectedMeasureAsset.bytes} bitDepth={selectedMeasureAsset.bit_depth} indices={measureIndices}
@@ -729,7 +734,7 @@ export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
             onRoiChange={(next) => { setMeasureRoi(next); setMeasureUseRoi(true) }}
             onPointAdd={(point) => setMeasurePolygonText((current) => `${current.trim()}\n${point.x},${point.y}`)} />
           <details className="iw-measure-more">
-            <summary>区域集合</summary>
+            <summary>{tx("区域集合")}</summary>
             <ImageRoiCollection key={`${selectedMeasureAsset.id}:${workspaceRevision}`} assetId={selectedMeasureAsset.id}
             indices={measureSelectionIndices} roi={measureIndicesValid ? currentCollectionRoi : null}
             initialItems={roiCollectionsByAsset[selectedMeasureAsset.id] ?? []}
@@ -750,7 +755,7 @@ export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
 
           </details>
           <details className="iw-measure-more">
-            <summary>高级测量与 ROI 文件</summary>
+            <summary>{tx("高级测量与 ROI 文件")}</summary>
             <ImageNativeMeasureTask key={`native-${selectedMeasureAsset.id}:${workspaceRevision}`}
             asset={{ ...selectedMeasureAsset, axes: selectedMeasureAsset.axes ?? [] }}
             availableAssets={measureCandidates.map((asset) => ({ ...asset, axes: asset.axes ?? [] }))}
@@ -764,7 +769,7 @@ export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
 
           </details>
           <details className="iw-measure-more">
-            <summary>多区域与多平面测量</summary>
+            <summary>{tx("多区域与多平面测量")}</summary>
             <ImageMultiMeasureTask key={`multi-${selectedMeasureAsset.id}:${workspaceRevision}`}
             assetId={selectedMeasureAsset.id} currentPlane={measureSelectionIndices} validPlane={measureIndicesValid}
             collection={{ version: '1.0', source: { sha256: selectedMeasureAsset.sha256,
@@ -774,74 +779,74 @@ export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
 
           </details>
         </div>}
-        {assets.length > 0 && <div className="iw-grid-controls"><strong>原像素网格拼版</strong><label>列数 <input type="number" min="1" max={Math.max(1, selectedAssets.length)} value={Math.min(gridColumns, Math.max(1, selectedAssets.length))} onChange={(event) => setGridColumns(Number(event.target.value))} /></label><label>间距 px <input type="number" min="0" max="1000" value={gridGap} onChange={(event) => setGridGap(Number(event.target.value))} /></label><button type="button" onClick={() => void createGrid()} disabled={selectedAssets.length === 0}>生成并核验 TIFF</button><p>仅支持相同像素模式的单帧图像；不缩放、不插值。一致且已核验的 X/Y 标定会写入 TIFF；混合或缺失标定时不设置统一标尺。完整元数据往返仍待核验。</p></div>}
-        {jobs.length > 0 && <div className="iw-jobs"><h3>本机任务</h3>{jobs.map((job) => <div key={job.id} className="iw-job"><strong>{jobLabel(job)}</strong><span>{job.state === 'queued' ? '排队中' : job.state === 'running' ? '运行中' : job.state === 'succeeded' ? '已完成' : job.state === 'cancelled' ? '已取消' : job.state === 'failed' ? '失败' : job.state}{job.progress != null ? ` · ${Math.round(job.progress * 100)}%` : ''}</span>{(job.state === 'queued' || job.state === 'running') && <button type="button" onClick={() => void cancelJob(job)}>取消</button>}{job.error && <p>{job.error}</p>}{jobDetails(job)}</div>)}</div>}
-        {results.length > 0 && <div className="iw-results-download"><h3>成品 TIFF</h3>{results.map((result) => <div key={result.id}><span>{result.proof.command ? 'Fiji 反相 · 8 位灰度' : result.proof.mode} · {result.proof.width} × {result.proof.height} · SHA-256 {result.sha256.slice(0, 12)}…</span><a href={`/api/image/results/${result.id}/file`} download={result.filename}>下载</a>{result.proof.grid_recipe && <a href={`/api/image/results/${result.id}/project`} download={`biofigure-grid-${result.id.slice(0, 8)}.bfsimg`}>保存项目包</a>}<button type="button" onClick={() => void deleteResult(result)}>移除</button></div>)}</div>}
+        {assets.length > 0 && <div className="iw-grid-controls"><strong>{tx("原像素网格拼版")}</strong><label>{tx("列数")}<input type="number" min="1" max={Math.max(1, selectedAssets.length)} value={Math.min(gridColumns, Math.max(1, selectedAssets.length))} onChange={(event) => setGridColumns(Number(event.target.value))} /></label><label>{tx("间距 px")}<input type="number" min="0" max="1000" value={gridGap} onChange={(event) => setGridGap(Number(event.target.value))} /></label><button type="button" onClick={() => void createGrid()} disabled={selectedAssets.length === 0}>{tx("生成并核验 TIFF")}</button><p>{tx("仅支持相同像素模式的单帧图像；不缩放、不插值。一致且已核验的 X/Y 标定会写入 TIFF；混合或缺失标定时不设置统一标尺。完整元数据往返仍待核验。")}</p></div>}
+        {jobs.length > 0 && <div className="iw-jobs"><h3>{tx("本机任务")}</h3>{jobs.map((job) => <div key={job.id} className="iw-job"><strong>{jobLabel(job)}</strong><span>{job.state === 'queued' ? tx('排队中') : job.state === 'running' ? tx('运行中') : job.state === 'succeeded' ? tx('已完成') : job.state === 'cancelled' ? tx('已取消') : job.state === 'failed' ? tx('失败') : job.state === 'waiting_for_interaction' ? tx('等待交互') : tx('已中断')}{job.progress != null ? ` · ${Math.round(job.progress * 100)}%` : ''}</span>{(job.state === 'queued' || job.state === 'running') && <button type="button" onClick={() => void cancelJob(job)}>{tx("取消")}</button>}{job.error && <p>{tx(job.error)}</p>}{jobDetails(job)}</div>)}</div>}
+        {results.length > 0 && <div className="iw-results-download"><h3>{tx("成品 TIFF")}</h3>{results.map((result) => <div key={result.id}><span>{result.proof.command ? tx('Fiji 反相 · 8 位灰度') : result.proof.mode} · {result.proof.width} × {result.proof.height} · SHA-256 {result.sha256.slice(0, 12)}…</span><a href={`/api/image/results/${result.id}/file`} download={result.filename}>{tx("下载")}</a>{result.proof.grid_recipe && <a href={`/api/image/results/${result.id}/project`} download={`biofigure-grid-${result.id.slice(0, 8)}.bfsimg`}>{tx("保存项目包")}</a>}<button type="button" onClick={() => void deleteResult(result)}>{tx("移除")}</button></div>)}</div>}
         {selectedResult && <ImageResultPreview key={selectedResult.id} id={selectedResult.id} width={selectedResult.proof.width} height={selectedResult.proof.height} hasAnnotations={annotations.length > 0} revision={annotationRevision} />}
-        {selectedResult && <div className="iw-annotations"><div><h3>独立标注层</h3><p>文字、编号与比例尺作为透明 SVG 保存；下载原像素 TIFF 时不写入标注。</p></div><label>成品 <select value={selectedResult.id} onChange={(event) => setAnnotationResultId(event.target.value)}>{gridResults.map((result) => <option key={result.id} value={result.id}>{result.filename}</option>)}</select></label><label>类型 <select value={annotationKind} onChange={(event) => setAnnotationKind(event.target.value as 'text' | 'number' | 'scale_bar')}><option value="text">文字</option><option value="number">编号</option><option value="scale_bar">比例尺</option></select></label>{annotationKind === 'scale_bar' ? <><label>图块 <select value={barAssetId || selectedResult.proof.placements?.[0]?.asset_id || ''} onChange={(event) => setBarAssetId(event.target.value)}>{selectedResult.proof.placements?.map((placement) => <option key={placement.asset_id} value={placement.asset_id}>{assets.find((asset) => asset.id === placement.asset_id)?.original_name || placement.asset_id.slice(0, 8)}</option>)}</select></label><label>标尺长度 µm <input type="number" min="0.001" step="any" value={barLengthUm} onChange={(event) => setBarLengthUm(Number(event.target.value))} /></label><label>标定来源 <select value={barCalibrationSource} onChange={(event) => setBarCalibrationSource(event.target.value as 'user_explicit' | 'fiji_inspected_axes')}><option value="user_explicit">手动填写</option><option value="fiji_inspected_axes">使用已核验图块标定</option></select></label>{barCalibrationSource === 'user_explicit' && <label>X 轴 µm/px <input type="number" min="0.000001" step="any" value={barScaleUm} onChange={(event) => setBarScaleUm(Number(event.target.value))} /></label>}</> : <><label>{annotationKind === 'number' ? '编号' : '文字'} <input value={annotationText} maxLength={80} onChange={(event) => setAnnotationText(event.target.value)} /></label><label>字号 px <input type="number" min="8" max="96" value={annotationFont} onChange={(event) => setAnnotationFont(Number(event.target.value))} /></label></>}<label>{annotationKind === 'scale_bar' ? '图块内 X' : 'X'} <input type="number" min="0" value={annotationX} onChange={(event) => setAnnotationX(Number(event.target.value))} /></label><label>{annotationKind === 'scale_bar' ? '图块内 Y' : 'Y'} <input type="number" min="0" value={annotationY} onChange={(event) => setAnnotationY(Number(event.target.value))} /></label><label>颜色 <input type="color" value={annotationColor} onChange={(event) => setAnnotationColor(event.target.value)} /></label><div className="iw-annotation-actions"><button type="button" onClick={addAnnotation}>添加标注</button><button type="button" onClick={() => void saveAnnotations([])} disabled={annotations.length === 0}>清空标注</button>{annotations.length > 0 && <><a href={`/api/image/results/${selectedResult.id}/annotations.svg`} download={`biofigure-annotations-${selectedResult.id.slice(0, 8)}.svg`}>下载 SVG（{annotations.length} 项）</a><a href={`/api/image/results/${selectedResult.id}/annotations.json`} download={`biofigure-annotations-${selectedResult.id.slice(0, 8)}.json`}>下载参数 JSON</a></>}</div>{annotationKind === 'scale_bar' && <p className="iw-annotation-note">可使用所选图块已核验的 X 轴物理标定；缺少标定时请手动填写真实 µm/px。系统不从 DPI 推测科研尺度。</p>}</div>}
+        {selectedResult && <div className="iw-annotations"><div><h3>{tx("独立标注层")}</h3><p>{tx("文字、编号与比例尺作为透明 SVG 保存；下载原像素 TIFF 时不写入标注。")}</p></div><label>{tx("成品")}<select value={selectedResult.id} onChange={(event) => setAnnotationResultId(event.target.value)}>{gridResults.map((result) => <option key={result.id} value={result.id}>{result.filename}</option>)}</select></label><label>{tx("类型")}<select value={annotationKind} onChange={(event) => setAnnotationKind(event.target.value as 'text' | 'number' | 'scale_bar')}><option value="text">{tx("文字")}</option><option value="number">{tx("编号")}</option><option value="scale_bar">{tx("比例尺")}</option></select></label>{annotationKind === 'scale_bar' ? <><label>{tx("图块")}<select value={barAssetId || selectedResult.proof.placements?.[0]?.asset_id || ''} onChange={(event) => setBarAssetId(event.target.value)}>{selectedResult.proof.placements?.map((placement) => <option key={placement.asset_id} value={placement.asset_id}>{assets.find((asset) => asset.id === placement.asset_id)?.original_name || placement.asset_id.slice(0, 8)}</option>)}</select></label><label>{tx("标尺长度 µm")}<input type="number" min="0.001" step="any" value={barLengthUm} onChange={(event) => setBarLengthUm(Number(event.target.value))} /></label><label>{tx("标定来源")}<select value={barCalibrationSource} onChange={(event) => setBarCalibrationSource(event.target.value as 'user_explicit' | 'fiji_inspected_axes')}><option value="user_explicit">{tx("手动填写")}</option><option value="fiji_inspected_axes">{tx("使用已核验图块标定")}</option></select></label>{barCalibrationSource === 'user_explicit' && <label>{tx("X 轴 µm/px")}<input type="number" min="0.000001" step="any" value={barScaleUm} onChange={(event) => setBarScaleUm(Number(event.target.value))} /></label>}</> : <><label>{annotationKind === 'number' ? tx('编号') : tx('文字')} <input value={annotationText} maxLength={80} onChange={(event) => setAnnotationText(event.target.value)} /></label><label>{tx("字号 px")}<input type="number" min="8" max="96" value={annotationFont} onChange={(event) => setAnnotationFont(Number(event.target.value))} /></label></>}<label>{annotationKind === 'scale_bar' ? tx('图块内 X') : 'X'} <input type="number" min="0" value={annotationX} onChange={(event) => setAnnotationX(Number(event.target.value))} /></label><label>{annotationKind === 'scale_bar' ? tx('图块内 Y') : 'Y'} <input type="number" min="0" value={annotationY} onChange={(event) => setAnnotationY(Number(event.target.value))} /></label><label>{tx("颜色")}<input type="color" value={annotationColor} onChange={(event) => setAnnotationColor(event.target.value)} /></label><div className="iw-annotation-actions"><button type="button" onClick={addAnnotation}>{tx("添加标注")}</button><button type="button" onClick={() => void saveAnnotations([])} disabled={annotations.length === 0}>{tx("清空标注")}</button>{annotations.length > 0 && <><a href={`/api/image/results/${selectedResult.id}/annotations.svg`} download={`biofigure-annotations-${selectedResult.id.slice(0, 8)}.svg`}>{tx("下载 SVG（")}{annotations.length} {tx("项）")}</a><a href={`/api/image/results/${selectedResult.id}/annotations.json`} download={`biofigure-annotations-${selectedResult.id.slice(0, 8)}.json`}>{tx("下载参数 JSON")}</a></>}</div>{annotationKind === 'scale_bar' && <p className="iw-annotation-note">{tx("可使用所选图块已核验的 X 轴物理标定；缺少标定时请手动填写真实 µm/px。系统不从 DPI 推测科研尺度。")}</p>}</div>}
       </div>
 
       <div className="iw-batch">
-        <div><h2>批量原像素网格</h2><p>按文件选择顺序分组；每组独立生成 TIFF，最终 ZIP 含逐组核验清单。批量输入使用独立的容量限额；上方交互资源仍限 8 张。</p></div>
-        <label className="iw-file-picker">{batchUploading ? '正在导入…' : '选择批量图像'}<input type="file" multiple disabled={batchUploading} onChange={(event) => {
+        <div><h2>{tx("批量原像素网格")}</h2><p>{tx("按文件选择顺序分组；每组独立生成 TIFF，最终 ZIP 含逐组核验清单。批量输入使用独立的容量限额；上方交互资源仍限 8 张。")}</p></div>
+        <label className="iw-file-picker">{batchUploading ? tx('正在导入…') : tx('选择批量图像')}<input type="file" multiple disabled={batchUploading} onChange={(event) => {
           setBatchFiles(Array.from(event.target.files ?? []))
           event.target.value = ''
         }} /></label>
-        <div className="iw-batch-controls"><span>{batchFiles.length} 张已选择</span><label>每组张数 <input type="number" min="1" max="8" value={batchGroupSize} onChange={(event) => setBatchGroupSize(Math.max(1, Math.min(8, Number(event.target.value) || 1)))} /></label><label>列数 <input type="number" min="1" max={batchGroupSize} value={Math.min(batchColumns, batchGroupSize)} onChange={(event) => setBatchColumns(Math.max(1, Math.min(batchGroupSize, Number(event.target.value) || 1)))} /></label><label>间距 px <input type="number" min="0" max="1000" value={batchGap} onChange={(event) => setBatchGap(Number(event.target.value))} /></label><button type="button" disabled={batchUploading || batchFiles.length === 0} onClick={() => void createBatch()}>开始批量拼版</button></div>
-        {batchFiles.length > 0 && <p className="iw-batch-file-list">{batchFiles.slice(0, 12).map((file) => file.name).join(' · ')}{batchFiles.length > 12 ? ` · 等 ${batchFiles.length} 张` : ''}</p>}
-        {batchResults.length > 0 && <div className="iw-results-download"><h3>批量 ZIP 成品</h3>{batchResults.map((result) => <div key={result.id}><span>{result.proof.group_count} 组 / {result.proof.source_count} 张 · SHA-256 {result.sha256.slice(0, 12)}…</span><a href={`/api/image/batch-results/${result.id}/file`} download={result.filename}>下载 ZIP</a><button type="button" onClick={() => void deleteBatchResult(result)}>移除</button></div>)}</div>}
+        <div className="iw-batch-controls"><span>{batchFiles.length} {tx("张已选择")}</span><label>{tx("每组张数")}<input type="number" min="1" max="8" value={batchGroupSize} onChange={(event) => setBatchGroupSize(Math.max(1, Math.min(8, Number(event.target.value) || 1)))} /></label><label>{tx("列数")}<input type="number" min="1" max={batchGroupSize} value={Math.min(batchColumns, batchGroupSize)} onChange={(event) => setBatchColumns(Math.max(1, Math.min(batchGroupSize, Number(event.target.value) || 1)))} /></label><label>{tx("间距 px")}<input type="number" min="0" max="1000" value={batchGap} onChange={(event) => setBatchGap(Number(event.target.value))} /></label><button type="button" disabled={batchUploading || batchFiles.length === 0} onClick={() => void createBatch()}>{tx("开始批量拼版")}</button></div>
+        {batchFiles.length > 0 && <p className="iw-batch-file-list">{batchFiles.slice(0, 12).map((file) => file.name).join(' · ')}{batchFiles.length > 12 ? tx(` · 等 ${batchFiles.length} 张`) : ''}</p>}
+        {batchResults.length > 0 && <div className="iw-results-download"><h3>{tx("批量 ZIP 成品")}</h3>{batchResults.map((result) => <div key={result.id}><span>{result.proof.group_count} {tx("组 /")}{result.proof.source_count} {tx("张 · SHA-256")}{result.sha256.slice(0, 12)}…</span><a href={`/api/image/batch-results/${result.id}/file`} download={result.filename}>{tx("下载 ZIP")}</a><button type="button" onClick={() => void deleteBatchResult(result)}>{tx("移除")}</button></div>)}</div>}
       </div>
 
-      <button type="button" aria-expanded={showCatalog} onClick={() => { setCatalogError(''); setShowCatalog((shown) => !shown) }}>{showCatalog ? '收起功能目录' : '浏览功能目录与接入进度'}</button>
-      {showCatalog && !inventory && <p role="status">{catalogError || '正在读取功能目录…'}</p>}
+      <button type="button" aria-expanded={showCatalog} onClick={() => { setCatalogError(''); setShowCatalog((shown) => !shown) }}>{showCatalog ? tx('收起功能目录') : tx('浏览功能目录与接入进度')}</button>
+      {showCatalog && !inventory && <p role="status">{tx(catalogError || '正在读取功能目录…')}</p>}
       {showCatalog && inventory && <>
-      <div className="iw-counts" aria-label="插件接入进度">
-        {statusLabels.map(({ key, label }) => <div key={key}><strong>{counts[key] ?? 0}</strong><span>{label}</span></div>)}
+      <div className="iw-counts" aria-label={tx("插件接入进度")}>
+        {statusLabels.map(({ key, label }) => <div key={key}><strong>{counts[key] ?? 0}</strong><span>{tx(label)}</span></div>)}
       </div>
 
       <div className="iw-browser">
-        <aside className="iw-categories" aria-label="图像功能分类">
-          <h2>功能分类 <span>Categories</span></h2>
-          <button className={category === 'all' ? 'active' : ''} onClick={() => setCategory('all')}>全部命令 <span>{items.length}</span></button>
+        <aside className="iw-categories" aria-label={tx("图像功能分类")}>
+          <h2>{tx("功能分类")}<span>Categories</span></h2>
+          <button className={category === 'all' ? 'active' : ''} onClick={() => setCategory('all')}>{tx("全部命令")}<span>{items.length}</span></button>
           {categories.map((entry) => <button key={entry.id} className={category === entry.id ? 'active' : ''} onClick={() => setCategory(entry.id)}>
-            <span>{entry.label}<small>{entry.en}</small></span><span>{categoryCounts[entry.id] ?? 0}</span>
+            <span>{tx(entry.label)}{locale === 'zh-CN' && <small>{entry.en}</small>}</span><span>{categoryCounts[entry.id] ?? 0}</span>
           </button>)}
-          {(categoryCounts.other ?? 0) > 0 && <button className={category === 'other' ? 'active' : ''} onClick={() => setCategory('other')}>待归类 <span>{categoryCounts.other}</span></button>}
+          {(categoryCounts.other ?? 0) > 0 && <button className={category === 'other' ? 'active' : ''} onClick={() => setCategory('other')}>{tx("待归类")}<span>{categoryCounts.other}</span></button>}
         </aside>
 
         <div className="iw-results">
           <div className="iw-search">
-            <label htmlFor="iw-command-search">检索原命令、菜单或来源</label>
+            <label htmlFor="iw-command-search">{tx("检索原命令、菜单或来源")}</label>
             <input id="iw-command-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search commands / menus" />
-            <span>{filtered.length} 项</span>
+            <span>{filtered.length} {tx("项")}</span>
           </div>
           <div className="iw-command-layout">
-            <div className="iw-command-list" aria-label="命令清单">
+            <div className="iw-command-list" aria-label={tx("命令清单")}>
               {visible.map((item) => <button key={item.id} className={selected?.id === item.id ? 'active' : ''} onClick={() => setSelectedId(item.id)}>
                 <strong>{item.label}</strong><small>{item.menu_path || item.id}</small>
-                <span>{item.status?.parity_verified ? '功能已核验' : item.status?.ui_adapted ? '界面已适配' : item.status?.runtime_verified ? '运行已验' : '盘点中'}</span>
+                <span>{item.status?.parity_verified ? tx('功能已核验') : item.status?.ui_adapted ? tx('界面已适配') : item.status?.runtime_verified ? tx('运行已验') : tx('盘点中')}</span>
               </button>)}
-              {filtered.length > 250 && <p className="iw-empty">仅显示前 250 项；可用搜索和分类缩小范围，完整清单仍保存在本机。</p>}
-              {!loading && filtered.length === 0 && <p className="iw-empty">{items.length === 0 ? '尚无已盘点的运行时命令。' : '没有符合当前筛选条件的命令。'}</p>}
+              {filtered.length > 250 && <p className="iw-empty">{tx("仅显示前 250 项；可用搜索和分类缩小范围，完整清单仍保存在本机。")}</p>}
+              {!loading && filtered.length === 0 && <p className="iw-empty">{items.length === 0 ? tx('尚无已盘点的运行时命令。') : tx('没有符合当前筛选条件的命令。')}</p>}
             </div>
             <div className="iw-detail">
               {selected ? <>
                 <span className="wf-overline">ORIGINAL COMMAND</span>
                 <h2>{selected.label}</h2>
                 <dl>
-                  <div><dt>原命令 ID</dt><dd>{selected.original_identifier || '尚未记录'}</dd></div>
-                  <div><dt>清单记录 ID</dt><dd>{selected.id}</dd></div>
-                  <div><dt>原菜单位置</dt><dd>{selected.menu_path || '未记录'}</dd></div>
-                  <div><dt>命令类型</dt><dd>{selected.kind || '未记录'}</dd></div>
-                  <div><dt>来源</dt><dd>{selected.source || '未记录'}</dd></div>
-                  <div><dt>参数</dt><dd>{Array.isArray(selected.parameters) ? `${selected.parameters.length} 项已发现` : '尚未盘点'}</dd></div>
-                  {selected.adapter_scope && <div><dt>已接入范围</dt><dd>{selected.adapter_scope}</dd></div>}
+                  <div><dt>{tx("原命令 ID")}</dt><dd>{selected.original_identifier || tx('尚未记录')}</dd></div>
+                  <div><dt>{tx("清单记录 ID")}</dt><dd>{selected.id}</dd></div>
+                  <div><dt>{tx("原菜单位置")}</dt><dd>{selected.menu_path || tx('未记录')}</dd></div>
+                  <div><dt>{tx("命令类型")}</dt><dd>{selected.kind || tx('未记录')}</dd></div>
+                  <div><dt>{tx("来源")}</dt><dd>{selected.source || tx('未记录')}</dd></div>
+                  <div><dt>{tx("参数")}</dt><dd>{Array.isArray(selected.parameters) ? tx(`${selected.parameters.length} 项已发现`) : tx('尚未盘点')}</dd></div>
+                  {selected.adapter_scope && <div><dt>{tx("已接入范围")}</dt><dd>{selected.adapter_scope}</dd></div>}
                 </dl>
-                <div className="iw-checklist" aria-label="命令核验状态">
-                  {statusLabels.map(({ key, label }) => <span key={key} className={selected.status?.[key] ? 'done' : ''}>{selected.status?.[key] ? '✓' : '○'} {label}</span>)}
+                <div className="iw-checklist" aria-label={tx("命令核验状态")}>
+                  {statusLabels.map(({ key, label }) => <span key={key} className={selected.status?.[key] ? 'done' : ''}>{selected.status?.[key] ? '✓' : '○'} {tx(label)}</span>)}
                 </div>
-                <p className="iw-detail-note">当前页面显示命令清单与核验状态。执行入口需在参数、交互和产物核验接通后逐项开放。</p>
-              </> : <div className="iw-empty">选择命令后查看其来源和核验状态。</div>}
+                <p className="iw-detail-note">{tx("当前页面显示命令清单与核验状态。执行入口需在参数、交互和产物核验接通后逐项开放。")}</p>
+              </> : <div className="iw-empty">{tx("选择命令后查看其来源和核验状态。")}</div>}
             </div>
           </div>
         </div>

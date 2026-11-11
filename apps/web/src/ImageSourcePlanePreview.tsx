@@ -1,3 +1,5 @@
+import { useI18n } from './i18n'
+import { interfaceDiagnostic } from './interfaceDiagnostics'
 import { useRef, useState, type PointerEvent } from 'react'
 import ImagePlaneCanvas from './ImagePlaneCanvas'
 
@@ -17,6 +19,9 @@ export default function ImageSourcePlanePreview({ assetId, axes, bytes, bitDepth
   onRoiChange: (next: Region) => void
   onPointAdd: (point: { x: number; y: number }) => void
 }) {
+  const { locale } = useI18n()
+  const tx = (text: string) => interfaceDiagnostic(locale, text)
+
   const width = axes.find((axis) => axis.name === 'X')?.length ?? 0
   const height = axes.find((axis) => axis.name === 'Y')?.length ?? 0
   const [draft, setDraft] = useState<Region | null>(null)
@@ -38,7 +43,7 @@ export default function ImageSourcePlanePreview({ assetId, axes, bytes, bitDepth
 
   const shown = draft ?? (useRoi ? roi : null)
   return <><ImagePlaneCanvas assetId={assetId} axes={axes} bytes={bytes} bitDepth={bitDepth} indices={indices}
-    overlay={() => <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label={roiKind === 'polygon' ? '点击添加多边形顶点' : `拖动选择${roiKind === 'ellipse' ? '椭圆' : '矩形'} ROI`}
+    overlay={() => <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label={roiKind === 'polygon' ? tx('点击添加多边形顶点') : tx(`拖动选择${roiKind === 'ellipse' ? '椭圆' : '矩形'} ROI`)}
         onPointerDown={(event) => {
           if (event.button !== 0 || !event.isPrimary) return
           if (roiKind === 'polygon') { onPointAdd(point(event)); return }
@@ -63,6 +68,6 @@ export default function ImageSourcePlanePreview({ assetId, axes, bytes, bitDepth
             rx={shown.width / 2} ry={shown.height / 2} />
           : <rect x={shown.x} y={shown.y} width={shown.width} height={shown.height} />)}
       </svg>} />
-    <p>{roiKind === 'polygon' ? '在图像上点击可追加顶点；也可编辑上方坐标。' : `在图像上拖动即可填写${roiKind === 'ellipse' ? '椭圆' : '矩形'} ROI。`}边框仅供定位，测量按原生 ImageJ 像素掩膜取样。</p>
+    <p>{roiKind === 'polygon' ? tx('在图像上点击可追加顶点；也可编辑上方坐标。') : tx(`在图像上拖动即可填写${roiKind === 'ellipse' ? '椭圆' : '矩形'} ROI。`)}{tx("边框仅供定位，测量按原生 ImageJ 像素掩膜取样。")}</p>
   </>
 }

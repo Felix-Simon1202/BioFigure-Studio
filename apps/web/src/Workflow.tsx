@@ -5,8 +5,10 @@ import ImageWorkspace from './ImageWorkspace'
 import DrawingWorkbench, { type ExternalDraft, type WorkbenchConnection, type WorkbenchProposal, type WorkbenchProvider } from './DrawingWorkbench'
 import type { DocumentKind, IllustrationSpec } from './illustration'
 import { EcologyPreview, OmicsPreview } from './WorkflowPreviews'
-import { ecologyDirections, omicsDirections, spatialKinds, type EcologyDirection, type OmicsDirection } from './WorkflowCatalog'
+import { getWorkflowCatalog, type EcologyDirection, type OmicsDirection } from './WorkflowCatalog'
 import './WorkflowPrototype.css'
+import { useI18n, translate } from './i18n'
+import LanguageSettings from './LanguageSettings'
 
 type SvgTextMode = 'outline' | 'editable'
 type Mode = 'table' | 'single_cell' | 'omics' | 'ecology'
@@ -115,25 +117,9 @@ type Figure = {
   dpi: number
 }
 type RenderArtifact = { type: 'renders' | 'figures'; id: string; formats: string[] }
-const tableKinds: Record<string, string> = {
-  scatter: '散点图',
-  bar: '柱状图',
-  line: '折线图',
-  box: '箱线图',
-  heatmap: '热图',
-}
-const singleKinds: Record<string, string> = {
-  embedding_categorical: 'UMAP / t-SNE 分类',
-  embedding_continuous: 'UMAP / t-SNE 连续值',
-  feature: 'Feature Plot',
-  violin: '小提琴图',
-  dotplot: 'Dot Plot',
-}
-const themes: Record<string, string> = {
-  scientific_clear: '科研清晰',
-  modern_soft: '现代柔和',
-  high_contrast: '高对比',
-}
+
+
+
 const palettes: Record<string, string[]> = {
   scientific_clear: ['#2374ab', '#d05a3b', '#3e8e72'],
   modern_soft: ['#5f8f9b', '#d6806c', '#9eae79'],
@@ -146,19 +132,9 @@ const palettes: Record<string, string[]> = {
   magma: ['#000004', '#b73779', '#fcfdbf'],
   coolwarm: ['#3b4cc0', '#dddcdc', '#b40426'],
 }
-const paletteLabels: Record<string, string> = {
-  theme: '跟随主题', colorblind: '高辨识分类色', viridis: 'Viridis 连续色', cividis: 'Cividis 连续色',
-  magma: 'Magma 连续色', coolwarm: 'Coolwarm 发散色', clay: '陶土 / Clay', lagoon: '湖湾 / Lagoon',
-}
-const chartMeasureLabels: Record<string, string> = {
-  width_mm: '图表宽度（mm）', height_mm: '图表高度（mm）', dpi: '分辨率（DPI）',
-  font_size: '字体大小（pt）', line_width: '线条宽度（pt）',
-}
-const figureMeasureLabels: Record<string, string> = {
-  width_mm: '图版宽度（mm）', height_mm: '图版高度（mm）',
-  margin_top_mm: '上边距（mm）', margin_right_mm: '右边距（mm）', margin_bottom_mm: '下边距（mm）', margin_left_mm: '左边距（mm）',
-  panel_gap_mm: '子图间距（mm）', label_font_size: '标签字号（pt）', dpi: '分辨率（DPI）',
-}
+
+
+
 const initial: Chart = {
   spec_version: '1.2',
   dataset_id: '',
@@ -218,7 +194,7 @@ async function request(path: string, signal: AbortSignal, body?: unknown, file?:
   })
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
-    throw new Error(typeof error.detail === 'string' ? error.detail : `请求失败（${response.status}），请检查文件、字段和参数。`)
+    throw new Error(typeof error.detail === 'string' ? error.detail : translate('en', `请求失败（${response.status}），请检查文件、字段和参数。`, `Request failed (${response.status}). Check the file, fields, and settings.`))
   }
   return response
 }
@@ -237,31 +213,73 @@ function dataImage(blob: Blob): Promise<string> {
   })
 }
 function SvgTextPicker({ value, onChange }: { value?: SvgTextMode; onChange: (value: SvgTextMode) => void }) {
+  const { t } = useI18n()
   return (
     <label>
-      SVG 文字
-      <select value={value ?? 'outline'} onChange={(event) => onChange(event.target.value === 'editable' ? 'editable' : 'outline')}>
-        <option value="outline">转为路径（保持外观）</option>
-        <option value="editable">保留文字（便于外部编辑）</option>
+      {t("SVG 文字", "SVG text")}<select value={value ?? 'outline'} onChange={(event) => onChange(event.target.value === 'editable' ? 'editable' : 'outline')}>
+        <option value="outline">{t("转为路径（保持外观）", "Convert to paths (preserve appearance)")}</option>
+        <option value="editable">{t("保留文字（便于外部编辑）", "Keep editable text")}</option>
       </select>
     </label>
   )
 }
 function FormatPicker({ value, onChange, tiff = false }: { value: string; onChange: (v: string) => void; tiff?: boolean }) {
+  const { t } = useI18n()
   return (
     <label>
-      导出格式
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
+      {t("导出格式", "Export format")}<select value={value} onChange={(e) => onChange(e.target.value)}>
         <option value="pdf">PDF</option>
         <option value="svg">SVG</option>
         <option value="png">PNG</option>
-        {tiff && <option value="tiff">TIFF（无损栅格）</option>}
+        {tiff && <option value="tiff">{t("TIFF（无损栅格）", "TIFF (lossless raster)")}</option>}
       </select>
     </label>
   )
 }
 
 export default function Workflow() {
+  const { t } = useI18n()
+  const { ecologyDirections, omicsDirections, spatialKinds } = getWorkflowCatalog(t)
+  const [languageSettingsOpen, setLanguageSettingsOpen] = useState(false)
+  const languageDialog = useRef<HTMLDialogElement>(null)
+  useEffect(() => {
+    const dialog = languageDialog.current
+    if (languageSettingsOpen && dialog && !dialog.open) dialog.showModal()
+    else if (!languageSettingsOpen && dialog?.open) dialog.close()
+  }, [languageSettingsOpen])
+const tableKinds: Record<string, string> = {
+  scatter: t("散点图", "Scatter plot"),
+  bar: t("柱状图", "Bar chart"),
+  line: t("折线图", "Line chart"),
+  box: t("箱线图", "Box plot"),
+  heatmap: t("热图", "Heatmap"),
+}
+const singleKinds: Record<string, string> = {
+  embedding_categorical: t("UMAP / t-SNE 分类", "UMAP / t-SNE categories"),
+  embedding_continuous: t("UMAP / t-SNE 连续值", "UMAP / t-SNE continuous values"),
+  feature: 'Feature Plot',
+  violin: t("小提琴图", "Violin plot"),
+  dotplot: 'Dot Plot',
+}
+const themes: Record<string, string> = {
+  scientific_clear: t("科研清晰", "Scientific Clear"),
+  modern_soft: t("现代柔和", "Modern Soft"),
+  high_contrast: t("高对比", "High Contrast"),
+}
+const paletteLabels: Record<string, string> = {
+  theme: t("跟随主题", "Use theme colors"), colorblind: t("高辨识分类色", "Distinct categorical colors"), viridis: t("Viridis 连续色", "Viridis sequential"), cividis: t("Cividis 连续色", "Cividis sequential"),
+  magma: t("Magma 连续色", "Magma sequential"), coolwarm: t("Coolwarm 发散色", "Coolwarm diverging"), clay: t("陶土 / Clay", "Clay"), lagoon: t("湖湾 / Lagoon", "Lagoon"),
+}
+const chartMeasureLabels: Record<string, string> = {
+  width_mm: t("图表宽度（mm）", "Chart width (mm)"), height_mm: t("图表高度（mm）", "Chart height (mm)"), dpi: t("分辨率（DPI）", "Resolution (DPI)"),
+  font_size: t("字体大小（pt）", "Font size (pt)"), line_width: t("线条宽度（pt）", "Line width (pt)"),
+}
+const figureMeasureLabels: Record<string, string> = {
+  width_mm: t("图版宽度（mm）", "Figure width (mm)"), height_mm: t("图版高度（mm）", "Figure height (mm)"),
+  margin_top_mm: t("上边距（mm）", "Top margin (mm)"), margin_right_mm: t("右边距（mm）", "Right margin (mm)"), margin_bottom_mm: t("下边距（mm）", "Bottom margin (mm)"), margin_left_mm: t("左边距（mm）", "Left margin (mm)"),
+  panel_gap_mm: t("子图间距（mm）", "Panel spacing (mm)"), label_font_size: t("标签字号（pt）", "Panel label size (pt)"), dpi: t("分辨率（DPI）", "Resolution (DPI)"),
+}
+
   const [page, setPage] = useState(0),
     [mode, setMode] = useState<Mode>('table'),
     [omicsDirection, setOmicsDirection] = useState<OmicsDirection | null>(null),
@@ -308,8 +326,10 @@ export default function Workflow() {
     [review, setReview] = useState(false),
     [format, setFormat] = useState('pdf'),
     [name, setName] = useState('current-project'),
-    [notice, setNotice] = useState(''),
+    [noticeText, updateNotice] = useState({ zh: '', en: '' }),
     [busy, setBusy] = useState('')
+  const notice = t(noticeText.zh, noticeText.en)
+  const setNotice = (zh: string, en = zh) => updateNotice({ zh, en })
   const [aiMode, setAiMode] = useState(false)
   const [visitedAI, setVisitedAI] = useState(false)
   const [recentProjects, setRecentProjects] = useState<File[]>([])
@@ -406,27 +426,27 @@ export default function Workflow() {
         : mode === 'ecology'
           ? ecologyDirection === 'diversity'
             ? {
-                ecology_alpha_diversity: 'α 多样性箱线图',
-                ecology_beta_ordination: 'β 多样性排序图',
+                ecology_alpha_diversity: t("α 多样性箱线图", "Alpha-diversity box plot"),
+                ecology_beta_ordination: t("β 多样性排序图", "Beta-diversity ordination"),
               }
             : ecologyDirection === 'ordination'
-              ? { ecology_ordination_biplot: '排序双图（样品 + taxon）' }
+              ? { ecology_ordination_biplot: t("排序双图（样品 + taxon）", "Ordination biplot (samples + taxa)") }
               : ecologyDirection === 'environment'
-                ? { ecology_environment_gradient: '环境梯度（已有值 / 向量）' }
+                ? { ecology_environment_gradient: t("环境梯度（已有值 / 向量）", "Environmental gradient (existing values / vectors)") }
                 : ecologyDirection === 'time'
-                  ? { ecology_time_series: '生态时间序列（原始观测）' }
+                  ? { ecology_time_series: t("生态时间序列（原始观测）", "Ecological time series (observations)") }
                   : ecologyDirection === 'spatial'
-                    ? { ecology_spatial_points: '空间生态点位图' }
-                    : { ecology_composition: '群落组成堆叠图' }
+                    ? { ecology_spatial_points: t("空间生态点位图", "Spatial ecology point map") }
+                    : { ecology_composition: t("群落组成堆叠图", "Stacked community composition") }
           : omicsDirection === 'spatial'
             ? spatialKinds
             : omicsDirection === 'r'
-              ? { r_ggplot: 'R ggplot2 散点图' }
+              ? { r_ggplot: t("R ggplot2 散点图", "R ggplot2 scatter plot") }
               : omicsDirection === 'genome'
-                ? { genome_tracks: '基因组多轨道' }
+                ? { genome_tracks: t("基因组多轨道", "Genome tracks") }
                 : omicsDirection === 'circos'
-                  ? { circos: 'Circos 轨道与链接' }
-                  : { dna_features: 'DNA 特征图' }
+                  ? { circos: t("Circos 轨道与链接", "Circos tracks and links") }
+                  : { dna_features: t("DNA 特征图", "DNA feature map") }
   const change = (patch: Partial<Chart>) => {
     setDraft((current) => ({ ...current, ...patch }))
     setResult(null)
@@ -440,7 +460,7 @@ export default function Workflow() {
     try {
       await action(controller.signal)
     } catch (error) {
-      if (!controller.signal.aborted) setNotice(error instanceof Error ? error.message : '操作失败，请重试。')
+      if (!controller.signal.aborted) setNotice(error instanceof Error ? error.message : t("操作失败，请重试。", "The operation failed. Please try again."))
     } finally {
       if (active.current === controller) {
         active.current = null
@@ -453,7 +473,7 @@ export default function Workflow() {
       const isSpatial = mode === 'omics' && omicsDirection === 'spatial'
       const accept = mode === 'table' || mode === 'ecology' ? /\.(csv|xlsx)$/i : mode === 'single_cell' || isSpatial ? /\.h5ad$/i : omicsDirection === 'dna' ? /\.(gb|gbk|genbank)$/i : omicsDirection === 'circos' ? /\.json$/i : omicsDirection === 'genome' ? /\.json$|\.(bed|bedgraph|gff|gff3|gtf|chrom\.sizes)$/i : /\.(csv|xlsx)$/i
       const sizeLimit = mode === 'table' || mode === 'ecology' || omicsDirection === 'r' ? 5 * 1024 * 1024 : mode === 'single_cell' || isSpatial ? 200 * 1024 * 1024 : 50 * 1024 * 1024
-      if (file && (file.size > sizeLimit || !accept.test(file.name))) throw new Error(`请选择符合当前方向的文件，大小不超过 ${Math.round(sizeLimit / 1024 / 1024)} MB。`)
+      if (file && (file.size > sizeLimit || !accept.test(file.name))) throw new Error(t(`请选择符合当前方向的文件，大小不超过 ${Math.round(sizeLimit / 1024 / 1024)} MB。`, `Choose a supported file for this workflow, no larger than ${Math.round(sizeLimit / 1024 / 1024)} MB.`))
       const endpoint = file ? '/api/datasets' : mode === 'single_cell' ? '/api/datasets/simulated-single-cell/preview' : mode === 'ecology' ? (ecologyDirection === 'spatial' ? '/api/datasets/simulated-ecology-spatial/preview' : ecologyDirection === 'time' ? '/api/datasets/simulated-ecology-time/preview' : ecologyDirection === 'environment' ? '/api/datasets/simulated-ecology-environment/preview' : ecologyDirection === 'ordination' ? '/api/datasets/simulated-ecology-ordination/preview' : ecologyDirection === 'diversity' && draft.chart_type === 'ecology_beta_ordination' ? '/api/datasets/simulated-ecology-beta/preview' : ecologyDirection === 'diversity' ? '/api/datasets/simulated-ecology-alpha/preview' : '/api/datasets/simulated-ecology/preview') : '/api/datasets/simulated/preview'
       const data: Preview = await json(endpoint, signal, undefined, file)
       setPreview(data)
@@ -514,7 +534,7 @@ export default function Workflow() {
           ecology_error_column: timeSeries && data.columns.some((item) => item.name === 'error') ? 'error' : '',
         })
       }
-      setNotice('数据已在本机读取，请检查预览与字段后确认。')
+      setNotice("数据已在本机读取，请检查预览与字段后确认。", "Data loaded locally. Review the preview and fields before continuing.")
     })
   const renderChart = async (chart: Chart, signal: AbortSignal) => {
     const data = await json('/api/renders', signal, { chart })
@@ -545,7 +565,7 @@ export default function Workflow() {
         const result = await json('/api/workbench/v1/illustration-draft', signal, { sample_id: 'synthetic-branch-v1' })
         if (!signal.aborted) receive(result)
       } catch (error) {
-        if (!signal.aborted) fail(error instanceof Error ? error.message : '本机模型提取失败，请手动填写。')
+        if (!signal.aborted) fail(error instanceof Error ? error.message : t("本机模型提取失败，请手动填写。", "Local model extraction failed. Enter the fields manually."))
       }
     })
   const inspectWorkbenchSample = () =>
@@ -561,7 +581,7 @@ export default function Workflow() {
   const disconnectWorkbench = (done: () => void) =>
     void run('workbench', async (signal) => {
       const response = await fetch('/api/workbench/v1/connection', { method: 'DELETE', signal })
-      if (!response.ok) throw new Error('撤销连接失败，请从本机启动窗口重新打开软件。')
+      if (!response.ok) throw new Error(t("撤销连接失败，请从本机启动窗口重新打开软件。", "Could not revoke the connection. Reopen the application from its local launcher."))
       done()
     })
   const applyWorkbenchDraft = (chart: Chart, generate: boolean) =>
@@ -586,7 +606,7 @@ export default function Workflow() {
   })
   const importFigureImage = (file: File) =>
     run('image', async (signal) => {
-      if (file.size > 64 * 1024 * 1024) throw new Error('请选择不超过 64 MiB 的图像。')
+      if (file.size > 64 * 1024 * 1024) throw new Error(t("请选择不超过 64 MiB 的图像。", "Choose an image no larger than 64 MiB."))
       const asset = await json('/api/image/assets', signal, undefined, file)
       setFigureImage({ name: asset.original_name, panel: { asset_id: asset.id, crop: null, x_um_per_pixel: 0, scale_bar_um: 0, scale_bar_color: 'white' } })
       setAssembly(null)
@@ -599,7 +619,7 @@ export default function Workflow() {
     if (!figureImage) return
     void run('image', async (signal) => {
       const response = await fetch(`/api/image/assets/${figureImage.panel.asset_id}`, { method: 'DELETE', signal })
-      if (!response.ok && response.status !== 404) throw new Error('图像正在使用，请稍后再移除。')
+      if (!response.ok && response.status !== 404) throw new Error(t("图像正在使用，请稍后再移除。", "The image is in use. Wait before removing it."))
       setFigureImage(null)
       setAssembly(null)
     })
@@ -613,7 +633,7 @@ export default function Workflow() {
     })
   const download = (artifact: RenderArtifact) =>
     run('export', async (signal) => {
-      if (!artifact.formats.includes(format)) throw new Error('当前结果不包含所选导出格式，请重新生成图版。')
+      if (!artifact.formats.includes(format)) throw new Error(t("当前结果不包含所选导出格式，请重新生成图版。", "This result does not include the selected format. Generate the figure again."))
       const file = await artifactBlob(artifact, format, signal)
       const url = URL.createObjectURL(file)
       const link = document.createElement('a')
@@ -621,13 +641,13 @@ export default function Workflow() {
       link.download = `biofigure.${format}`
       link.click()
       setTimeout(() => URL.revokeObjectURL(url), 60000)
-      if (!signal.aborted) setNotice(desktop ? '请在系统保存窗口确认位置。' : '已交给浏览器下载。')
+      if (!signal.aborted) setNotice(desktop ? '请在系统保存窗口确认位置。' : '已交给浏览器下载。', desktop ? 'Choose a location in the system save dialog.' : 'The download has been sent to your browser.')
     })
   const saveProject = () =>
     run('project', async (signal) => {
       const projectChart = figureImage ? panels[0]?.chart : draft
-      if (!projectChart?.dataset_id) throw new Error('请先添加统计图。')
-      if (panels.some((panel) => panel.chart.dataset_id !== projectChart.dataset_id)) throw new Error('当前项目格式只支持保存同一数据集的图表和图版。请改用同一数据集制作子图。')
+      if (!projectChart?.dataset_id) throw new Error(t("请先添加统计图。", "Add a data plot first."))
+      if (panels.some((panel) => panel.chart.dataset_id !== projectChart.dataset_id)) throw new Error(t("当前项目格式只支持保存同一数据集的图表和图版。请改用同一数据集制作子图。", "This project format supports plots and figures from one dataset. Use the same dataset for all panels."))
       const response = await request('/api/projects', signal, {
         name,
         chart: projectChart,
@@ -639,7 +659,7 @@ export default function Workflow() {
       link.download = `${name || 'biofigure-project'}.bfsproj`
       link.click()
       setTimeout(() => URL.revokeObjectURL(link.href), 60000)
-      setNotice(desktop ? '请在系统保存窗口确认项目位置。' : '项目文件已交给浏览器下载；请确认保存位置。')
+      setNotice(desktop ? '请在系统保存窗口确认项目位置。' : '项目文件已交给浏览器下载；请确认保存位置。', desktop ? 'Choose the project location in the system save dialog.' : 'The project download has started. Confirm its save location.')
     })
   const openProject = (file: File) =>
     run('project', async (signal) => {
@@ -672,7 +692,7 @@ export default function Workflow() {
       setPage(project.figure ? 8 : 1)
       setAiMode(false)
       setRecentProjects((items) => [file, ...items.filter((item) => item.name !== file.name)].slice(0, 3))
-      setNotice('项目已打开；请检查恢复的数据、图表配置和图版。')
+      setNotice("项目已打开；请检查恢复的数据、图表配置和图版。", "Project opened. Review the restored data, plot settings, and figure layout.")
     })
   const numeric = preview?.columns.filter((c) => /int|float|double/i.test(c.dtype)) ?? [],
     tableValid = !!preview && (draft.chart_type === 'heatmap' ? numeric.length >= 2 : !!draft.x_column && !!draft.y_column && numeric.some((c) => c.name === draft.y_column)),
@@ -738,7 +758,7 @@ export default function Workflow() {
     } else if (file.name.toLowerCase().endsWith('.bfsproj')) {
       void openProject(file)
     } else {
-      setNotice('请选择 .bfsproj 图表/图版项目或 .bfsillustration.json 生物图示项目。')
+      setNotice("请选择 .bfsproj 图表/图版项目或 .bfsillustration.json 生物图示项目。", "Choose a .bfsproj plot/figure project or a .bfsillustration.json illustration project.")
     }
   }
   const chooseEcology = (direction: EcologyDirection) => {
@@ -766,12 +786,11 @@ export default function Workflow() {
   const omicsForm =
     mode === 'omics' ? (
       <div className="wf-form">
-        <p className="wf-form-note">{omicsDirection ? `${omicsDirections[omicsDirection].title} · ${omicsDirections[omicsDirection].formats}` : '请选择组学方向'}</p>
+        <p className="wf-form-note">{omicsDirection ? `${omicsDirections[omicsDirection].title} · ${omicsDirections[omicsDirection].formats}` : t("请选择组学方向", "Choose an omics workflow")}</p>
         {omicsDirection === 'spatial' && (
           <>
             <label>
-              空间坐标
-              <select value={draft.coordinate_key} onChange={(e) => change({ coordinate_key: e.target.value })}>
+              {t("空间坐标", "Spatial coordinates")}<select value={draft.coordinate_key} onChange={(e) => change({ coordinate_key: e.target.value })}>
                 {preview?.coordinates?.map((c) => (
                   <option key={c.key}>{c.key}</option>
                 ))}
@@ -779,9 +798,8 @@ export default function Workflow() {
             </label>
             {['spatial_categorical', 'spatial_continuous'].includes(draft.chart_type) && (
               <label>
-                颜色字段
-                <select value={draft.color_field ?? ''} onChange={(e) => change({ color_field: e.target.value || null })}>
-                  <option value="">请选择</option>
+                {t("颜色字段", "Color field")}<select value={draft.color_field ?? ''} onChange={(e) => change({ color_field: e.target.value || null })}>
+                  <option value="">{t("请选择", "Choose an option")}</option>
                   {fieldOptions.map((c) => (
                     <option key={c.name}>{c.name}</option>
                   ))}
@@ -790,8 +808,7 @@ export default function Workflow() {
             )}
             {draft.chart_type === 'spatial_feature' && (
               <label>
-                基因
-                <input
+                {t("基因", "Genes")}<input
                   value={draft.genes.join(', ')}
                   onChange={(e) =>
                     change({
@@ -805,8 +822,7 @@ export default function Workflow() {
               </label>
             )}
             <label>
-              表达来源
-              <select value={draft.expression_source} onChange={(e) => change({ expression_source: e.target.value })}>
+              {t("表达来源", "Expression source")}<select value={draft.expression_source} onChange={(e) => change({ expression_source: e.target.value })}>
                 <option value="X">X</option>
                 {preview?.has_raw && <option value="raw">raw</option>}
                 {preview?.layers?.map((layer) => (
@@ -818,8 +834,7 @@ export default function Workflow() {
             </label>
             {draft.expression_source === 'layer' && (
               <label>
-                Layer 名称
-                <input value={draft.expression_layer ?? ''} onChange={(e) => change({ expression_layer: e.target.value })} />
+                {t("Layer 名称", "Layer name")}<input value={draft.expression_layer ?? ''} onChange={(e) => change({ expression_layer: e.target.value })} />
               </label>
             )}
           </>
@@ -827,71 +842,64 @@ export default function Workflow() {
         {omicsDirection === 'r' && (
           <>
             <label>
-              X 轴
-              <select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
-                <option value="">请选择</option>
+              {t("X 轴", "X axis")}<select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
+                <option value="">{t("请选择", "Choose an option")}</option>
                 {fieldOptions.map((c) => (
                   <option key={c.name}>{c.name}</option>
                 ))}
               </select>
             </label>
             <label>
-              Y 轴
-              <select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
-                <option value="">请选择</option>
+              {t("Y 轴", "Y axis")}<select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
+                <option value="">{t("请选择", "Choose an option")}</option>
                 {numeric.map((c) => (
                   <option key={c.name}>{c.name}</option>
                 ))}
               </select>
             </label>
             <label>
-              颜色分组
-              <select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
-                <option value="">不分组</option>
+              {t("颜色分组", "Color grouping")}<select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
+                <option value="">{t("不分组", "No grouping")}</option>
                 {fieldOptions.map((c) => (
                   <option key={c.name}>{c.name}</option>
                 ))}
               </select>
             </label>
-            <p className="wf-form-note">R 仅执行内置 ggplot2 模板，不接收任意 R 代码。</p>
+            <p className="wf-form-note">{t("R 仅执行内置 ggplot2 模板，不接收任意 R 代码。", "R runs only the built-in ggplot2 template. Arbitrary R code is not accepted.")}</p>
           </>
         )}
-        {['genome', 'circos', 'dna'].includes(omicsDirection ?? '') && <p className="wf-form-note">文件已校验。字段和区间由本地适配器读取；下一步可调整标题、主题、色板和导出尺寸。</p>}
+        {['genome', 'circos', 'dna'].includes(omicsDirection ?? '') && <p className="wf-form-note">{t("文件已校验。字段和区间由本地适配器读取；下一步可调整标题、主题、色板和导出尺寸。", "File validated. A local adapter reads the fields and intervals. Next, adjust the title, theme, palette, and export size.")}</p>}
       </div>
     ) : null
   const ecologyForm =
     mode === 'ecology' ? (
       draft.chart_type === 'ecology_composition' ? (
         <div className="wf-form">
-          <p className="wf-form-note">群落组成首版使用长表：每行一个样品 × 分类单元记录；不自动合并重复键或补齐缺失值。</p>
+          <p className="wf-form-note">{t("群落组成首版使用长表：每行一个样品 × 分类单元记录；不自动合并重复键或补齐缺失值。", "Community composition uses a long table: one sample–taxon record per row. Duplicate keys and missing values are not filled automatically.")}</p>
           <label>
-            样品字段
-            <select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
+            {t("样品字段", "Sample field")}<select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            丰度字段
-            <select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
+            {t("丰度字段", "Abundance field")}<select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
               {numeric.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            分类单元字段
-            <select value={draft.color_field ?? ''} onChange={(e) => change({ color_field: e.target.value || null })}>
-              <option value="">请选择</option>
+            {t("分类单元字段", "Taxon field")}<select value={draft.color_field ?? ''} onChange={(e) => change({ color_field: e.target.value || null })}>
+              <option value="">{t("请选择", "Choose an option")}</option>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            丰度语义
-            <select
+            {t("丰度语义", "Abundance interpretation")}<select
               value={draft.ecology_value_mode}
               onChange={(e) =>
                 change({
@@ -899,51 +907,46 @@ export default function Workflow() {
                 })
               }
             >
-              <option value="relative_fraction">相对丰度分数（0–1）</option>
-              <option value="count">原始计数（本机归一化为比例）</option>
+              <option value="relative_fraction">{t("相对丰度分数（0–1）", "Relative abundance fraction (0–1)")}</option>
+              <option value="count">{t("原始计数（本机归一化为比例）", "Raw counts (normalize locally to fractions)")}</option>
             </select>
           </label>
-          <p className="wf-form-note">最多 60 个样品；分类单元上限由所选色板容量决定，默认主题为 3 个。导出图中的百分比来自明确选择的丰度语义。</p>
+          <p className="wf-form-note">{t("最多 60 个样品；分类单元上限由所选色板容量决定，默认主题为 3 个。导出图中的百分比来自明确选择的丰度语义。", "Up to 60 samples. Taxon capacity follows the palette; the default theme supports three. Exported percentages follow the selected abundance interpretation.")}</p>
         </div>
       ) : draft.chart_type === 'ecology_ordination_biplot' ? (
         <div className="wf-form">
-          <p className="wf-form-note">只展示已有二维排序坐标；sample 为点，taxon 为从原点出发的向量。</p>
+          <p className="wf-form-note">{t("只展示已有二维排序坐标；sample 为点，taxon 为从原点出发的向量。", "Displays existing two-dimensional ordination coordinates. Samples are points; taxa are vectors from the origin.")}</p>
           <label>
-            实体名称
-            <select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
+            {t("实体名称", "Entity name")}<select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            实体类型
-            <select value={draft.ecology_entity_type_column} onChange={(e) => change({ ecology_entity_type_column: e.target.value })}>
+            {t("实体类型", "Entity type")}<select value={draft.ecology_entity_type_column} onChange={(e) => change({ ecology_entity_type_column: e.target.value })}>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            第一轴
-            <select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
+            {t("第一轴", "First axis")}<select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
               {numeric.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            第二轴
-            <select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
+            {t("第二轴", "Second axis")}<select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
               {numeric.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            样品分组
-            <select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
-              <option value="">不分组</option>
+            {t("样品分组", "Sample grouping")}<select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
+              <option value="">{t("不分组", "No grouping")}</option>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
@@ -952,10 +955,9 @@ export default function Workflow() {
         </div>
       ) : draft.chart_type === 'ecology_environment_gradient' ? (
         <div className="wf-form">
-          <p className="wf-form-note">仅展示已有二维坐标与环境字段；不计算相关性、envfit、回归或显著性。</p>
+          <p className="wf-form-note">{t("仅展示已有二维坐标与环境字段；不计算相关性、envfit、回归或显著性。", "Displays existing 2D coordinates and environmental fields. It does not calculate correlations, envfit, regression, or significance.")}</p>
           <label>
-            环境模式
-            <select
+            {t("环境模式", "Environmental mode")}<select
               value={draft.ecology_environment_mode}
               onChange={(e) =>
                 change({
@@ -963,37 +965,33 @@ export default function Workflow() {
                 })
               }
             >
-              <option value="continuous_value">连续环境值着色</option>
-              <option value="existing_vector">已有环境向量</option>
+              <option value="continuous_value">{t("连续环境值着色", "Color by continuous environmental values")}</option>
+              <option value="existing_vector">{t("已有环境向量", "Existing environmental vectors")}</option>
             </select>
           </label>
           <label>
-            样品/实体字段
-            <select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
+            {t("样品/实体字段", "Sample / entity field")}<select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            实体类型字段
-            <select value={draft.ecology_entity_type_column} onChange={(e) => change({ ecology_entity_type_column: e.target.value })}>
+            {t("实体类型字段", "Entity type field")}<select value={draft.ecology_entity_type_column} onChange={(e) => change({ ecology_entity_type_column: e.target.value })}>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            第一轴
-            <select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
+            {t("第一轴", "First axis")}<select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
               {numeric.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
             </select>
           </label>
           <label>
-            第二轴
-            <select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
+            {t("第二轴", "Second axis")}<select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
               {numeric.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
@@ -1001,8 +999,7 @@ export default function Workflow() {
           </label>
           {draft.ecology_environment_mode === 'continuous_value' && (
             <label>
-              环境值字段
-              <select value={draft.ecology_environment_column} onChange={(e) => change({ ecology_environment_column: e.target.value })}>
+              {t("环境值字段", "Environmental value field")}<select value={draft.ecology_environment_column} onChange={(e) => change({ ecology_environment_column: e.target.value })}>
                 {numeric.map((c) => (
                   <option key={c.name}>{c.name}</option>
                 ))}
@@ -1010,9 +1007,8 @@ export default function Workflow() {
             </label>
           )}
           <label>
-            样品分组
-            <select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
-              <option value="">不分组</option>
+            {t("样品分组", "Sample grouping")}<select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
+              <option value="">{t("不分组", "No grouping")}</option>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
@@ -1021,10 +1017,9 @@ export default function Workflow() {
         </div>
       ) : draft.chart_type === 'ecology_time_series' ? (
         <div className="wf-form">
-          <p className="wf-form-note">每条线只连接同一个重复测量轨迹；分组仅控制颜色。系统不聚合、平滑、插值或计算显著性。</p>
+          <p className="wf-form-note">{t("每条线只连接同一个重复测量轨迹；分组仅控制颜色。系统不聚合、平滑、插值或计算显著性。", "Each line connects one repeated-measure trajectory; grouping controls color only. No aggregation, smoothing, interpolation, or significance calculation is performed.")}</p>
           <label>
-            样品 / 监测对象
-            <select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
+            {t("样品 / 监测对象", "Sample / monitored entity")}<select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
               {fieldOptions.map((c) => (
                 <option key={c.name} value={c.name}>
                   {c.name}
@@ -1033,8 +1028,7 @@ export default function Workflow() {
             </select>
           </label>
           <label>
-            数值时间
-            <select value={draft.ecology_time_column} onChange={(e) => change({ ecology_time_column: e.target.value })}>
+            {t("数值时间", "Numeric time")}<select value={draft.ecology_time_column} onChange={(e) => change({ ecology_time_column: e.target.value })}>
               {numeric.map((c) => (
                 <option key={c.name} value={c.name}>
                   {c.name}
@@ -1043,8 +1037,7 @@ export default function Workflow() {
             </select>
           </label>
           <label>
-            观测值
-            <select value={draft.ecology_value_column} onChange={(e) => change({ ecology_value_column: e.target.value })}>
+            {t("观测值", "Observed value")}<select value={draft.ecology_value_column} onChange={(e) => change({ ecology_value_column: e.target.value })}>
               {numeric.map((c) => (
                 <option key={c.name} value={c.name}>
                   {c.name}
@@ -1053,9 +1046,8 @@ export default function Workflow() {
             </select>
           </label>
           <label>
-            显示分组
-            <select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
-              <option value="">不分组</option>
+            {t("显示分组", "Display grouping")}<select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
+              <option value="">{t("不分组", "No grouping")}</option>
               {fieldOptions.map((c) => (
                 <option key={c.name} value={c.name}>
                   {c.name}
@@ -1064,9 +1056,8 @@ export default function Workflow() {
             </select>
           </label>
           <label>
-            重复测量轨迹
-            <select value={draft.ecology_replicate_column} onChange={(e) => change({ ecology_replicate_column: e.target.value })}>
-              <option value="">未提供（按样品连接）</option>
+            {t("重复测量轨迹", "Repeated-measure trajectory")}<select value={draft.ecology_replicate_column} onChange={(e) => change({ ecology_replicate_column: e.target.value })}>
+              <option value="">{t("未提供（按样品连接）", "Not supplied (connect by sample)")}</option>
               {fieldOptions.map((c) => (
                 <option key={c.name} value={c.name}>
                   {c.name}
@@ -1075,9 +1066,8 @@ export default function Workflow() {
             </select>
           </label>
           <label>
-            对称误差大小
-            <select value={draft.ecology_error_column} onChange={(e) => change({ ecology_error_column: e.target.value })}>
-              <option value="">不显示</option>
+            {t("对称误差大小", "Symmetric error magnitude")}<select value={draft.ecology_error_column} onChange={(e) => change({ ecology_error_column: e.target.value })}>
+              <option value="">{t("不显示", "Hide")}</option>
               {numeric.map((c) => (
                 <option key={c.name} value={c.name}>
                   {c.name}
@@ -1085,14 +1075,13 @@ export default function Workflow() {
               ))}
             </select>
           </label>
-          <p className="wf-form-note">误差必须非负，仅按原值显示；不推断 SD、SE 或置信区间。</p>
+          <p className="wf-form-note">{t("误差必须非负，仅按原值显示；不推断 SD、SE 或置信区间。", "Errors must be nonnegative and are displayed as supplied. SD, SE, and confidence intervals are not inferred.")}</p>
         </div>
       ) : draft.chart_type === 'ecology_spatial_points' ? (
         <div className="wf-form">
-          <p className="wf-form-note">只绘制已有点位；不加载底图、不重投影，也不计算距离、热点、插值或其他空间统计。</p>
+          <p className="wf-form-note">{t("只绘制已有点位；不加载底图、不重投影，也不计算距离、热点、插值或其他空间统计。", "Plots existing points only. No basemap, reprojection, distance, hotspot, interpolation, or other spatial statistics are applied.")}</p>
           <label>
-            坐标模式
-            <select
+            {t("坐标模式", "Coordinate mode")}<select
               value={draft.ecology_spatial_coordinate_mode}
               onChange={(e) => {
                 const next = e.target.value as Chart['ecology_spatial_coordinate_mode']
@@ -1103,13 +1092,12 @@ export default function Workflow() {
                 )
               }}
             >
-              <option value="geographic_wgs84">WGS84 经度 / 纬度</option>
-              <option value="planar">平面 X / Y 坐标</option>
+              <option value="geographic_wgs84">{t("WGS84 经度 / 纬度", "WGS84 longitude / latitude")}</option>
+              <option value="planar">{t("平面 X / Y 坐标", "Planar X / Y coordinates")}</option>
             </select>
           </label>
           <label>
-            样品 / 点位标识
-            <select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
+            {t("样品 / 点位标识", "Sample / point identifier")}<select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
               {fieldOptions.map((c) => (
                 <option key={c.name} value={c.name}>
                   {c.name}
@@ -1118,7 +1106,7 @@ export default function Workflow() {
             </select>
           </label>
           <label>
-            {draft.ecology_spatial_coordinate_mode === 'geographic_wgs84' ? '经度字段' : 'X 坐标字段'}
+            {draft.ecology_spatial_coordinate_mode === 'geographic_wgs84' ? t("经度字段", "Longitude field") : t("X 坐标字段", "X coordinate field")}
             <select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
               {numeric.map((c) => (
                 <option key={c.name} value={c.name}>
@@ -1128,7 +1116,7 @@ export default function Workflow() {
             </select>
           </label>
           <label>
-            {draft.ecology_spatial_coordinate_mode === 'geographic_wgs84' ? '纬度字段' : 'Y 坐标字段'}
+            {draft.ecology_spatial_coordinate_mode === 'geographic_wgs84' ? t("纬度字段", "Latitude field") : t("Y 坐标字段", "Y coordinate field")}
             <select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
               {numeric.map((c) => (
                 <option key={c.name} value={c.name}>
@@ -1138,9 +1126,8 @@ export default function Workflow() {
             </select>
           </label>
           <label>
-            显示分组
-            <select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
-              <option value="">不分组</option>
+            {t("显示分组", "Display grouping")}<select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
+              <option value="">{t("不分组", "No grouping")}</option>
               {fieldOptions.map((c) => (
                 <option key={c.name} value={c.name}>
                   {c.name}
@@ -1151,29 +1138,26 @@ export default function Workflow() {
           {draft.ecology_spatial_coordinate_mode === 'planar' ? (
             <>
               <label>
-                坐标参考说明
-                <input value={draft.ecology_spatial_reference} onChange={(e) => change({ ecology_spatial_reference: e.target.value })} placeholder="例如 EPSG:32650 或样地局部坐标" />
+                {t("坐标参考说明", "Coordinate reference")}<input value={draft.ecology_spatial_reference} onChange={(e) => change({ ecology_spatial_reference: e.target.value })} placeholder={t("例如 EPSG:32650 或样地局部坐标", "For example, EPSG:32650 or site-local coordinates")} />
               </label>
               <label>
-                坐标单位
-                <select value={draft.ecology_spatial_unit} onChange={(e) => change({ ecology_spatial_unit: e.target.value as Chart['ecology_spatial_unit'] })}>
-                  <option value="m">米</option>
-                  <option value="km">千米</option>
-                  <option value="arbitrary">任意单位</option>
+                {t("坐标单位", "Coordinate unit")}<select value={draft.ecology_spatial_unit} onChange={(e) => change({ ecology_spatial_unit: e.target.value as Chart['ecology_spatial_unit'] })}>
+                  <option value="m">{t("米", "Meters")}</option>
+                  <option value="km">{t("千米", "Kilometers")}</option>
+                  <option value="arbitrary">{t("任意单位", "Arbitrary units")}</option>
                 </select>
               </label>
             </>
           ) : (
-            <p className="wf-form-note">固定为 EPSG:4326；经度范围 -180–180，纬度范围 -90–90。图上角度距离不是地表距离。</p>
+            <p className="wf-form-note">{t("固定为 EPSG:4326；经度范围 -180–180，纬度范围 -90–90。图上角度距离不是地表距离。", "Uses EPSG:4326: longitude −180–180 and latitude −90–90. Angular separation on the plot is not ground distance.")}</p>
           )}
-          <p className="wf-form-note">最多 5000 个唯一点位；同坐标的不同点位会原样重叠，不自动合并或抖动。</p>
+          <p className="wf-form-note">{t("最多 5000 个唯一点位；同坐标的不同点位会原样重叠，不自动合并或抖动。", "Up to 5,000 unique points. Distinct points at identical coordinates overlap; they are not merged or jittered.")}</p>
         </div>
       ) : (
         <div className="wf-form">
-          <p className="wf-form-note">本阶段只展示已有 α 指标或 β 排序坐标，不在本机计算多样性或距离矩阵。</p>
+          <p className="wf-form-note">{t("本阶段只展示已有 α 指标或 β 排序坐标，不在本机计算多样性或距离矩阵。", "Displays existing alpha-diversity metrics or beta-ordination coordinates. Diversity and distance matrices are not calculated locally.")}</p>
           <label>
-            样品字段
-            <select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
+            {t("样品字段", "Sample field")}<select value={draft.ecology_sample_column} onChange={(e) => change({ ecology_sample_column: e.target.value })}>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
@@ -1182,20 +1166,17 @@ export default function Workflow() {
           {draft.chart_type === 'ecology_alpha_diversity' ? (
             <>
               <label>
-                指标字段
-                <select value={draft.ecology_metric_column} onChange={(e) => change({ ecology_metric_column: e.target.value })}>
+                {t("指标字段", "Metric field")}<select value={draft.ecology_metric_column} onChange={(e) => change({ ecology_metric_column: e.target.value })}>
                   {fieldOptions.map((c) => (
                     <option key={c.name}>{c.name}</option>
                   ))}
                 </select>
               </label>
               <label>
-                已有指标名称
-                <input value={draft.ecology_metric} onChange={(e) => change({ ecology_metric: e.target.value })} placeholder="例如 Shannon" />
+                {t("已有指标名称", "Existing metric name")}<input value={draft.ecology_metric} onChange={(e) => change({ ecology_metric: e.target.value })} placeholder={t("例如 Shannon", "For example, Shannon")} />
               </label>
               <label>
-                指标值
-                <select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
+                {t("指标值", "Metric value")}<select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
                   {numeric.map((c) => (
                     <option key={c.name}>{c.name}</option>
                   ))}
@@ -1205,16 +1186,14 @@ export default function Workflow() {
           ) : (
             <>
               <label>
-                第一轴
-                <select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
+                {t("第一轴", "First axis")}<select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
                   {numeric.map((c) => (
                     <option key={c.name}>{c.name}</option>
                   ))}
                 </select>
               </label>
               <label>
-                第二轴
-                <select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
+                {t("第二轴", "Second axis")}<select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
                   {numeric.map((c) => (
                     <option key={c.name}>{c.name}</option>
                   ))}
@@ -1223,9 +1202,8 @@ export default function Workflow() {
             </>
           )}
           <label>
-            分组字段
-            <select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
-              <option value="">不分组</option>
+            {t("分组字段", "Grouping field")}<select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
+              <option value="">{t("不分组", "No grouping")}</option>
               {fieldOptions.map((c) => (
                 <option key={c.name}>{c.name}</option>
               ))}
@@ -1259,93 +1237,93 @@ export default function Workflow() {
       <div className="wf-categories wf-product-categories">
         <button className="wf-category" onClick={() => { setAssemblyIntent(false); setPage(7) }}>
           <span className="wf-category-icon">▦</span>
-          <strong>制作数据图表 <span>↗</span></strong>
+          <strong>{t("制作数据图表", "Create data plots")}<span>↗</span></strong>
           <p lang="en">Create a data chart</p>
-          <small>基础表格、单细胞、空间组学、基因组、生态与 R 绘图</small>
+          <small>{t("基础表格、单细胞、空间组学、基因组、生态与 R 绘图", "Tabular, single-cell, spatial, genomic, ecological, and R plots")}</small>
         </button>
         <button className="wf-category" onClick={() => { setAssemblyIntent(true); setPage(8) }}>
           <span className="wf-category-icon">▤</span>
-          <strong>排版多图图版 <span>↗</span></strong>
+          <strong>{t("排版多图图版", "Assemble a multi-panel figure")}<span>↗</span></strong>
           <p lang="en">Arrange a multi-panel figure</p>
-          <small>把已生成的图表加入工作栏，统一标签、图例与尺寸</small>
+          <small>{t("把已生成的图表加入工作栏，统一标签、图例与尺寸", "Collect plots and unify panel labels, legends, and dimensions")}</small>
         </button>
         <button className="wf-category" onClick={() => setPage(9)}>
           <span className="wf-category-icon">✦</span>
-          <strong>绘制生物图示 <span>↗</span></strong>
+          <strong>{t("绘制生物图示", "Create scientific illustrations")}<span>↗</span></strong>
           <p lang="en">Draw a biological illustration</p>
-          <small>机制图、实验流程图与图形摘要</small>
+          <small>{t("机制图、实验流程图与图形摘要", "Mechanisms, experimental workflows, and graphical abstracts")}</small>
         </button>
         <button className="wf-category" onClick={() => setPage(10)}>
           <span className="wf-category-icon">◫</span>
-          <strong>处理科研图像 <span>↗</span></strong>
+          <strong>{t("处理科研图像", "Process scientific images")}<span>↗</span></strong>
           <p lang="en">Explore the image workspace</p>
-          <small>Fiji 原命令清单、来源与逐项核验状态</small>
+          <small>{t("Fiji 原命令清单、来源与逐项核验状态", "Fiji command catalog, sources, and verification status")}</small>
         </button>
       </div>
       <div className="wf-home-utilities">
-        <button className="wf-open-project" onClick={() => projectInputRef.current?.click()}><FolderIcon />打开已有项目 <span lang="en">/ Open a project</span></button>
-        <button className="wf-file-guide-toggle" aria-expanded={showFileGuide} onClick={() => setShowFileGuide(!showFileGuide)}>我有一个文件，先看从哪里开始 {showFileGuide ? '↑' : '↓'}</button>
+        <button className="wf-open-project" onClick={() => projectInputRef.current?.click()}><FolderIcon />{t("打开已有项目", "Open project")}<span lang="en">/ Open a project</span></button>
+        <button className="wf-file-guide-toggle" aria-expanded={showFileGuide} onClick={() => setShowFileGuide(!showFileGuide)}>{t("我有一个文件，先看从哪里开始", "I have a file. Where should I start?")}{showFileGuide ? '↑' : '↓'}</button>
       </div>
       {showFileGuide && <div className="wf-file-guide">
-        <p>按文件内容和想做的作品选择；原始文件会在下一步由你亲自选择。</p>
-        <button onClick={() => { setAssemblyIntent(false); setPage(7) }}>CSV / XLSX、H5AD、GenBank 或轨道文件 → 制作数据图表</button>
-        <button onClick={() => setPage(10)}>显微图像或图像栈 → 查看图像工作台</button>
-        <button onClick={() => projectInputRef.current?.click()}>.bfsproj / .bfsillustration.json → 打开已有项目</button>
+        <p>{t("按文件内容和想做的作品选择；原始文件会在下一步由你亲自选择。", "Choose by file contents and intended output. You will select the original file in the next step.")}</p>
+        <button onClick={() => { setAssemblyIntent(false); setPage(7) }}>{t("CSV / XLSX、H5AD、GenBank 或轨道文件 → 制作数据图表", "CSV / XLSX, H5AD, GenBank, or track files → Data plots")}</button>
+        <button onClick={() => setPage(10)}>{t("显微图像或图像栈 → 查看图像工作台", "Microscopy images or stacks → Image workspace")}</button>
+        <button onClick={() => projectInputRef.current?.click()}>{t(".bfsproj / .bfsillustration.json → 打开已有项目", ".bfsproj / .bfsillustration.json → Open project")}</button>
       </div>}
-      <p className="wf-home-note">从选任务、确认数据、调整图形到检查导出。真实数据只在本机处理；软件不自动给出统计或科学结论。</p>
+      <p className="wf-home-note">{t("从选任务、确认数据、调整图形到检查导出。真实数据只在本机处理；软件不自动给出统计或科学结论。", "Choose a task, review data, refine the figure, and check the export. Real data stays local; statistical and scientific conclusions require your review.")}</p>
     </>
   )
   const chartCatalog = (
     <>
       <div className="wf-title wf-catalog-title">
-        <span className="wf-overline">DATA CHARTS / 选择来源</span>
-        <h1>你要制作哪类数据图表？</h1>
-        <p>先选数据类型或绘图方式，再确认文件和字段。所有图表只展示输入中已有的数据或结果。</p>
+        <span className="wf-overline">{t("DATA CHARTS / 选择来源", "DATA CHARTS / CHOOSE A SOURCE")}</span>
+        <h1>{t("你要制作哪类数据图表？", "What kind of data plot do you need?")}</h1>
+        <p>{t("先选数据类型或绘图方式，再确认文件和字段。所有图表只展示输入中已有的数据或结果。", "Choose a data type or plotting workflow, then review the file and fields. Plots display data or results already present in the input.")}</p>
       </div>
       <div className="wf-catalog-grid">
-        <button className="wf-category" onClick={chooseTable}><span className="wf-category-icon">▦</span><strong>基础表格图表 ↗</strong><p>CSV / XLSX</p><small>散点 · 柱状 · 折线 · 箱线 · 热图</small></button>
-        <button className="wf-category" onClick={chooseSingleCell}><span className="wf-category-icon">◉</span><strong>单细胞图表 ↗</strong><p>已有分析结果的 H5AD</p><small>UMAP / t-SNE · Feature · Violin · Dot Plot</small></button>
-        <button className="wf-category" onClick={() => chooseOmics('spatial')}><span className="wf-category-icon">⌖</span><strong>空间组学图表 ↗</strong><p>已有空间坐标的 H5AD</p><small>空间分类 · 连续值 · Feature Plot</small></button>
-        <button className="wf-category" onClick={() => setPage(4)}><span className="wf-category-icon">≋</span><strong>基因组与序列图表 ↗</strong><p>选择轨道、Circos 或 DNA 特征</p><small>基因组文本轨道 · JSON manifest · GenBank</small></button>
-        <button className="wf-category" onClick={() => { setEcologyDirection(null); setPage(5) }}><span className="wf-category-icon">∿</span><strong>生态学图表 ↗</strong><p>群落、多样性与环境数据</p><small>组成 · 排序 · 时间序列 · 空间点位</small></button>
-        <button className="wf-category" onClick={() => chooseOmics('r')}><span className="wf-category-icon">R</span><strong>R 绘图 ↗</strong><p>已审核的 ggplot2 静态散点模板</p><small>需要本机已安装的 R；不运行任意 R 代码</small></button>
+        <button className="wf-category" onClick={chooseTable}><span className="wf-category-icon">▦</span><strong>{t("基础表格图表 ↗", "Tabular plots ↗")}</strong><p>CSV / XLSX</p><small>{t("散点 · 柱状 · 折线 · 箱线 · 热图", "Scatter · Bar · Line · Box · Heatmap")}</small></button>
+        <button className="wf-category" onClick={chooseSingleCell}><span className="wf-category-icon">◉</span><strong>{t("单细胞图表 ↗", "Single-cell plots ↗")}</strong><p>{t("已有分析结果的 H5AD", "H5AD with existing analysis results")}</p><small>UMAP / t-SNE · Feature · Violin · Dot Plot</small></button>
+        <button className="wf-category" onClick={() => chooseOmics('spatial')}><span className="wf-category-icon">⌖</span><strong>{t("空间组学图表 ↗", "Spatial omics plots ↗")}</strong><p>{t("已有空间坐标的 H5AD", "H5AD with existing spatial coordinates")}</p><small>{t("空间分类 · 连续值 · Feature Plot", "Spatial categories · Continuous values · Feature Plot")}</small></button>
+        <button className="wf-category" onClick={() => setPage(4)}><span className="wf-category-icon">≋</span><strong>{t("基因组与序列图表 ↗", "Genome and sequence plots ↗")}</strong><p>{t("选择轨道、Circos 或 DNA 特征", "Choose tracks, Circos, or DNA features")}</p><small>{t("基因组文本轨道 · JSON manifest · GenBank", "Genome text tracks · JSON manifest · GenBank")}</small></button>
+        <button className="wf-category" onClick={() => { setEcologyDirection(null); setPage(5) }}><span className="wf-category-icon">∿</span><strong>{t("生态学图表 ↗", "Ecological plots ↗")}</strong><p>{t("群落、多样性与环境数据", "Community, diversity, and environmental data")}</p><small>{t("组成 · 排序 · 时间序列 · 空间点位", "Composition · Ordination · Time series · Spatial points")}</small></button>
+        <button className="wf-category" onClick={() => chooseOmics('r')}><span className="wf-category-icon">R</span><strong>{t("R 绘图 ↗", "R plotting ↗")}</strong><p>{t("已审核的 ggplot2 静态散点模板", "Reviewed ggplot2 static scatter template")}</p><small>{t("需要本机已安装的 R；不运行任意 R 代码", "Requires a local R installation; arbitrary R code is not run")}</small></button>
       </div>
-      <div className="wf-bottom"><button onClick={() => setPage(0)}>← 返回作品类型</button></div>
+      <div className="wf-bottom"><button onClick={() => setPage(0)}>{t("← 返回作品类型", "← Back to figure types")}</button></div>
     </>
   )
   const illustrationCatalog = (
     <>
       <div className="wf-title wf-catalog-title">
-        <span className="wf-overline">BIOLOGICAL ILLUSTRATIONS / 选择用途</span>
-        <h1>你要绘制哪种生物图示？</h1>
-        <p>使用本机原创组件与空白布局，科学关系、流程和证据由你编辑与核实。</p>
+        <span className="wf-overline">{t("BIOLOGICAL ILLUSTRATIONS / 选择用途", "SCIENTIFIC ILLUSTRATIONS / CHOOSE A PURPOSE")}</span>
+        <h1>{t("你要绘制哪种生物图示？", "What kind of scientific illustration do you need?")}</h1>
+        <p>{t("使用本机原创组件与空白布局，科学关系、流程和证据由你编辑与核实。", "Start with local original components and blank layouts. Edit and verify scientific relationships, steps, and evidence yourself.")}</p>
       </div>
       <div className="wf-catalog-grid wf-illustration-grid">
-        <button className="wf-category" onClick={() => chooseIllustration('mechanism')}><span className="wf-category-icon">◎</span><strong>机制图 ↗</strong><p>组织实体与关系</p><small>Mechanism diagram · 空白画布与机制布局</small></button>
-        <button className="wf-category" onClick={() => chooseIllustration('experimental_workflow')}><span className="wf-category-icon">⇢</span><strong>实验流程图 ↗</strong><p>编排步骤与流向</p><small>Experimental workflow · 手动填写方法内容</small></button>
-        <button className="wf-category" onClick={() => chooseIllustration('graphical_abstract')}><span className="wf-category-icon">▧</span><strong>图形摘要 ↗</strong><p>编排摘要面板</p><small>Graphical abstract · 手动组织研究叙事</small></button>
+        <button className="wf-category" onClick={() => chooseIllustration('mechanism')}><span className="wf-category-icon">◎</span><strong>{t("机制图 ↗", "Mechanism diagram ↗")}</strong><p>{t("组织实体与关系", "Arrange entities and relationships")}</p><small>{t("Mechanism diagram · 空白画布与机制布局", "Mechanism diagram · Blank canvas and mechanism layouts")}</small></button>
+        <button className="wf-category" onClick={() => chooseIllustration('experimental_workflow')}><span className="wf-category-icon">⇢</span><strong>{t("实验流程图 ↗", "Experimental workflow ↗")}</strong><p>{t("编排步骤与流向", "Arrange steps and flow")}</p><small>{t("Experimental workflow · 手动填写方法内容", "Experimental workflow · Enter method details manually")}</small></button>
+        <button className="wf-category" onClick={() => chooseIllustration('graphical_abstract')}><span className="wf-category-icon">▧</span><strong>{t("图形摘要 ↗", "Graphical abstract ↗")}</strong><p>{t("编排摘要面板", "Arrange abstract panels")}</p><small>{t("Graphical abstract · 手动组织研究叙事", "Graphical abstract · Organize the research narrative manually")}</small></button>
       </div>
-      <div className="wf-bottom"><button onClick={() => setPage(0)}>← 返回作品类型</button></div>
+      <div className="wf-bottom"><button onClick={() => setPage(0)}>{t("← 返回作品类型", "← Back to figure types")}</button></div>
     </>
   )
   const figureWorkspace = (
     <>
       <div className="wf-title">
-        <span className="wf-overline">MULTI-PANEL FIGURE / 图版工作栏</span>
-        <h1>排版多图图版</h1>
-        <p>制作图表后加入右侧工作栏。可以排最多 4 张图表，也可以把一张科研图像与一张统计图排成 A/B 图版。</p>
+        <span className="wf-overline">{t("MULTI-PANEL FIGURE / 图版工作栏", "MULTI-PANEL FIGURE / ASSEMBLY")}</span>
+        <h1>{t("排版多图图版", "Assemble a multi-panel figure")}</h1>
+        <p>{t("制作图表后加入右侧工作栏。可以排最多 4 张图表，也可以把一张科研图像与一张统计图排成 A/B 图版。", "Collect plots in the sidebar. Arrange up to four plots, or combine one scientific image and one data plot as an A/B figure.")}</p>
       </div>
       <div className="wf-figure-guide">
-        <div><b>1</b><strong>加入图表</strong><p>使用当前本机数据生成图表，然后点“加入图版”。</p></div>
-        <div><b>2</b><strong>调整版面</strong><p>在右侧选择模板、排列、尺寸和标签。</p></div>
-        <div><b>3</b><strong>检查并导出</strong><p>生成实际图版预览，检查后导出成品。</p></div>
+        <div><b>1</b><strong>{t("加入图表", "Add a plot")}</strong><p>{t("使用当前本机数据生成图表，然后点“加入图版”。", "Generate a plot from the current local dataset, then select Add to figure.")}</p></div>
+        <div><b>2</b><strong>{t("调整版面", "Adjust the layout")}</strong><p>{t("在右侧选择模板、排列、尺寸和标签。", "Choose a template, arrangement, dimensions, and labels in the sidebar.")}</p></div>
+        <div><b>3</b><strong>{t("检查并导出", "Review and export")}</strong><p>{t("生成实际图版预览，检查后导出成品。", "Generate the actual figure preview, review it, then export.")}</p></div>
       </div>
-      <div className="wf-bottom"><button onClick={() => setPage(0)}>← 返回作品类型</button><button className="primary" onClick={() => setPage(7)}>{panels.length ? '继续添加图表 →' : '制作第一张图表 →'}</button></div>
+      <div className="wf-bottom"><button onClick={() => setPage(0)}>{t("← 返回作品类型", "← Back to figure types")}</button><button className="primary" onClick={() => setPage(7)}>{panels.length ? t("继续添加图表 →", "Add another plot →") : t("制作第一张图表 →", "Create the first plot →")}</button></div>
       <section className="wf-config">
-        <h2>加入科研图像</h2>
-        <p>混合图版中，科研图像放在 A，统计图放在 B。请选择单平面 PNG 或 TIFF，并使用你已确认的标定。</p>
+        <h2>{t("加入科研图像", "Add a scientific image")}</h2>
+        <p>{t("混合图版中，科研图像放在 A，统计图放在 B。请选择单平面 PNG 或 TIFF，并使用你已确认的标定。", "Mixed figures place the image in panel A and the plot in panel B. Choose a single-plane PNG or TIFF and supply a verified calibration.")}</p>
         {!figureImage ? (
-          <label>选择源图<input type="file" accept=".png,.tif,.tiff" disabled={panels.length > 1 || panels.some((item) => !['scatter', 'bar', 'line', 'box', 'heatmap'].includes(item.chart.chart_type))} onChange={(e) => {
+          <label>{t("选择源图", "Choose source image")}<input type="file" accept=".png,.tif,.tiff" disabled={panels.length > 1 || panels.some((item) => !['scatter', 'bar', 'line', 'box', 'heatmap'].includes(item.chart.chart_type))} onChange={(e) => {
             const file = e.target.files?.[0]
             e.target.value = ''
             if (file) void importFigureImage(file)
@@ -1353,36 +1331,36 @@ export default function Workflow() {
         ) : (
           <>
             <p>A · {figureImage.name}</p>
-            <label>横向标定（µm/像素）<input type="number" min="0" step="any" value={figureImage.panel.x_um_per_pixel || ''} onChange={(e) => updateFigureImage({ x_um_per_pixel: Number(e.target.value) })} /></label>
-            <label>比例尺长度（µm）<input type="number" min="0" step="any" value={figureImage.panel.scale_bar_um || ''} onChange={(e) => updateFigureImage({ scale_bar_um: Number(e.target.value) })} /></label>
-            <label>比例尺颜色<select value={figureImage.panel.scale_bar_color} onChange={(e) => updateFigureImage({ scale_bar_color: e.target.value === 'black' ? 'black' : 'white' })}>
-              <option value="white">白色</option><option value="black">黑色</option>
+            <label>{t("横向标定（µm/像素）", "Horizontal calibration (µm/pixel)")}<input type="number" min="0" step="any" value={figureImage.panel.x_um_per_pixel || ''} onChange={(e) => updateFigureImage({ x_um_per_pixel: Number(e.target.value) })} /></label>
+            <label>{t("比例尺长度（µm）", "Scale bar length (µm)")}<input type="number" min="0" step="any" value={figureImage.panel.scale_bar_um || ''} onChange={(e) => updateFigureImage({ scale_bar_um: Number(e.target.value) })} /></label>
+            <label>{t("比例尺颜色", "Scale bar color")}<select value={figureImage.panel.scale_bar_color} onChange={(e) => updateFigureImage({ scale_bar_color: e.target.value === 'black' ? 'black' : 'white' })}>
+              <option value="white">{t("白色", "White")}</option><option value="black">{t("黑色", "Black")}</option>
             </select></label>
             <details>
-              <summary>裁切选项</summary>
-              <p>从源图左上角以像素计。裁切只用于图版，项目保留原图。</p>
+              <summary>{t("裁切选项", "Crop options")}</summary>
+              <p>{t("从源图左上角以像素计。裁切只用于图版，项目保留原图。", "Pixel coordinates start at the source image’s upper-left corner. Cropping applies only to the figure; the project retains the original image.")}</p>
               {figureImage.panel.crop ? (
                 <>
-                  {([['x', '起点 X'], ['y', '起点 Y'], ['width', '宽'], ['height', '高']] as const).map(([key, title]) => (
+                  {([['x', t("起点 X", "Start X")], ['y', t("起点 Y", "Start Y")], ['width', t("宽", "Width")], ['height', t("高", "Height")]] as const).map(([key, title]) => (
                     <label key={key}>{title}<input type="number" min={key === 'x' || key === 'y' ? 0 : 1} step="1" value={figureImage.panel.crop?.[key]} onChange={(e) => {
                       const crop = figureImage.panel.crop
                       if (crop) updateFigureImage({ crop: { ...crop, [key]: Number(e.target.value) } })
                     }} /></label>
                   ))}
-                  <button onClick={() => updateFigureImage({ crop: null })}>恢复整图</button>
+                  <button onClick={() => updateFigureImage({ crop: null })}>{t("恢复整图", "Restore full image")}</button>
                 </>
               ) : assembly?.imageCheck ? <button onClick={() => {
                 const [width, height] = assembly.imageCheck!.source_pixels
                 updateFigureImage({ crop: { x: 0, y: 0, width, height } })
-              }}>设置裁切</button> : <p>先生成一次整图预览，即可按原图尺寸设置裁切。</p>}
+              }}>{t("设置裁切", "Apply crop")}</button> : <p>{t("先生成一次整图预览，即可按原图尺寸设置裁切。", "Generate a full-image preview before defining a crop in source-image pixels.")}</p>}
             </details>
-            <button onClick={removeFigureImage}>移除科研图像</button>
+            <button onClick={removeFigureImage}>{t("移除科研图像", "Remove scientific image")}</button>
           </>
         )}
-        {panels.length > 1 && <p>先把图表减至一张，再加入科研图像。</p>}
-        {panels.length === 1 && !['scatter', 'bar', 'line', 'box', 'heatmap'].includes(panels[0].chart.chart_type) && <p>混合图版首版支持五类基础统计图。请先移除当前图表。</p>}
+        {panels.length > 1 && <p>{t("先把图表减至一张，再加入科研图像。", "Keep one data plot before adding a scientific image.")}</p>}
+        {panels.length === 1 && !['scatter', 'bar', 'line', 'box', 'heatmap'].includes(panels[0].chart.chart_type) && <p>{t("混合图版首版支持五类基础统计图。请先移除当前图表。", "Mixed figures currently support the five standard chart types. Remove the current plot first.")}</p>}
       </section>
-      <section className="wf-config"><h2>保存可编辑项目</h2><p>.bfsproj 会保存图表配置、图版布局及源数据副本，方便下次继续编辑；PDF、SVG、PNG 或 TIFF 是导出的成品文件。当前项目格式只支持来自同一数据集的子图。</p><label>项目名称<input value={name} onChange={(e) => setName(e.target.value)} /></label><div className="wf-actions"><button disabled={!figureReady || !sameDatasetPanels || (!figureImage && !draft.dataset_id)} onClick={saveProject}>保存 .bfsproj 项目</button><button onClick={() => projectInputRef.current?.click()}>打开已有项目</button></div>{!sameDatasetPanels && <p role="status">这些子图来自不同数据集，可以导出图版，但暂不能保存为同一个可编辑项目。</p>}</section>
+      <section className="wf-config"><h2>{t("保存可编辑项目", "Save an editable project")}</h2><p>{t(".bfsproj 会保存图表配置、图版布局及源数据副本，方便下次继续编辑；PDF、SVG、PNG 或 TIFF 是导出的成品文件。当前项目格式只支持来自同一数据集的子图。", "A .bfsproj stores plot settings, figure layout, and source-data copies for later editing. PDF, SVG, PNG, and TIFF are exported outputs. This project format supports panels from one dataset.")}</p><label>{t("项目名称", "Project name")}<input value={name} onChange={(e) => setName(e.target.value)} /></label><div className="wf-actions"><button disabled={!figureReady || !sameDatasetPanels || (!figureImage && !draft.dataset_id)} onClick={saveProject}>{t("保存 .bfsproj 项目", "Save .bfsproj project")}</button><button onClick={() => projectInputRef.current?.click()}>{t("打开已有项目", "Open project")}</button></div>{!sameDatasetPanels && <p role="status">{t("这些子图来自不同数据集，可以导出图版，但暂不能保存为同一个可编辑项目。", "These panels use different datasets. You can export the figure, but cannot save them as one editable project yet.")}</p>}</section>
     </>
   )
   const ecologyCard = (direction: EcologyDirection) => {
@@ -1390,7 +1368,7 @@ export default function Workflow() {
       <>
         <EcologyPreview direction={direction} compact />
         <div className="wf-ecology-meta">
-          <span>虚拟数据示意</span>
+          <span>{t("虚拟数据示意", "Synthetic preview")}</span>
         </div>
         <strong>
           {ecologyDirections[direction].title} ↗
@@ -1409,22 +1387,23 @@ export default function Workflow() {
     <>
       <div className="wf-title">
         <span className="wf-overline">ECOLOGY / 02</span>
-        <h1>先选择你的生态学任务。</h1>
-        <p>群落组成、多样性、排序、环境梯度、生态时间序列与空间点位均可进入本机绘图流程。</p>
+        <h1>{t("先选择你的生态学任务。", "Choose your ecological task.")}</h1>
+        <p>{t("群落组成、多样性、排序、环境梯度、生态时间序列与空间点位均可进入本机绘图流程。", "Local workflows cover community composition, diversity, ordination, environmental gradients, ecological time series, and spatial points.")}</p>
       </div>
       <div className="wf-ecology-grid">{(Object.keys(ecologyDirections) as EcologyDirection[]).map(ecologyCard)}</div>
-      <p className="wf-form-note wf-ecology-note">空间生态首版只接受已有点位表，不含在线地图、底图导入、重投影或空间统计；所有方向的真实数据均只在本机处理。</p>
+      <p className="wf-form-note wf-ecology-note">{t("空间生态首版只接受已有点位表，不含在线地图、底图导入、重投影或空间统计；所有方向的真实数据均只在本机处理。", "Spatial ecology accepts existing point tables. Online maps, imported basemaps, reprojection, and spatial statistics are not included. Real data is processed locally in all workflows.")}</p>
       <div className="wf-bottom">
-        <button onClick={() => setPage(7)}>← 返回数据图表</button>
+        <button onClick={() => setPage(7)}>{t("← 返回数据图表", "← Back to data plots")}</button>
       </div>
     </>
   )
   const modeSwitch = (
-    <div className="dw-switch dw-mode-switch" role="group" aria-label="工作模式">
-      <button type="button" aria-pressed={!aiMode} onClick={() => showMode(false)}>本地模式</button>
-      <button type="button" aria-pressed={aiMode} onClick={() => showMode(true)}>AI 模式</button>
+    <div className="dw-switch dw-mode-switch" role="group" aria-label={t("工作模式", "Working mode")}>
+      <button type="button" aria-pressed={!aiMode} onClick={() => showMode(false)}>{t("本地模式", "Local mode")}</button>
+      <button type="button" aria-pressed={aiMode} onClick={() => showMode(true)}>{t("AI 模式", "AI mode")}</button>
     </div>
   )
+  const languageSettingsButton = <button type="button" onClick={() => setLanguageSettingsOpen(true)}>{t('设置', 'Settings')}</button>
   return (
     <div className={aiMode ? 'wf wf-ai' : 'wf'}>
       {visitedAI && <DrawingWorkbench visible={aiMode} modeSwitch={modeSwitch} busy={!!busy}
@@ -1443,16 +1422,16 @@ export default function Workflow() {
       <input ref={projectInputRef} className="wf-hidden-input" type="file" accept=".bfsproj,.bfsillustration.json" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) openSavedFile(file) }} />
       <div hidden={aiMode}>
       {page === 6 ? <>
-        <div className="dw-illustration-mode">{modeSwitch}</div>
+        <div className="dw-illustration-mode">{languageSettingsButton}{modeSwitch}</div>
         <IllustrationStudio key={illustrationFile ? `${illustrationFile.name}-${illustrationFile.lastModified}` : illustrationSkillDraft ? `skill-${illustrationSkillRevision}` : illustrationKind} initialKind={illustrationKind} initialProject={illustrationFile} initialDocument={illustrationSkillDraft} onBack={() => { setIllustrationFile(null); setIllustrationSkillDraft(null); setPage(9) }} />
       </> : <>
       <header className="wf-header">
         <button className="wf-brand" onClick={() => setPage(0)}>
           <span className="wf-logo">✳</span>BioFigure <span>Studio</span>
         </button>
-        <div className="wf-header-tools"><span className="wf-badge">● 本机优先</span><button onClick={() => projectInputRef.current?.click()}>打开已有项目</button>{modeSwitch}</div>
+        <div className="wf-header-tools"><span className="wf-badge">{t("● 本机优先", "● Local first")}</span><button onClick={() => projectInputRef.current?.click()}>{t("打开已有项目", "Open project")}</button>{languageSettingsButton}{modeSwitch}</div>
       </header>
-      <div className="wf-notice">数据与项目只在本机处理；绘图使用输入中已有的值和分析结果，不自动计算统计结论。本机绘图助手按需运行。</div>
+      <div className="wf-notice">{t("数据与项目只在本机处理；绘图使用输入中已有的值和分析结果，不自动计算统计结论。本机绘图助手按需运行。", "Data and projects are processed locally. Plots use supplied values and analysis results; statistical conclusions are not calculated automatically. The local drawing assistant runs on request.")}</div>
       <div className={`wf-layout ${[0, 4, 5, 7, 9, 10].includes(page) ? 'wf-home-layout' : ''}`}>
         <main className="wf-main">
           {page === 0 ? (
@@ -1471,9 +1450,9 @@ export default function Workflow() {
           ) : page === 4 ? (
             <>
               <div className="wf-title">
-                <span className="wf-overline">GENOME & SEQUENCE CHARTS / 选择类型</span>
-                <h1>选择基因组或序列图表。</h1>
-                <p>选择现有文件对应的图表类型，再检查输入内容。</p>
+                <span className="wf-overline">{t("GENOME & SEQUENCE CHARTS / 选择类型", "GENOME & SEQUENCE CHARTS / CHOOSE A TYPE")}</span>
+                <h1>{t("选择基因组或序列图表。", "Choose a genome or sequence plot.")}</h1>
+                <p>{t("选择现有文件对应的图表类型，再检查输入内容。", "Choose a plot type for your existing file, then review the input.")}</p>
               </div>
               <div className="wf-omics-grid">
                 {(['genome', 'circos', 'dna'] as OmicsDirection[]).map((direction) => (
@@ -1486,13 +1465,13 @@ export default function Workflow() {
                 ))}
               </div>
               <div className="wf-bottom">
-                <button onClick={() => setPage(7)}>← 返回数据图表</button>
+                <button onClick={() => setPage(7)}>{t("← 返回数据图表", "← Back to data plots")}</button>
               </div>
             </>
           ) : (
             <>
-              <nav className="wf-steps" aria-label="绘图步骤">
-                {['确认数据', '调整图表', '检查并导出'].map((t, i) => (
+              <nav className="wf-steps" aria-label={t("绘图步骤", "Plotting steps")}>
+                {[t("确认数据", "Review data"), t("调整图表", "Refine plot"), t("检查并导出", "Review and export")].map((t, i) => (
                   <span key={t} aria-current={page === i + 1 ? 'step' : undefined} className={page === i + 1 ? 'active' : ''}>
                     <b>{i + 1}</b>
                     {t}
@@ -1504,12 +1483,12 @@ export default function Workflow() {
                   {mode === 'single_cell' ? 'SINGLE CELL / 0' : mode === 'omics' ? `OMICS / ${omicsDirection?.toUpperCase() ?? ''}` : mode === 'ecology' ? `ECOLOGY / ${(ecologyDirection ?? 'community').toUpperCase()}` : 'DATA TABLE / 0'}
                   {page}
                 </span>
-                <h1>{['', '先确认你的数据。', '调整图表的表达。', '检查图表并导出。'][page]}</h1>
+                <h1>{['', t("先确认你的数据。", "Review your data first."), t("调整图表的表达。", "Refine how the data is presented."), t("检查图表并导出。", "Review the plot and export.")][page]}</h1>
               </div>
               {page === 1 && (
                 <>
                   <div className="wf-field">
-                    <span>图表类型 / Chart type</span>
+                    <span>{t("图表类型 / Chart type", "Chart type")}</span>
                     <div className="wf-chips">
                       {Object.entries(kinds).map(([key, title]) => (
                         <button
@@ -1538,11 +1517,10 @@ export default function Workflow() {
                     </div>
                   </div>
                   <div className="wf-upload">
-                    <h3>{mode === 'single_cell' ? '提交 H5AD' : mode === 'omics' ? `提交 ${omicsDirection ? omicsDirections[omicsDirection].title : '组学数据'}` : mode === 'ecology' ? (ecologyDirection === 'diversity' ? '提交已有多样性结果' : ecologyDirection === 'time' ? '提交生态时间序列' : ecologyDirection === 'spatial' ? '提交空间点位表' : '提交群落组成数据') : '提交数据表格'}</h3>
-                    <p>{mode === 'single_cell' ? 'H5AD · 最多 200 MB · 只读取已有结果' : mode === 'omics' ? (omicsDirection ? omicsDirections[omicsDirection].formats : '先选择组学方向') : mode === 'ecology' ? (ecologyDirection === 'diversity' ? 'CSV、XLSX · 已有指标或排序坐标 · 最多 5 MB' : ecologyDirection === 'time' ? 'CSV、XLSX · 数值时间 · 最多 5000 行 / 5 MB' : ecologyDirection === 'spatial' ? 'CSV、XLSX · 经纬度或平面坐标 · 最多 5000 行 / 5 MB' : 'CSV、XLSX · 长表 · 最多 5 MB') : 'CSV、XLSX · 最多 5 MB'}</p>
+                    <h3>{mode === 'single_cell' ? t("提交 H5AD", "Load H5AD") : mode === 'omics' ? t(`提交 ${omicsDirection ? omicsDirections[omicsDirection].title : t("组学数据", "Omics data")}`, `Load ${omicsDirection ? omicsDirections[omicsDirection].title : t("组学数据", "Omics data")}`) : mode === 'ecology' ? (ecologyDirection === 'diversity' ? t("提交已有多样性结果", "Load existing diversity results") : ecologyDirection === 'time' ? t("提交生态时间序列", "Load ecological time series") : ecologyDirection === 'spatial' ? t("提交空间点位表", "Load spatial point table") : t("提交群落组成数据", "Load community composition data")) : t("提交数据表格", "Load data table")}</h3>
+                    <p>{mode === 'single_cell' ? t("H5AD · 最多 200 MB · 只读取已有结果", "H5AD · Up to 200 MB · Existing results only") : mode === 'omics' ? (omicsDirection ? omicsDirections[omicsDirection].formats : t("先选择组学方向", "Choose an omics workflow first")) : mode === 'ecology' ? (ecologyDirection === 'diversity' ? t("CSV、XLSX · 已有指标或排序坐标 · 最多 5 MB", "CSV, XLSX · Existing metrics or ordination coordinates · Up to 5 MB") : ecologyDirection === 'time' ? t("CSV、XLSX · 数值时间 · 最多 5000 行 / 5 MB", "CSV, XLSX · Numeric time · Up to 5,000 rows / 5 MB") : ecologyDirection === 'spatial' ? t("CSV、XLSX · 经纬度或平面坐标 · 最多 5000 行 / 5 MB", "CSV, XLSX · Geographic or planar coordinates · Up to 5,000 rows / 5 MB") : t("CSV、XLSX · 长表 · 最多 5 MB", "CSV, XLSX · Long table · Up to 5 MB")) : t("CSV、XLSX · 最多 5 MB", "CSV, XLSX · Up to 5 MB")}</p>
                     <label>
-                      选择文件
-                      <input
+                      {t("选择文件", "Choose file")}<input
                         type="file"
                         accept={mode === 'single_cell' || (mode === 'omics' && omicsDirection === 'spatial') ? '.h5ad' : mode === 'omics' && omicsDirection === 'dna' ? '.gb,.gbk,.genbank' : mode === 'omics' && omicsDirection === 'circos' ? '.json' : mode === 'omics' && omicsDirection === 'genome' ? '.json,.bed,.bedgraph,.gff,.gff3,.gtf,.chrom.sizes' : '.csv,.xlsx'}
                         onChange={(e) => {
@@ -1552,12 +1530,12 @@ export default function Workflow() {
                         }}
                       />
                     </label>
-                    {(mode === 'table' || mode === 'ecology') && <button onClick={() => loadData()}>使用内置模拟数据</button>}
+                    {(mode === 'table' || mode === 'ecology') && <button onClick={() => loadData()}>{t("使用内置模拟数据", "Use synthetic example")}</button>}
                   </div>
                   {preview && (
                     <div className="wf-data">
-                      <h3>{preview.kind === 'single_cell' ? `H5AD 预览 · ${preview.cell_count} 个细胞 · ${preview.gene_count} 个基因` : preview.kind === 'dna' ? `GenBank 预览 · ${preview.sequence_length ?? 0} bp · ${preview.feature_count ?? 0} 个特征` : preview.kind === 'omics_manifest' ? `组学清单 · ${preview.summary ?? '本地 manifest'}` : preview.kind === 'genome_tracks' ? `基因组轨道 · ${preview.row_count ?? 0} 个区间` : `数据预览 · ${preview.row_count ?? 0} 行`}</h3>
-                      <p>{preview.source_name ?? '内置模拟数据'} · {preview.matrix_format ?? '表格'}{preview.sha256 ? ` · SHA256 ${preview.sha256.slice(0, 12)}` : ''}</p>
+                      <h3>{preview.kind === 'single_cell' ? t(`H5AD 预览 · ${preview.cell_count} 个细胞 · ${preview.gene_count} 个基因`, `H5AD preview · ${preview.cell_count} cells · ${preview.gene_count} genes`) : preview.kind === 'dna' ? t(`GenBank 预览 · ${preview.sequence_length ?? 0} bp · ${preview.feature_count ?? 0} 个特征`, `GenBank preview · ${preview.sequence_length ?? 0} bp · ${preview.feature_count ?? 0} features`) : preview.kind === 'omics_manifest' ? t(`组学清单 · ${preview.summary ?? t("本地 manifest", "Local manifest")}`, `Omics manifest · ${preview.summary ?? t("本地 manifest", "Local manifest")}`) : preview.kind === 'genome_tracks' ? t(`基因组轨道 · ${preview.row_count ?? 0} 个区间`, `Genome tracks · ${preview.row_count ?? 0} intervals`) : t(`数据预览 · ${preview.row_count ?? 0} 行`, `Data preview · ${preview.row_count ?? 0} rows`)}</h3>
+                      <p>{preview.source_name ?? t("内置模拟数据", "Synthetic example")} · {preview.matrix_format ?? t("表格", "Table")}{preview.sha256 ? ` · SHA256 ${preview.sha256.slice(0, 12)}` : ''}</p>
                       <table>
                         <thead>
                           <tr>
@@ -1566,7 +1544,7 @@ export default function Workflow() {
                                 {c.name}
                                 <small>
                                   {' '}
-                                  {c.dtype} · 缺失 {c.missing_count ?? 0}
+                                  {c.dtype} {t("· 缺失", " · Missing")}{c.missing_count ?? 0}
                                 </small>
                               </th>
                             ))}
@@ -1576,7 +1554,7 @@ export default function Workflow() {
                           {preview.rows.map((row, i) => (
                             <tr key={i}>
                               {preview.columns.map((c) => (
-                                <td key={c.name}>{row[c.name] == null ? '缺失' : String(row[c.name])}</td>
+                                <td key={c.name}>{row[c.name] == null ? t("缺失", "Missing") : String(row[c.name])}</td>
                               ))}
                             </tr>
                           ))}
@@ -1587,27 +1565,24 @@ export default function Workflow() {
                   {mode === 'table' ? (
                     <div className="wf-form">
                       <label>
-                        X 轴
-                        <select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
-                          <option value="">请选择</option>
+                        {t("X 轴", "X axis")}<select value={draft.x_column} onChange={(e) => change({ x_column: e.target.value })}>
+                          <option value="">{t("请选择", "Choose an option")}</option>
                           {(draft.chart_type === 'heatmap' ? (preview?.columns ?? []) : numeric).map((c) => (
                             <option key={c.name}>{c.name}</option>
                           ))}
                         </select>
                       </label>
                       <label>
-                        Y 数值轴
-                        <select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
-                          <option value="">请选择</option>
+                        {t("Y 数值轴", "Numeric Y axis")}<select value={draft.y_column} onChange={(e) => change({ y_column: e.target.value })}>
+                          <option value="">{t("请选择", "Choose an option")}</option>
                           {numeric.map((c) => (
                             <option key={c.name}>{c.name}</option>
                           ))}
                         </select>
                       </label>
                       <label>
-                        颜色分组
-                        <select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
-                          <option value="">不分组</option>
+                        {t("颜色分组", "Color grouping")}<select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
+                          <option value="">{t("不分组", "No grouping")}</option>
                           {fieldOptions.map((c) => (
                             <option key={c.name}>{c.name}</option>
                           ))}
@@ -1621,8 +1596,7 @@ export default function Workflow() {
                   ) : (
                     <div className="wf-form">
                       <label>
-                        坐标
-                        <select value={draft.coordinate_key} onChange={(e) => change({ coordinate_key: e.target.value })}>
+                        {t("坐标", "Coordinates")}<select value={draft.coordinate_key} onChange={(e) => change({ coordinate_key: e.target.value })}>
                           {preview?.coordinates?.map((c) => (
                             <option key={c.key}>{c.key}</option>
                           ))}
@@ -1630,9 +1604,8 @@ export default function Workflow() {
                       </label>
                       {['embedding_categorical', 'embedding_continuous'].includes(draft.chart_type) && (
                         <label>
-                          颜色字段
-                          <select value={draft.color_field ?? ''} onChange={(e) => change({ color_field: e.target.value || null })}>
-                            <option value="">请选择</option>
+                          {t("颜色字段", "Color field")}<select value={draft.color_field ?? ''} onChange={(e) => change({ color_field: e.target.value || null })}>
+                            <option value="">{t("请选择", "Choose an option")}</option>
                             {fieldOptions.map((c) => (
                               <option key={c.name}>{c.name}</option>
                             ))}
@@ -1641,9 +1614,8 @@ export default function Workflow() {
                       )}
                       {['violin', 'dotplot'].includes(draft.chart_type) && (
                         <label>
-                          分组字段
-                          <select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
-                            <option value="">请选择</option>
+                          {t("分组字段", "Grouping field")}<select value={draft.group_column ?? ''} onChange={(e) => change({ group_column: e.target.value || null })}>
+                            <option value="">{t("请选择", "Choose an option")}</option>
                             {fieldOptions.map((c) => (
                               <option key={c.name}>{c.name}</option>
                             ))}
@@ -1652,8 +1624,7 @@ export default function Workflow() {
                       )}
                       {['feature', 'violin', 'dotplot'].includes(draft.chart_type) && (
                         <label>
-                          基因（逗号分隔）
-                          <input
+                          {t("基因（逗号分隔）", "Genes (comma-separated)")}<input
                             value={draft.genes.join(', ')}
                             onChange={(e) =>
                               change({
@@ -1667,8 +1638,7 @@ export default function Workflow() {
                         </label>
                       )}
                       <label>
-                        表达来源
-                        <select value={draft.expression_source} onChange={(e) => change({ expression_source: e.target.value })}>
+                        {t("表达来源", "Expression source")}<select value={draft.expression_source} onChange={(e) => change({ expression_source: e.target.value })}>
                           <option value="X">X</option>
                           {preview?.has_raw && <option value="raw">raw</option>}
                           {preview?.layers?.map((layer) => (
@@ -1680,24 +1650,21 @@ export default function Workflow() {
                       </label>
                       {draft.expression_source === 'layer' && (
                         <label>
-                          Layer 名称
-                          <input value={draft.expression_layer ?? ''} onChange={(e) => change({ expression_layer: e.target.value })} />
+                          {t("Layer 名称", "Layer name")}<input value={draft.expression_layer ?? ''} onChange={(e) => change({ expression_layer: e.target.value })} />
                         </label>
                       )}
                       <label>
-                        展示转换
-                        <select value={draft.transform} onChange={(e) => change({ transform: e.target.value })}>
-                          <option value="none">不转换</option>
-                          <option value="log1p">log1p（写入配置）</option>
+                        {t("展示转换", "Display transform")}<select value={draft.transform} onChange={(e) => change({ transform: e.target.value })}>
+                          <option value="none">{t("不转换", "No transform")}</option>
+                          <option value="log1p">{t("log1p（写入配置）", "log1p (recorded in settings)")}</option>
                         </select>
                       </label>
                     </div>
                   )}
                   <div className="wf-bottom">
-                    <button onClick={() => setPage(7)}>← 返回数据图表</button>
+                    <button onClick={() => setPage(7)}>{t("← 返回数据图表", "← Back to data plots")}</button>
                     <button className="primary" disabled={!valid} onClick={() => setPage(2)}>
-                      确认数据，下一步 →
-                    </button>
+                      {t("确认数据，下一步 →", "Confirm data and continue →")}</button>
                   </div>
                 </>
               )}
@@ -1705,12 +1672,10 @@ export default function Workflow() {
                 <>
                   <div className="wf-form">
                     <label>
-                      图表标题
-                      <input value={draft.title} onChange={(e) => change({ title: e.target.value })} />
+                      {t("图表标题", "Plot title")}<input value={draft.title} onChange={(e) => change({ title: e.target.value })} />
                     </label>
                     <label>
-                      基础主题
-                      <select value={draft.theme_id} onChange={(e) => change({ theme_id: e.target.value })}>
+                      {t("基础主题", "Base theme")}<select value={draft.theme_id} onChange={(e) => change({ theme_id: e.target.value })}>
                         {Object.entries(themes).map(([key, title]) => (
                           <option key={key} value={key}>
                             {title}
@@ -1719,8 +1684,7 @@ export default function Workflow() {
                       </select>
                     </label>
                     <label>
-                      色板
-                      <select value={draft.palette_id} onChange={(e) => change({ palette_id: e.target.value })}>
+                      {t("色板", "Palette")}<select value={draft.palette_id} onChange={(e) => change({ palette_id: e.target.value })}>
                         {['theme', 'colorblind', 'viridis', 'cividis', 'magma', 'coolwarm', 'clay', 'lagoon'].map((key) => (
                           <option key={key} value={key}>{paletteLabels[key]}</option>
                         ))}
@@ -1734,8 +1698,7 @@ export default function Workflow() {
                     ))}
                     {draft.chart_type !== 'r_ggplot' && <SvgTextPicker value={draft.svg_text_mode} onChange={(svg_text_mode) => change({ svg_text_mode })} />}
                     <label>
-                      显示图例
-                      <input type="checkbox" checked={draft.show_legend} onChange={(e) => change({ show_legend: e.target.checked })} />
+                      {t("显示图例", "Show legend")}<input type="checkbox" checked={draft.show_legend} onChange={(e) => change({ show_legend: e.target.checked })} />
                     </label>
                   </div>
                   <div className="wf-live-preview">
@@ -1759,20 +1722,19 @@ export default function Workflow() {
                         )}
                       </div>
                     </div>
-                    <p>此处是虚拟数据示意；下一步会用当前数据生成实际图表。</p>
+                    <p>{t("此处是虚拟数据示意；下一步会用当前数据生成实际图表。", "This is a synthetic preview. The next step generates the actual plot from your current data.")}</p>
                   </div>
                   <div className="wf-bottom">
-                    <button onClick={() => setPage(1)}>← 返回数据确认</button>
+                    <button onClick={() => setPage(1)}>{t("← 返回数据确认", "← Back to data review")}</button>
                     <button className="primary" disabled={!valid} onClick={render}>
-                      生成图表并检查 →
-                    </button>
+                      {t("生成图表并检查 →", "Generate and review plot →")}</button>
                   </div>
                 </>
               )}
               {page === 3 && result && (
                 <>
                   <div className="wf-result">
-                    <img className="wf-real-image" src={result.image} alt="实际数据图表" />
+                    <img className="wf-real-image" src={result.image} alt={t("实际数据图表", "Actual data plot")} />
                   </div>
                   <div className="wf-result-meta">
                     <span>
@@ -1783,14 +1745,14 @@ export default function Workflow() {
                     </span>
                   </div>
                   <div className="wf-bottom">
-                    <button onClick={() => setPage(2)}>← 调整图表</button>
+                    <button onClick={() => setPage(2)}>{t("← 调整图表", "← Refine plot")}</button>
                     <FormatPicker value={format} onChange={setFormat} />
                     <button onClick={() => download(result.artifact)}>
                       <FolderIcon />
-                      导出 {format.toUpperCase()}
+                      {t("导出", "Export")}{format.toUpperCase()}
                     </button>
                     <button className="primary" disabled={!canAddFigureChart} onClick={addResultToFigure}>
-                      {(mode === 'omics' || (figureImage && mode !== 'table')) ? '此类图表暂不支持当前图版' : `＋ 加入图版 ${panels.length}/${figureChartLimit}`}
+                      {(mode === 'omics' || (figureImage && mode !== 'table')) ? t("此类图表暂不支持当前图版", "This chart type is not supported in the current figure") : t(`＋ 加入图版 ${panels.length}/${figureChartLimit}`, `＋ Add to figure ${panels.length}/${figureChartLimit}`)}
                     </button>
                   </div>
                 </>
@@ -1798,14 +1760,12 @@ export default function Workflow() {
               {page > 0 && page !== 4 && page !== 5 && (
                 <section className="wf-config">
                   <label>
-                    项目名称
-                    <input value={name} onChange={(e) => setName(e.target.value)} />
+                    {t("项目名称", "Project name")}<input value={name} onChange={(e) => setName(e.target.value)} />
                   </label>
                   <div className="wf-actions">
-                    <button disabled={!draft.dataset_id || !sameDatasetPanels || (Boolean(figureImage) && !figureReady)} onClick={saveProject}>保存 .bfsproj 项目</button>
+                    <button disabled={!draft.dataset_id || !sameDatasetPanels || (Boolean(figureImage) && !figureReady)} onClick={saveProject}>{t("保存 .bfsproj 项目", "Save .bfsproj project")}</button>
                     <label>
-                      打开项目
-                      <input
+                      {t("打开项目", "Open project")}<input
                         type="file"
                         accept=".bfsproj"
                         onChange={(e) => {
@@ -1816,8 +1776,8 @@ export default function Workflow() {
                       />
                     </label>
                   </div>
-                  <p>.bfsproj 保存可编辑的图表配置与源数据副本，下次可重新打开。PDF、SVG、PNG 是当前图表的导出成品。图版项目仅支持同一数据集的子图。</p>
-                  {!sameDatasetPanels && <p role="status">当前图版包含不同数据集，可导出图版成品，但暂不能保存为同一个项目。</p>}
+                  <p>{t(".bfsproj 保存可编辑的图表配置与源数据副本，下次可重新打开。PDF、SVG、PNG 是当前图表的导出成品。图版项目仅支持同一数据集的子图。", "A .bfsproj stores editable plot settings and source-data copies for reopening. PDF, SVG, and PNG are exported plots. Figure projects support panels from one dataset.")}</p>
+                  {!sameDatasetPanels && <p role="status">{t("当前图版包含不同数据集，可导出图版成品，但暂不能保存为同一个项目。", "The current figure contains different datasets. Export is available, but saving as a single project is not supported yet.")}</p>}
                 </section>
               )}
             </>
@@ -1826,73 +1786,67 @@ export default function Workflow() {
         {[1, 2, 3, 8].includes(page) && (
           <aside className="wf-sidebar">
             <div className="wf-section-head">
-              <h2>图版工作栏</h2>
+              <h2>{t("图版工作栏", "Figure assembly")}</h2>
               <span>{figureImage ? `${panels.length + 1}/2` : `${panels.length}/4`}</span>
             </div>
-            {!panels.length && <div className="wf-empty"><span>▤</span><strong>还没有子图</strong><p>生成数据图表后点“加入图版”。</p></div>}
+            {!panels.length && <div className="wf-empty"><span>▤</span><strong>{t("还没有子图", "No panels yet")}</strong><p>{t("生成数据图表后点“加入图版”。", "Generate a data plot, then select Add to figure.")}</p></div>}
             <div className="wf-queue">
               {panels.map((p, i) => (
                 <div className="wf-panel" key={i}>
                   <div className="wf-thumb">
-                    <img className="wf-real-image" src={p.image} alt={`子图 ${i + 1}`} />
+                    <img className="wf-real-image" src={p.image} alt={t(`子图 ${i + 1}`, `Panel ${i + 1}`)} />
                   </div>
                   <div>
                     <strong>
                       {String.fromCharCode(65 + i + Number(Boolean(figureImage)))} · {kinds[p.chart.chart_type]}
                     </strong>
                     <small>{p.chart.title}</small>
-                    <button onClick={() => { setPanels(panels.filter((_, j) => i !== j)); setAssembly(null) }}>移除</button>
+                    <button onClick={() => { setPanels(panels.filter((_, j) => i !== j)); setAssembly(null) }}>{t("移除", "Remove")}</button>
                   </div>
                 </div>
               ))}
             </div>
             <div className="wf-console">
-              <h3>布局控制台</h3>
+              <h3>{t("布局控制台", "Layout controls")}</h3>
               <label>
-                通用模板（非期刊官方）
-                <select value={layout.template_id} onChange={(e) => applyTemplate(e.target.value)}>
-                  <option value="single_column">单栏 90 × 120 mm</option>
-                  <option value="double_column">双栏 180 × 120 mm</option>
-                  <option value="square_grid">方形网格 180 × 180 mm</option>
-                  <option value="custom">自定义</option>
+                {t("通用模板（非期刊官方）", "General template (not journal-endorsed)")}<select value={layout.template_id} onChange={(e) => applyTemplate(e.target.value)}>
+                  <option value="single_column">{t("单栏 90 × 120 mm", "Single column · 90 × 120 mm")}</option>
+                  <option value="double_column">{t("双栏 180 × 120 mm", "Double column · 180 × 120 mm")}</option>
+                  <option value="square_grid">{t("方形网格 180 × 180 mm", "Square grid · 180 × 180 mm")}</option>
+                  <option value="custom">{t("自定义", "Custom")}</option>
                 </select>
               </label>
               <label>
-                排列
-                <select value={layout.columns} onChange={(e) => updateLayout({ columns: Number(e.target.value), template_id: 'custom' })}>
-                  <option value={1}>单列</option>
-                  <option value={2}>双列</option>
+                {t("排列", "Arrangement")}<select value={layout.columns} onChange={(e) => updateLayout({ columns: Number(e.target.value), template_id: 'custom' })}>
+                  <option value={1}>{t("单列", "One column")}</option>
+                  <option value={2}>{t("双列", "Two columns")}</option>
                 </select>
               </label>
               <label>
-                子图标签
-                <select value={layout.labels} onChange={(e) => updateLayout({ labels: e.target.value })}>
+                {t("子图标签", "Panel labels")}<select value={layout.labels} onChange={(e) => updateLayout({ labels: e.target.value })}>
                   <option value="upper">A, B, C…</option>
                   <option value="lower">a, b, c…</option>
-                  <option value="none">不显示</option>
+                  <option value="none">{t("不显示", "Hide")}</option>
                 </select>
               </label>
               <label>
-                标签位置
-                <select value={layout.label_position} onChange={(e) => updateLayout({ label_position: e.target.value })}>
-                  <option value="inside">图内左上</option>
-                  <option value="outside">图外左上</option>
+                {t("标签位置", "Label position")}<select value={layout.label_position} onChange={(e) => updateLayout({ label_position: e.target.value })}>
+                  <option value="inside">{t("图内左上", "Inside, upper left")}</option>
+                  <option value="outside">{t("图外左上", "Outside, upper left")}</option>
                 </select>
               </label>
               <label>
-                图例布局
-                <select value={layout.legend_mode} onChange={(e) => updateLayout({ legend_mode: e.target.value })}>
-                  <option value="per_panel">逐图图例</option>
-                  <option value="shared">{figureImage ? '统计图内统一图例' : '共享图例'}</option>
-                  <option value="none">不显示图例</option>
+                {t("图例布局", "Legend layout")}<select value={layout.legend_mode} onChange={(e) => updateLayout({ legend_mode: e.target.value })}>
+                  <option value="per_panel">{t("逐图图例", "Per-panel legends")}</option>
+                  <option value="shared">{figureImage ? t("统计图内统一图例", "Unified legend within the data plot") : t("共享图例", "Shared legend")}</option>
+                  <option value="none">{t("不显示图例", "No legends")}</option>
                 </select>
               </label>
               {layout.legend_mode === 'shared' && (
                 <label>
-                  共享图例位置
-                  <select value={layout.legend_position} onChange={(e) => updateLayout({ legend_position: e.target.value })}>
-                    <option value="right">右侧</option>
-                    <option value="bottom">底部</option>
+                  {t("共享图例位置", "Shared legend position")}<select value={layout.legend_position} onChange={(e) => updateLayout({ legend_position: e.target.value })}>
+                    <option value="right">{t("右侧", "Right")}</option>
+                    <option value="bottom">{t("底部", "Bottom")}</option>
                   </select>
                 </label>
               )}
@@ -1903,13 +1857,13 @@ export default function Workflow() {
                 </label>
               ))}
               <SvgTextPicker value={layout.svg_text_mode} onChange={(svg_text_mode) => updateLayout({ svg_text_mode })} />
-              <p>Noto Sans SC（OFL-1.1）固定审核字体。PDF 嵌入字体，保留可编辑 SVG 文字时请在目标编辑器安装对应字体。</p>
+              <p>{t("Noto Sans SC（OFL-1.1）固定审核字体。PDF 嵌入字体，保留可编辑 SVG 文字时请在目标编辑器安装对应字体。", "Uses the reviewed Noto Sans SC font (OFL-1.1). PDF embeds fonts. Install the same font in your editor when using editable SVG text.")}</p>
             </div>
             <button className="primary" disabled={!figureReady} onClick={assembly ? () => setReview(true) : renderAssembly}>
               <FolderIcon />
-              {assembly ? '检查图版预览与导出 →' : '生成图版预览 →'}
+              {assembly ? t("检查图版预览与导出 →", "Review figure preview and export →") : t("生成图版预览 →", "Generate figure preview →")}
             </button>
-            <p>图版成品：PDF / SVG / PNG / TIFF。可编辑项目请另存为 .bfsproj。</p>
+            <p>{t("图版成品：PDF / SVG / PNG / TIFF。可编辑项目请另存为 .bfsproj。", "Figure outputs: PDF / SVG / PNG / TIFF. Save a separate .bfsproj for editing.")}</p>
           </aside>
         )}
       </div>
@@ -1917,21 +1871,19 @@ export default function Workflow() {
         <div className="wf-overlay">
           <section className="wf-dialog" role="dialog" aria-modal="true">
             <div className="wf-section-head">
-              <h2>最终图版 · 实际预览</h2>
-              <button onClick={() => setReview(false)}>关闭</button>
+              <h2>{t("最终图版 · 实际预览", "Final figure · Actual preview")}</h2>
+              <button onClick={() => setReview(false)}>{t("关闭", "Close")}</button>
             </div>
             <div className="wf-dialog-body">
-              <img className="wf-real-image" src={assembly.image} alt="实际拼版预览" />
+              <img className="wf-real-image" src={assembly.image} alt={t("实际拼版预览", "Actual figure preview")} />
               {assembly.imageCheck && <p role="status">
-                图像有效分辨率 {assembly.imageCheck.effective_dpi} DPI，导出 {assembly.imageCheck.output_dpi} DPI。
-                源图 {assembly.imageCheck.source_pixels.join(' × ')} 像素，排版使用 {assembly.imageCheck.placed_pixels.join(' × ')} 像素。
-                {assembly.imageCheck.below_output_dpi && '图像有效分辨率低于导出设置，请核对投稿要求。'}
+                {t("图像有效分辨率", "Effective image resolution")}{assembly.imageCheck.effective_dpi} {t("DPI，导出", " DPI; export ")}{assembly.imageCheck.output_dpi} {t("DPI。 源图", " DPI. Source image ")}{assembly.imageCheck.source_pixels.join(' × ')} {t("像素，排版使用", " pixels; placed at ")}{assembly.imageCheck.placed_pixels.join(' × ')} {t("像素。", " pixels.")}{assembly.imageCheck.below_output_dpi && t("图像有效分辨率低于导出设置，请核对投稿要求。", "Effective image resolution is lower than the export setting. Check your submission requirements.")}
               </p>}
             </div>
             <div className="wf-dialog-footer">
               <FormatPicker value={format} onChange={setFormat} tiff />
               <button className="primary" onClick={() => download(assembly.artifact)}>
-                确认下载 {format.toUpperCase()}
+                {t("确认下载", "Confirm download")}{format.toUpperCase()}
               </button>
             </div>
           </section>
@@ -1939,13 +1891,19 @@ export default function Workflow() {
       )}
       </>}
       </div>
+      <dialog ref={languageDialog} className="wf-dialog" aria-label={t('设置', 'Settings')}
+        onCancel={() => setLanguageSettingsOpen(false)} onClose={() => setLanguageSettingsOpen(false)}
+        style={{ display: languageSettingsOpen ? 'block' : 'none', maxWidth: 520, width: 'min(90vw, 520px)', border: '1px solid #d7d7d7', borderRadius: 12, padding: 24, color: '#252525', background: '#fff' }}>
+        <div className="wf-section-head"><h2>{t('设置', 'Settings')}</h2><button type="button" autoFocus onClick={() => setLanguageSettingsOpen(false)}>{t('关闭', 'Close')}</button></div>
+        <LanguageSettings />
+      </dialog>
       {busy && (
         <div className="wf-overlay wf-working-overlay">
           <div className="wf-working-card">
-            <h2>biofigure 工作中</h2>
-            <p>正在本机处理，请稍候…</p>
-            <button onClick={() => active.current?.abort()}>取消等待</button>
-            {busy === 'workbench-draft' && <button onClick={() => showMode(false)}>返回本地模式</button>}
+            <h2>{t("biofigure 工作中", "BioFigure is working")}</h2>
+            <p>{t("正在本机处理，请稍候…", "Processing locally. Please wait…")}</p>
+            <button onClick={() => active.current?.abort()}>{t("取消等待", "Cancel")}</button>
+            {busy === 'workbench-draft' && <button onClick={() => showMode(false)}>{t("返回本地模式", "Return to Local mode")}</button>}
           </div>
         </div>
       )}

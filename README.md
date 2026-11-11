@@ -8,7 +8,7 @@ A local-first workbench for assembling scientific figures for manuscripts. Prepa
 
 ## Features
 
-| Capability | What you can do in v0.4.2 |
+| Capability | What you can do in v0.4.3 |
 | --- | --- |
 | **Drawing tools and connectors** | Use local Fiji for supported image operations and R/ggplot2 for supported plots. Hand off editable SVG files to Inkscape or Illustrator for further editing. |
 | **Original-pixel image grids** | Arrange supported images at their native pixel dimensions without resampling. Keep scale bars and other annotations separate from the source pixels, and export grids individually or in batches. |
@@ -50,9 +50,13 @@ These editable SVGs were exported from the v0.4.1 application using synthetic ex
 
 Scientific content remains subject to author review. Check final dimensions, labels, and the target journal’s requirements before submission.
 
+## Interface language
+
+New profiles start in English. Open **Settings → Language** to choose English or 简体中文. The preference is saved locally and applies immediately. Switching preserves data, entered figure titles, and saved projects. The original spotlight artwork, pointer interaction, and bilingual text are unchanged. Future interface updates must use this shared bilingual system.
+
 ## Release and validation
 
-The current candidate is **v0.4.2, a Windows x64 public preview**. It fixes project-save failures in the packaged v0.4.1 application by including the Matplotlib and pandas distribution metadata. The gallery retains actual v0.4.1 synthetic exports; the figure interfaces and illustration features are unchanged.
+The current candidate is **v0.4.3, a Windows x64 public preview**, adding English by default and a shared language preference in Settings. The installation matrix below is retained evidence for v0.4.2. That version fixes project-save failures in the packaged v0.4.1 application by including the Matplotlib and pandas distribution metadata. The gallery retains actual v0.4.1 synthetic exports; the figure interfaces and illustration features are unchanged.
 
 Verified paths include installation, synthetic project save/reopen and PDF export, upgrade from v0.4.1, and uninstall. A fresh Windows 10 LTSC 19044 x64 guest with no WebView2, network adapter, or default route installed the bundled runtime offline and loaded the desktop homepage. This result covers that environment. A Windows 11 first install without a runtime and whole-system network behavior on a clean system have not been verified. The installer is unsigned. See the [validation scope](docs/RELEASE_VALIDATION_0.4.2.md).
 

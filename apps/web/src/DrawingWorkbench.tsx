@@ -1,3 +1,5 @@
+import { useI18n } from './i18n'
+import { workbenchText } from './workbenchEnglish'
 import { useEffect, useState, type ReactNode } from 'react'
 import type { Chart } from './Workflow'
 import WorkbenchSettings from './WorkbenchSettings'
@@ -51,6 +53,9 @@ const externalPrompts = {
 const themeNames: Record<string, string> = { scientific_clear: '科研清晰', modern_soft: '现代柔和', high_contrast: '高对比' }
 
 export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, recent, onOpenProject, onOpen, onDraft, onApply, onInspect, onConnect, onDisconnect, onApplyIllustration, onDraftIllustration }: Props) {
+  const { locale } = useI18n()
+  const ui = (text: string) => workbenchText(locale, text)
+
   const [category, setCategory] = useState<Category>('chart')
   const [workspace, setWorkspace] = useState<'draw' | 'generate'>('draw')
   const [settings, setSettings] = useState(false)
@@ -158,25 +163,25 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
     <div className="drawing-workbench" hidden={!visible}>
       <aside className="dw-sidebar">
         <div className="dw-brand"><span aria-hidden="true">✳</span><strong>BioFigure</strong><small>Studio</small></div>
-        <nav className="dw-nav" aria-label="作图大类">
-          <p className="dw-caption">作图大类</p>
+        <nav className="dw-nav" aria-label={ui("作图大类")}>
+          <p className="dw-caption">{ui("作图大类")}</p>
           {(Object.keys(categories) as Category[]).map((key) => (
             <button key={key} aria-pressed={category === key && workspace === 'draw' && !settings} onClick={() => changeCategory(key)}>
-              <span aria-hidden="true">{categories[key].icon}</span>{categories[key].label}
+              <span aria-hidden="true">{categories[key].icon}</span>{ui(categories[key].label)}
             </button>
           ))}
         </nav>
         <section className="dw-recent" aria-labelledby="dw-recent-title">
-          <p className="dw-caption" id="dw-recent-title">近期项目 · 本次会话</p>
-          {recent.length === 0 && <p className="dw-muted">最近打开的图表和图版将显示在这里。</p>}
+          <p className="dw-caption" id="dw-recent-title">{ui("近期项目 · 本次会话")}</p>
+          {recent.length === 0 && <p className="dw-muted">{ui("最近打开的图表和图版将显示在这里。")}</p>}
           {recent.map((file) => <button key={file.name} title={file.name} onClick={() => onOpenProject(file)}>{file.name}</button>)}
-          <button onClick={() => onOpenProject()}>＋ 打开已有项目</button>
+          <button onClick={() => onOpenProject()}>{ui("＋ 打开已有项目")}</button>
         </section>
-        <div className="dw-sidebar-footer"><button aria-pressed={settings} onClick={() => { setSettings(!settings); setConsent(false) }}>⚙ 工作台设置</button></div>
+        <div className="dw-sidebar-footer"><button aria-pressed={settings} onClick={() => { setSettings(!settings); setConsent(false) }}>{ui("⚙ 工作台设置")}</button></div>
       </aside>
 
       <main className="dw-main">
-        <div className="dw-top"><span>{settings ? '工作台设置' : workspace === 'generate' ? '论文示意图' : section.label}</span>{modeSwitch}</div>
+        <div className="dw-top"><span>{settings ? ui("工作台设置") : workspace === 'generate' ? ui("论文示意图") : ui(section.label)}</span>{modeSwitch}</div>
         <WorkbenchSettings visible={settings} provider={provider} external={external}
           onProvider={(next) => { setProvider(next); setConsent(false); setProposal(null) }}
           onExternal={(next) => { setExternal(next); setConsent(false); setProposal(null) }}
@@ -185,113 +190,112 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
           <div className="dw-center">
             <div className="dw-intro">
               <p className="dw-caption">{workspace === 'generate' ? 'SCIENTIFIC ILLUSTRATION' : 'DRAWING WORKBENCH'}</p>
-              <h1>{workspace === 'generate' ? '论文示意图' : section.title}</h1>
-              <p>{workspace === 'generate' ? '把实验流程、机制关系与图形摘要做成可编辑的科研示意图。' : section.description}</p>
+              <h1>{workspace === 'generate' ? ui("论文示意图") : ui(section.title)}</h1>
+              <p>{workspace === 'generate' ? ui("把实验流程、机制关系与图形摘要做成可编辑的科研示意图。") : ui(section.description)}</p>
             </div>
             <form className="dw-composer" onSubmit={(event) => { event.preventDefault(); submit() }}>
               {workspace === 'generate' ? (
                 <div className="dw-skill-form">
-                  <div className="dw-illustration-tabs" role="group" aria-label="图示类型"><button type="button" aria-pressed={illustrationForm==='branch'} onClick={()=>setIllustrationForm('branch')}>双分支流程</button><button type="button" aria-pressed={illustrationForm==='timeline'} onClick={()=>setIllustrationForm('timeline')}>共享尺度时间轴</button></div>
-                  {illustrationForm==='timeline' ? <><strong>共享尺度实验时间轴</strong><p>逐项填写时间点、两个组的采样、干预区间与阶段。数值决定间距；软件不会从文字推测实验事实。</p><TimelineFields value={timelineInput} disabled={busy} onChange={value=>{setTimelineInput(value);setTimelineDraft(null);setTimelineError('')}}/><div className="dw-quick"><button type="button" onClick={()=>{setTimelineInput(syntheticTimelineExample);setTimelineDraft(null);setTimelineError('')}}>填入合成示例</button><button type="button" className="dw-primary" onClick={()=>{try{setTimelineDraft(buildTimeline(timelineInput));setTimelineError('')}catch(error){setTimelineDraft(null);setTimelineError(error instanceof Error?error.message:'时间轴输入无效。')}}}>检查时间轴草案</button></div>{timelineError&&<p role="alert">{timelineError}</p>}</> : <><strong>双分支实验流程草案</strong>
-                  <p>可让已审核的本机模型从固定合成段落逐字提取，再核对字段；也可手动填写已有步骤。不会上传数据或推断科学结论。</p>
-                  <button type="button" disabled={busy} onClick={() => { setModelExtraction(null); setWorkflowDraft(null); setWorkflowError(''); onDraftIllustration(receiveExtraction, setWorkflowError) }}>从固定合成段落提取 · 本机模型</button>
-                  {busy && <p role="status">本机任务正在处理，请稍候。</p>}
-                  <p>手动填写</p>
-                  <div className="dw-skill-grid">{branchWorkflowFields.map(({ key, label, max }) => <label key={key}>{label}
+                  <div className="dw-illustration-tabs" role="group" aria-label={ui("图示类型")}><button type="button" aria-pressed={illustrationForm==='branch'} onClick={()=>setIllustrationForm('branch')}>{ui("双分支流程")}</button><button type="button" aria-pressed={illustrationForm==='timeline'} onClick={()=>setIllustrationForm('timeline')}>{ui("共享尺度时间轴")}</button></div>
+                  {illustrationForm==='timeline' ? <><strong>{ui("共享尺度实验时间轴")}</strong><p>{ui("逐项填写时间点、两个组的采样、干预区间与阶段。数值决定间距；软件不会从文字推测实验事实。")}</p><TimelineFields value={timelineInput} disabled={busy} onChange={value=>{setTimelineInput(value);setTimelineDraft(null);setTimelineError('')}}/><div className="dw-quick"><button type="button" onClick={()=>{setTimelineInput(syntheticTimelineExample);setTimelineDraft(null);setTimelineError('')}}>{ui("填入合成示例")}</button><button type="button" className="dw-primary" onClick={()=>{try{setTimelineDraft(buildTimeline(timelineInput));setTimelineError('')}catch(error){setTimelineDraft(null);setTimelineError(error instanceof Error?error.message:'时间轴输入无效。')}}}>{ui("检查时间轴草案")}</button></div>{timelineError&&<p role="alert">{ui(timelineError)}</p>}</> : <><strong>{ui("双分支实验流程草案")}</strong>
+                  <p>{ui("可让已审核的本机模型从固定合成段落逐字提取，再核对字段；也可手动填写已有步骤。不会上传数据或推断科学结论。")}</p>
+                  <button type="button" disabled={busy} onClick={() => { setModelExtraction(null); setWorkflowDraft(null); setWorkflowError(''); onDraftIllustration(receiveExtraction, setWorkflowError) }}>{ui("从固定合成段落提取 · 本机模型")}</button>
+                  {busy && <p role="status">{ui("本机任务正在处理，请稍候。")}</p>}
+                  <p>{ui("手动填写")}</p>
+                  <div className="dw-skill-grid">{branchWorkflowFields.map(({ key, label, max }) => <label key={key}>{ui(label)}
                     <input value={workflowInput[key]} maxLength={max} disabled={busy} onChange={(event) => { setWorkflowInput({ ...workflowInput, [key]: event.target.value }); setModelExtraction(null); setWorkflowDraft(null); setWorkflowError('') }} />
                   </label>)}</div>
-                  <div className="dw-quick"><button type="button" disabled={busy} onClick={() => { setWorkflowInput(syntheticBranchExample); setModelExtraction(null); setWorkflowDraft(null); setWorkflowError('') }}>填入合成示例</button><button type="button" className="dw-primary" disabled={busy} onClick={prepareWorkflow}>检查结构化草案</button></div>
-                  {workflowError && <p role="alert">{workflowError}</p>}</>}
+                  <div className="dw-quick"><button type="button" disabled={busy} onClick={() => { setWorkflowInput(syntheticBranchExample); setModelExtraction(null); setWorkflowDraft(null); setWorkflowError('') }}>{ui("填入合成示例")}</button><button type="button" className="dw-primary" disabled={busy} onClick={prepareWorkflow}>{ui("检查结构化草案")}</button></div>
+                  {workflowError && <p role="alert">{ui(workflowError)}</p>}</>}
                 </div>
               ) : canDraft ? (
-                <textarea aria-label="合成样例绘图指令" rows={3} maxLength={320} value={currentPrompt} readOnly={usesExternal}
+                <textarea aria-label={ui("合成样例绘图指令")} rows={3} maxLength={320} value={currentPrompt} readOnly={usesExternal}
                   placeholder={prompts[category]} onChange={(event) => { setPrompt(event.target.value); setProposal(null); setConnector(null) }} />
               ) : (
-                <div className="dw-placeholder"><strong>{section.label}</strong><p>从本地编辑器继续。此类别的 AI 草案尚未开放。</p></div>
+                <div className="dw-placeholder"><strong>{ui(section.label)}</strong><p>{ui("从本地编辑器继续。此类别的 AI 草案尚未开放。")}</p></div>
               )}
               <div className="dw-composer-bar">
-                <div className="dw-switch" role="group" aria-label="AI 工作区">
-                  <button type="button" aria-pressed={workspace === 'draw'} onClick={() => setWorkspace('draw')}>制图</button>
-                  <button type="button" aria-pressed={workspace === 'generate'} onClick={() => { setWorkspace('generate'); setConsent(false) }}>生图</button>
+                <div className="dw-switch" role="group" aria-label={ui("AI 工作区")}>
+                  <button type="button" aria-pressed={workspace === 'draw'} onClick={() => setWorkspace('draw')}>{ui("制图")}</button>
+                  <button type="button" aria-pressed={workspace === 'generate'} onClick={() => { setWorkspace('generate'); setConsent(false) }}>{ui("生图")}</button>
                 </div>
-                {workspace === 'draw' && canDraft && <span className="dw-model">{usesExternal ? external.model || '外部模型 · 待配置' : '本机 · Ollama'}</span>}
-                {workspace === 'draw' && canDraft && <button className="dw-primary" disabled={!canSend} type="submit">生成草案 <span aria-hidden="true">↑</span></button>}
-                {workspace === 'generate' && <button type="button" onClick={() => onOpen('illustration')}>打开手动图示编辑器 ↗</button>}
-                {workspace === 'draw' && !canDraft && <button type="button" className="dw-primary" onClick={() => onOpen(category)}>{section.local} ↗</button>}
+                {workspace === 'draw' && canDraft && <span className="dw-model">{usesExternal ? external.model || ui("外部模型 · 待配置") : ui("本机 · Ollama")}</span>}
+                {workspace === 'draw' && canDraft && <button className="dw-primary" disabled={!canSend} type="submit">{ui("生成草案")} <span aria-hidden="true">↑</span></button>}
+                {workspace === 'generate' && <button type="button" onClick={() => onOpen('illustration')}>{ui("打开手动图示编辑器 ↗")}</button>}
+                {workspace === 'draw' && !canDraft && <button type="button" className="dw-primary" onClick={() => onOpen(category)}>{ui(section.local)} ↗</button>}
               </div>
             </form>
-            {workspace === 'generate' && illustrationForm==='branch' && modelExtraction && <section className="dw-card" aria-label="本机模型提取核对">
-              <p className="dw-caption">本机模型提取 · 固定合成文本 · 待确认</p>
-              <h2>逐字段核对原文</h2>
+            {workspace === 'generate' && illustrationForm==='branch' && modelExtraction && <section className="dw-card" aria-label={ui("本机模型提取核对")}>
+              <p className="dw-caption">{ui("本机模型提取 · 固定合成文本 · 待确认")}</p>
+              <h2>{ui("逐字段核对原文")}</h2>
               <p className="dw-source-text">{modelExtraction.source_text}</p>
-              <dl className="dw-extracted-fields">{branchWorkflowFields.map(({ key, label }) => <div key={key}><dt>{label}</dt><dd>{modelExtraction.fields[key]}</dd></div>)}</dl>
-              <p>字段必须逐字来自上方原文。确认后才按固定版式生成结构化草案；所有科学状态仍为待核实。</p>
-              <button type="button" className="dw-primary" disabled={busy} onClick={acceptExtraction}>确认字段，生成结构化草案</button>
+              <dl className="dw-extracted-fields">{branchWorkflowFields.map(({ key, label }) => <div key={key}><dt>{ui(label)}</dt><dd>{modelExtraction.fields[key]}</dd></div>)}</dl>
+              <p>{ui("字段必须逐字来自上方原文。确认后才按固定版式生成结构化草案；所有科学状态仍为待核实。")}</p>
+              <button type="button" className="dw-primary" disabled={busy} onClick={acceptExtraction}>{ui("确认字段，生成结构化草案")}</button>
             </section>}
-            {workspace === 'generate' && illustrationForm==='branch' && workflowDraft && <section className="dw-card" aria-label="双分支流程草案">
-              <p className="dw-caption">{workflowSource === 'local_model' ? '本机模型提取 + 固定版式' : '内置规则整理'} · 待核实</p><h2>{workflowDraft.title}</h2>
-              <p>起始步骤 → {workflowDraft.sections[1].title} → A 结果<br />起始步骤 → {workflowDraft.sections[2].title} → B 结果</p>
+            {workspace === 'generate' && illustrationForm==='branch' && workflowDraft && <section className="dw-card" aria-label={ui("双分支流程草案")}>
+              <p className="dw-caption">{workflowSource === 'local_model' ? ui("本机模型提取 + 固定版式") : ui("内置规则整理")} {ui("· 待核实")}</p><h2>{workflowDraft.title}</h2>
+              <p>{ui("起始步骤 →")} {workflowDraft.sections[1].title} {ui("→ A 结果")}<br />{ui("起始步骤 →")} {workflowDraft.sections[2].title} {ui("→ B 结果")}</p>
               <ol>{workflowDraft.sections.map((item) => <li key={item.id}><strong>{item.title}：</strong>{item.description}</li>)}</ol>
-              <p>5 个可编辑步骤、4 条箭头。全部标记为“待核实”，未附证据。进入编辑器后可修改文字、流程与状态，并导出 SVG。</p>
-              {!canApply && <p role="status">当前有手动项目或图版，请保存后在单独会话应用草案。</p>}
-              <button type="button" className="dw-primary" disabled={!canApply} onClick={() => onApplyIllustration(workflowDraft)}>确认进入图示编辑器 ↗</button>
+              <p>{ui("5 个可编辑步骤、4 条箭头。全部标记为“待核实”，未附证据。进入编辑器后可修改文字、流程与状态，并导出 SVG。")}</p>
+              {!canApply && <p role="status">{ui("当前有手动项目或图版，请保存后在单独会话应用草案。")}</p>}
+              <button type="button" className="dw-primary" disabled={!canApply} onClick={() => onApplyIllustration(workflowDraft)}>{ui("确认进入图示编辑器 ↗")}</button>
             </section>}
-            {workspace === 'generate' && illustrationForm==='timeline' && timelineDraft && <section className="dw-card" aria-label="时间轴草案"><p className="dw-caption">内置共享尺度规则 · 待核实</p><h2>{timelineDraft.title}</h2><p>{timelineDraft.timeline!.ticks.map(t=>t.label).join(' → ')}；{timelineDraft.timeline!.groups.map(g=>g.label).join('、')}；{timelineDraft.timeline!.intervals[0].label}：第 {timelineDraft.timeline!.intervals[0].start_day}–{timelineDraft.timeline!.intervals[0].end_day} 天。</p><p>进入编辑器后可修改全部时间轴字段，并保存项目或导出保留文字的 SVG。</p>{!canApply&&<p role="status">当前有手动项目或图版，请保存后在单独会话应用草案。</p>}<button type="button" className="dw-primary" disabled={!canApply} onClick={()=>onApplyIllustration(timelineDraft)}>确认进入图示编辑器 ↗</button></section>}
+            {workspace === 'generate' && illustrationForm==='timeline' && timelineDraft && <section className="dw-card" aria-label={ui("时间轴草案")}><p className="dw-caption">{ui("内置共享尺度规则 · 待核实")}</p><h2>{timelineDraft.title}</h2><p>{timelineDraft.timeline!.ticks.map(t=>t.label).join(' → ')}；{timelineDraft.timeline!.groups.map(g=>g.label).join('、')}；{timelineDraft.timeline!.intervals[0].label}{ui("：第")} {timelineDraft.timeline!.intervals[0].start_day}–{timelineDraft.timeline!.intervals[0].end_day} {ui("天。")}</p><p>{ui("进入编辑器后可修改全部时间轴字段，并保存项目或导出保留文字的 SVG。")}</p>{!canApply&&<p role="status">{ui("当前有手动项目或图版，请保存后在单独会话应用草案。")}</p>}<button type="button" className="dw-primary" disabled={!canApply} onClick={()=>onApplyIllustration(timelineDraft)}>{ui("确认进入图示编辑器 ↗")}</button></section>}
             {workspace === 'draw' && <>
               {usesExternal && <div className="dw-external">
-                <label>合成示例 <select value={preset} onChange={(event) => { setPreset(event.target.value === 'line' ? 'line' : 'scatter'); setConsent(false); setProposal(null) }}>
-                  <option value="scatter">散点图</option><option value="line">折线图</option>
+                <label>{ui("合成示例")} <select value={preset} onChange={(event) => { setPreset(event.target.value === 'line' ? 'line' : 'scatter'); setConsent(false); setProposal(null) }}>
+                  <option value="scatter">{ui("散点图")}</option><option value="line">{ui("折线图")}</option>
                 </select></label>
-                <label><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
-                  同意本次向所配置服务发送内置合成指令，服务可能计费。</label>
-                {(!external.api_key || !external.model || !external.base_url) && <button onClick={() => setSettings(true)}>配置外部模型</button>}
+                <label><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /> {ui("同意本次向所配置服务发送内置合成指令，服务可能计费。")}</label>
+                {(!external.api_key || !external.model || !external.base_url) && <button onClick={() => setSettings(true)}>{ui("配置外部模型")}</button>}
               </div>}
-              <div className="dw-connectors" aria-label="绘图连接器">
-                <span className="dw-caption">连接器</span>
+              <div className="dw-connectors" aria-label={ui("绘图连接器")}>
+                <span className="dw-caption">{ui("连接器")}</span>
                 {integrations.filter((entry) => section.connectors.includes(entry.id)).map((entry) => (
                   <button key={entry.id} aria-pressed={connector?.id === entry.id} onClick={() => setConnector(connector?.id === entry.id ? null : entry)}>
-                    {entry.name} <small>{entry.mode === 'file' ? '文件交接' : entry.ready ? '已就绪' : '待配置'}</small>
+                    {entry.name} <small>{entry.mode === 'file' ? ui("文件交接") : entry.ready ? ui("已就绪") : ui("待配置")}</small>
                   </button>
                 ))}
-                {failedCatalog && <span className="dw-muted">暂时无法读取连接状态。</span>}
-                <button onClick={() => setSettings(true)}>连接设置</button>
+                {failedCatalog && <span className="dw-muted">{ui("暂时无法读取连接状态。")}</span>}
+                <button onClick={() => setSettings(true)}>{ui("连接设置")}</button>
               </div>
               {connector && <section className="dw-card" aria-label={connector.name}>
-                <h2>{connector.name}</h2><p>{connector.detail}</p>
+                <h2>{connector.name}</h2><p>{ui(connector.detail)}</p>
                 {connector.id === 'fiji' && connector.ready &&
-                  <button className="dw-primary" onClick={onInspect}>确认检查合成 TIFF</button>}
+                  <button className="dw-primary" onClick={onInspect}>{ui("确认检查合成 TIFF")}</button>}
                 {connector.id === 'r' && connector.ready &&
-                  <button className="dw-primary" disabled={handoffBusy} onClick={() => void downloadSample('r')}>生成并下载 R 合成散点 PDF</button>}
+                  <button className="dw-primary" disabled={handoffBusy} onClick={() => void downloadSample('r')}>{ui("生成并下载 R 合成散点 PDF")}</button>}
                 {connector.mode === 'file' && <>
-                  <p>文件交接：独立 SVG 可在 Inkscape 或 Illustrator 中继续编辑文字；当前不接收编辑后的文件，也不保存为 .bfsproj。</p>
-                  <button className="dw-primary" disabled={handoffBusy} onClick={() => void downloadSample('vector')}>下载可编辑 SVG 合成样例</button>
+                  <p>{ui("文件交接：独立 SVG 可在 Inkscape 或 Illustrator 中继续编辑文字；当前不接收编辑后的文件，也不保存为 .bfsproj。")}</p>
+                  <button className="dw-primary" disabled={handoffBusy} onClick={() => void downloadSample('vector')}>{ui("下载可编辑 SVG 合成样例")}</button>
                   <SvgHandoffInspector />
                 </>}
-                {handoffError && <p role="alert">{handoffError}</p>}
-                <button onClick={() => onOpen(category)}>{section.local} ↗</button>
+                {handoffError && <p role="alert">{ui(handoffError)}</p>}
+                <button onClick={() => onOpen(category)}>{ui(section.local)} ↗</button>
               </section>}
               {canDraft && <div className="dw-quick">
-                {!usesExternal && <button onClick={() => { setPrompt(prompts[category]); setProposal(null) }}>使用合成指令</button>}
-                {category === 'chart' && <button onClick={() => { setProposal(null); setConnector(null); onDraft('demo', '', receive('demo')) }}>打开内置草案</button>}
-                <button onClick={() => onOpen(category)}>{section.local} ↗</button>
+                {!usesExternal && <button onClick={() => { setPrompt(prompts[category]); setProposal(null) }}>{ui("使用合成指令")}</button>}
+                {category === 'chart' && <button onClick={() => { setProposal(null); setConnector(null); onDraft('demo', '', receive('demo')) }}>{ui("打开内置草案")}</button>}
+                <button onClick={() => onOpen(category)}>{ui(section.local)} ↗</button>
               </div>}
               {proposal?.action === 'chart' && (
-                <section className="dw-card" aria-label="图表草案">
-                  <p className="dw-caption">{({ local: '本机模型', external: '外部模型', demo: '内置合成示例' })[proposal.provider]} · 待确认</p>
+                <section className="dw-card" aria-label={ui("图表草案")}>
+                  <p className="dw-caption">{ui(({ local: '本机模型', external: '外部模型', demo: '内置合成示例' })[proposal.provider])} {ui("· 待确认")}</p>
                   <h2>{proposal.chart.title}</h2>
-                  <p>{proposal.chart.chart_type === 'scatter' ? '散点图' : '折线图'} · {themeNames[proposal.chart.theme_id]} · X response / Y viability</p>
-                  {!canApply && <p role="status">当前有手动项目或图版，请保存后在单独会话试用合成草案。</p>}
+                  <p>{proposal.chart.chart_type === 'scatter' ? ui("散点图") : ui("折线图")} · {ui(themeNames[proposal.chart.theme_id])} · X response / Y viability</p>
+                  {!canApply && <p role="status">{ui("当前有手动项目或图版，请保存后在单独会话试用合成草案。")}</p>}
                   <div className="dw-quick">
-                    <button disabled={!canApply} onClick={() => onApply(proposal.chart, false)}>继续手动编辑</button>
-                    <button disabled={!canApply} className="dw-primary" onClick={() => onApply(proposal.chart, true)}>确认生成图表</button>
+                    <button disabled={!canApply} onClick={() => onApply(proposal.chart, false)}>{ui("继续手动编辑")}</button>
+                    <button disabled={!canApply} className="dw-primary" onClick={() => onApply(proposal.chart, true)}>{ui("确认生成图表")}</button>
                   </div>
                 </section>
               )}
               {proposal?.action === 'fiji_sample' && (
-                <section className="dw-card" aria-label="Fiji 操作草案">
-                  <p className="dw-caption">本机模型 · 待确认</p>
-                  <h2>检查合成 TIFF</h2><p>通过 Fiji 读取内置样例的尺寸、像素类型和位深。</p>
-                  <button className="dw-primary" onClick={onInspect}>确认检查并查看任务</button>
+                <section className="dw-card" aria-label={ui("Fiji 操作草案")}>
+                  <p className="dw-caption">{ui("本机模型 · 待确认")}</p>
+                  <h2>{ui("检查合成 TIFF")}</h2><p>{ui("通过 Fiji 读取内置样例的尺寸、像素类型和位深。")}</p>
+                  <button className="dw-primary" onClick={onInspect}>{ui("确认检查并查看任务")}</button>
                 </section>
               )}
             </>}

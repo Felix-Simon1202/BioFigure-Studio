@@ -1,3 +1,5 @@
+import { useI18n } from './i18n'
+import { interfaceDiagnostic } from './interfaceDiagnostics'
 import { useState } from 'react'
 import type { NativeMeasureAsset } from './nativeMeasure'
 import { useImageAnalysisJob, type AnalysisJob } from './useImageAnalysisJob'
@@ -9,6 +11,9 @@ export default function ImageRoiFile({ asset, indices, roi, valid, busy, jobs, o
   valid: boolean; busy: boolean; jobs: AnalysisJob[]; onSubmitted: (job: AnalysisJob) => void
   onUse: (item: ImportedRoiItem) => void
 }) {
+  const { locale } = useI18n()
+  const tx = (text: string) => interfaceDiagnostic(locale, text)
+
   const task = useImageAnalysisJob(asset.id, 'native_roi_exchange', 'roi-exchange', jobs, onSubmitted)
   const [error, setError] = useState('')
   const locked = busy || task.busy
@@ -42,20 +47,20 @@ export default function ImageRoiFile({ asset, indices, roi, valid, busy, jobs, o
           version: '2.0', source: { sha256: asset.sha256, bytes: asset.bytes, axes: asset.axes },
           items: [{ id: crypto.randomUUID().replaceAll('-', ''), name: 'Current region', indices, roi: nativeRoi }],
         } })
-      }}>保存当前 ROI 文件</button>
-      <label className="iw-file-picker">导入 ROI 文件<input type="file" accept=".roi" disabled={locked}
+      }}>{tx("保存当前 ROI 文件")}</button>
+      <label className="iw-file-picker">{tx("导入 ROI 文件")}<input type="file" accept=".roi" disabled={locked}
         onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importFile(file) }} /></label>
-      {task.busy && <button type="button" onClick={() => void task.cancel()}>取消区域文件任务</button>}
-      {current?.operation === 'export_roi' && <button type="button" disabled={locked} onClick={download}>下载 ROI 文件</button>}
+      {task.busy && <button type="button" onClick={() => void task.cancel()}>{tx("取消区域文件任务")}</button>}
+      {current?.operation === 'export_roi' && <button type="button" disabled={locked} onClick={download}>{tx("下载 ROI 文件")}</button>}
       {imported && <button type="button" disabled={locked} onClick={() => {
         try { onUse(imported); setError('') }
         catch (cause) { setError(cause instanceof Error ? cause.message : '无法应用区域。') }
-      }}>使用导入的区域</button>}
+      }}>{tx("使用导入的区域")}</button>}
     </div>
-    {task.busy && <p role="status">区域文件正在本机处理…</p>}
-    {!nativeRoi && <p>先选择或绘制一个区域，再保存 ROI 文件。</p>}
-    {nativeRoi?.kind === 'spline_polygon' && <p>ROI 格式会按 ImageJ 默认方式重新拟合样条；无法保持原曲线时会拒绝保存。</p>}
-    {imported && <p>已读取 {imported.name}。应用后会切到文件保存的平面；外部 ROI 文件不证明原图来源，请确认适合当前图像。</p>}
-    {(error || task.error) && <p role="alert">{error || task.error}</p>}
+    {task.busy && <p role="status">{tx("区域文件正在本机处理…")}</p>}
+    {!nativeRoi && <p>{tx("先选择或绘制一个区域，再保存 ROI 文件。")}</p>}
+    {nativeRoi?.kind === 'spline_polygon' && <p>{tx("ROI 格式会按 ImageJ 默认方式重新拟合样条；无法保持原曲线时会拒绝保存。")}</p>}
+    {imported && <p>{tx("已读取")}{imported.name}{tx("。应用后会切到文件保存的平面；外部 ROI 文件不证明原图来源，请确认适合当前图像。")}</p>}
+    {(error || task.error) && <p role="alert">{tx(error || task.error || '')}</p>}
   </div>
 }

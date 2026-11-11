@@ -143,5 +143,6 @@ shutil.copytree(ROOT / "licenses", DEST / "project-licenses", dirs_exist_ok=True
 shutil.copy2(Path(sys.base_prefix) / "LICENSE.txt", DEST / "Python-LICENSE.txt")
 (DEST / "inventory.json").write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
 shutil.copy2(ROOT / "THIRD_PARTY_NOTICES.md", DEST / "THIRD_PARTY_NOTICES.md")
+shutil.copy2(ROOT / "LICENSE", DEST / "BioFigure-Studio-LICENSE.txt")
 print(f"Collected {len(rows)} dependency records; MPL release source included.")
 print("No top-level license files:", [(r['name'], r['version']) for r in rows if r.get('files') == []])

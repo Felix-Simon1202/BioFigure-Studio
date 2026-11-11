@@ -75,6 +75,22 @@ The existing roadmap prioritizes the illustration skill/tool library, a
 reviewable AI figure queue, bounded high-throughput processing, and additional
 software adapters. These are future work rather than completed capabilities.
 
+## Bilingual interface requirement
+
+All future user-interface additions and changes must provide English and
+Simplified Chinese through the shared language system. English remains the
+fresh-profile default. Reuse the Settings language preference; do not create
+independent language switches per feature. Include visible text, help,
+placeholders, accessible names, and local status/error messages. User data,
+scientific labels and saved project values are preserved.
+
+The existing spotlight/fossil-relief artwork, pointer interaction, assets and
+already bilingual copy must remain unchanged unless the user explicitly
+authorizes a separate change.
+
+后续新增或修改界面必须同时提供中英文并接入统一语言切换；新用户默认英文。
+探照灯的既有美工、交互、资产及双语文字保持原样，需另获用户授权才可改动。
+
 ## Privacy and contributions
 
 Use synthetic or explicitly licensed examples. Never commit real research

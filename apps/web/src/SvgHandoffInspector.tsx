@@ -1,7 +1,12 @@
+import { useI18n } from './i18n'
+import { workbenchText } from './workbenchEnglish'
 import { useRef, useState } from 'react'
 import { inspectSvgFile, type SvgInspection } from './svgHandoffInspection'
 
 export default function SvgHandoffInspector() {
+  const { locale } = useI18n()
+  const ui = (text: string) => workbenchText(locale, text)
+
   const [report, setReport] = useState<SvgInspection | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -25,29 +30,28 @@ export default function SvgHandoffInspector() {
   }
 
   return <div className="dw-svg-inspector">
-    <label>检查编辑后的 SVG
-      <input type="file" accept=".svg,image/svg+xml" disabled={busy}
+    <label>{ui("检查编辑后的 SVG")} <input type="file" accept=".svg,image/svg+xml" disabled={busy}
         onChange={(event) => {
           const file = event.currentTarget.files?.[0]
           event.currentTarget.value = ''
           void inspect(file)
         }} />
     </label>
-    <p>仅在浏览器内读取结构，最多 2 MiB；不显示图像、不上传、不写入项目。检查结果不能证明科研内容或软件兼容性。</p>
-    {busy && <p role="status">正在本机检查 SVG…</p>}
-    {error && <p role="alert">{error}</p>}
+    <p>{ui("仅在浏览器内读取结构，最多 2 MiB；不显示图像、不上传、不写入项目。检查结果不能证明科研内容或软件兼容性。")}</p>
+    {busy && <p role="status">{ui("正在本机检查 SVG…")}</p>}
+    {error && <p role="alert">{ui(error)}</p>}
     {report && <div role="status" className="dw-svg-report">
-      <strong>本机结构报告</strong>
+      <strong>{ui("本机结构报告")}</strong>
       <dl>
-        <dt>尺寸</dt><dd>{report.size}</dd>
-        <dt>viewBox</dt><dd>{report.viewBox}</dd>
-        <dt>可编辑文字</dt><dd>{report.editableTextCount} 个 text 节点</dd>
-        <dt>图像层</dt><dd>{report.imageCount} 个，其中可识别栅格 {report.rasterCount} 个</dd>
-        <dt>外部引用</dt><dd>{report.externalReferenceCount} 处</dd>
-        <dt>活动内容</dt><dd>{report.activeContentCount} 处</dd>
+        <dt>{ui("尺寸")}</dt><dd>{ui(report.size)}</dd>
+        <dt>viewBox</dt><dd>{ui(report.viewBox)}</dd>
+        <dt>{ui("可编辑文字")}</dt><dd>{report.editableTextCount} {ui("个 text 节点")}</dd>
+        <dt>{ui("图像层")}</dt><dd>{report.imageCount} {ui("个，其中可识别栅格")} {report.rasterCount} {ui("个")}</dd>
+        <dt>{ui("外部引用")}</dt><dd>{report.externalReferenceCount} {ui("处")}</dd>
+        <dt>{ui("活动内容")}</dt><dd>{report.activeContentCount} {ui("处")}</dd>
       </dl>
-      {report.warnings.map((warning) => <p key={warning}>{warning}</p>)}
-      <p>原文件仍由您保留；本检查没有修改或保存文件。</p>
+      {report.warnings.map((warning) => <p key={ui(warning)}>{ui(warning)}</p>)}
+      <p>{ui("原文件仍由您保留；本检查没有修改或保存文件。")}</p>
     </div>}
   </div>
 }
