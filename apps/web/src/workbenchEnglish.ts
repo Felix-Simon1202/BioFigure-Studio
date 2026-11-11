@@ -3,6 +3,13 @@ import { interfaceDiagnostic } from './interfaceDiagnostics'
 
 // Exact UI phrases only. Apply at interface boundaries, never to project content.
 const phrases: Record<string, string> = {
+  'BioFigure Studio 原创组件；文字、流程和科学状态均由用户负责。': 'Original BioFigure Studio components; the author is responsible for text, workflow, and scientific status.',
+  '用科研清晰主题为内置合成样例绘制散点图。': 'Draw a scatter plot for the built-in synthetic sample using the Scientific Clear theme.',
+  '用现代柔和主题为内置合成样例绘制折线图。': 'Draw a line chart for the built-in synthetic sample using the Modern Soft theme.',
+  '检查内置合成 TIFF 的尺寸、像素类型和位深。': 'Inspect the dimensions, pixel type, and bit depth of the built-in synthetic TIFF.',
+  'Biodot 绘图助手': 'Biodot drawing assistant',
+  '我会先帮你整理受支持的草案，核对后再执行；只有实际工具返回成功，才表示绘图完成。': 'I will help prepare a supported draft for review before execution. A figure is complete only after the tool reports success.',
+  'Biodot 是助手名称；下方保留实际模型与服务商信息。': 'Biodot is the assistant name. The actual model and provider remain visible below.',
   '未命名生物图示': 'Untitled biological illustration',
   '未命名图形摘要': 'Untitled graphical abstract',
   '未命名实验流程图': 'Untitled experimental workflow',

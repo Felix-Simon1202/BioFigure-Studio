@@ -20,6 +20,10 @@ for (const extension of ['.ts', '.tsx']) {
 const { LanguageProvider, LOCALE_STORAGE_KEY } = require(path.join(web, 'src/i18n.tsx'))
 const LanguageSettings = require(path.join(web, 'src/LanguageSettings.tsx')).default
 const { interfaceDiagnostic } = require(path.join(web, 'src/interfaceDiagnostics.ts'))
+const { biodotGreeting, biodotReply } = require(path.join(web, 'src/biodot.ts'))
+const { branchExample, timelineExample } = require(path.join(web, 'src/builtinExamples.ts'))
+const { buildTimeline, timelineSvg } = require(path.join(web, 'src/illustrationTimeline.ts'))
+const { mechanismRelationStyle } = require(path.join(web, 'src/illustrationMechanismStyle.ts'))
 
 function settings(storage) {
   global.window = { localStorage: storage }
@@ -77,4 +81,56 @@ test('local scientific validation diagnostics have usable English messages', () 
     visit(ast)
   }
   assert.ok(checked >= 60, 'Expected broad coverage of existing validation paths')
+})
+
+test('Biodot greetings are bilingual, local and do not intercept drawing requests', () => {
+  assert.equal(biodotReply('Hello Biodot!', 'en'), biodotGreeting.en)
+  assert.equal(biodotReply('你好', 'zh-CN'), biodotGreeting['zh-CN'])
+  assert.match(biodotReply('help', 'en'), /Biodot/)
+  assert.equal(biodotReply('Draw a scatter plot for Sample A.', 'en'), null)
+})
+
+test('new built-in English examples contain English labels and validate', () => {
+  assert.doesNotMatch(JSON.stringify(branchExample('en')), /\p{Script=Han}/u)
+  assert.match(branchExample('zh-CN').title, /合成/)
+  const document = buildTimeline(timelineExample('en'))
+  assert.doesNotMatch(JSON.stringify(document.timeline), /\p{Script=Han}/u)
+  const before = JSON.stringify(document)
+  const en = timelineSvg(document.timeline, 'en')
+  const zh = timelineSvg(document.timeline, 'zh-CN')
+  assert.match(en, /Experimental time \(days\)/)
+  assert.doesNotMatch(en, /\p{Script=Han}/u)
+  assert.equal(en.replace('Experimental time (days)', '实验时间（天）').replaceAll('>Sample<', '>采样<'), zh)
+  assert.equal(JSON.stringify(document), before)
+})
+
+test('mechanism interface labels switch without rewriting evidence or custom labels', () => {
+  const edge = { relation: 'inhibition', label: '用户科学标签', scientific_status: 'needs_review' }
+  const before = JSON.stringify(edge)
+  const en = mechanismRelationStyle(edge, 'en')
+  const zh = mechanismRelationStyle(edge, 'zh-CN')
+  assert.match(en.label, /^Inhibition · 用户科学标签 \(needs review\)$/)
+  assert.equal(en.markerEnd, zh.markerEnd)
+  assert.equal(en.strokeDasharray, zh.strokeDasharray)
+  assert.equal(JSON.stringify(edge), before)
+})
+
+test('English gray-input placeholders and workbench welcome are translated', () => {
+  require.extensions['.css'] = module => { module.exports = {} }
+  const { emptyTimelineInput } = require(path.join(web, 'src/illustrationTimeline.ts'))
+  const Fields = require(path.join(web, 'src/TimelineFields.tsx')).default
+  global.window = { localStorage: { getItem: () => 'en' } }
+  const markup = renderToStaticMarkup(React.createElement(LanguageProvider, null,
+    React.createElement(Fields, { value: emptyTimelineInput, onChange: () => {} })))
+  const placeholders = [...markup.matchAll(/placeholder="([^"]*)"/g)].map(match => match[1])
+  assert.ok(placeholders.length >= 8)
+  assert.doesNotMatch(placeholders.join(' '), /\p{Script=Han}/u)
+  const Workbench = require(path.join(web, 'src/DrawingWorkbench.tsx')).default
+  const noop = () => {}
+  const workbench = renderToStaticMarkup(React.createElement(LanguageProvider, null,
+    React.createElement(Workbench, { visible: true, modeSwitch: null, busy: false, canApply: true,
+      recent: [], onOpenProject: noop, onOpen: noop, onDraft: noop, onApply: noop,
+      onInspect: noop, onConnect: noop, onDisconnect: noop, onApplyIllustration: noop, onDraftIllustration: noop })))
+  assert.match(workbench, /I&#x27;m Biodot/)
+  assert.match(workbench, /placeholder="Draw a scatter plot/)
 })

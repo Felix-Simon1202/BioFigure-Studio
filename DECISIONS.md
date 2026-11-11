@@ -22,3 +22,18 @@ one cache but attempted to fetch NSIS from the other location. The builder now
 verifies the same pinned cache, copies tools into the ignored project-local
 Tauri tool directory, and enables the official useLocalToolsDir setting.
 No dependency version, system installation or runtime behavior is changed.
+
+## Combined English and Biodot delivery
+
+The user changed the delivery order to one combined v0.4.3 update. The interim
+English-only candidate is not released. Biodot uses a small Apache-2.0-adapted
+DeepTutor persona block, fixed bilingual identity and a drawing playbook;
+the existing proposal schemas, reviewed model identity and consent remain.
+Simple greetings/help are local. The capability catalog reports actual tool
+readiness, distinguishing paired connector tools from in-app model proposals.
+
+The user's report of Chinese schematic/input text exposed software-authored
+defaults beyond labels. New English examples, placeholder titles/sections,
+gray-input hints and fixed timeline/relation labels now follow locale. Existing
+source paragraphs and user/project text remain unchanged. SVG label locale
+does not change geometry, identifiers, scientific status or evidence.

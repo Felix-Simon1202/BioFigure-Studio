@@ -13,14 +13,16 @@ const targetMarkers: Record<RelationType, RelationMarker | undefined> = {
   expression: 'arrow',
 }
 
-export function mechanismRelationStyle(edge: Pick<IllustrationEdge, 'relation' | 'label' | 'scientific_status'>) {
-  const name = relationLabels[edge.relation]
+export function mechanismRelationStyle(edge: Pick<IllustrationEdge, 'relation' | 'label' | 'scientific_status'>, locale: 'en' | 'zh-CN' = 'zh-CN') {
+  const english: Record<RelationType, string> = { association: 'Association', activation: 'Activation', inhibition: 'Inhibition', binding: 'Binding', translocation: 'Translocation', expression: 'Expression/production' }
+  const originalName = relationLabels[edge.relation]
+  const name = locale === 'en' ? english[edge.relation] : originalName
   const customLabel = edge.label.trim()
   const pending = edge.scientific_status === 'needs_review'
   const marker = targetMarkers[edge.relation]
-  const label = customLabel && customLabel !== name ? `${name} · ${customLabel}` : name
+  const label = customLabel && customLabel !== originalName && customLabel !== english[edge.relation] ? `${name} · ${customLabel}` : name
   return {
-    label: pending ? `${label}（待核实）` : label,
+    label: pending ? `${label}${locale === 'en' ? ' (needs review)' : '（待核实）'}` : label,
     markerEnd: marker ? `url(#${marker})` : undefined,
     strokeDasharray: pending ? '7 5' : undefined,
   }

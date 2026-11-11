@@ -12,11 +12,16 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 from backend.core.ai_boundary import AiBoundaryError, parse_draft_object
+from backend.core.biodot import system_instructions
 from backend.core.workbench import CHART_INSTRUCTIONS, MAX_MODEL_RESPONSE, ChartIntent
 
 PRESET_PROMPTS = {
     "scatter": "用科研清晰主题为内置合成样例绘制散点图。",
     "line": "用现代柔和主题为内置合成样例绘制折线图。",
+}
+PRESET_PROMPTS_EN = {
+    "scatter": "Draw a scatter plot for the built-in synthetic sample using the Scientific Clear theme.",
+    "line": "Draw a line chart for the built-in synthetic sample using the Modern Soft theme.",
 }
 _TIMEOUT = 20
 
@@ -33,6 +38,7 @@ class ExternalDraftRequest(BaseModel):
     api_key: SecretStr = Field(min_length=1, max_length=512)
     preset: Literal["scatter", "line"]
     consent: Literal[True]
+    locale: Literal["en", "zh-CN"] = "zh-CN"
 
 
 def _public_endpoint(base_url: str) -> tuple[str, str, tuple]:
@@ -88,8 +94,8 @@ def suggest_external_chart(request: ExternalDraftRequest) -> ChartIntent:
         body = {
             "model": request.model,
             "messages": [
-                {"role": "system", "content": CHART_INSTRUCTIONS + ' JSON example: {"chart_type":"scatter","title":"Synthetic sample","theme_id":"scientific_clear"}'},
-                {"role": "user", "content": PRESET_PROMPTS[request.preset]},
+                {"role": "system", "content": system_instructions(CHART_INSTRUCTIONS + ' JSON example: {"chart_type":"scatter","title":"Synthetic sample","theme_id":"scientific_clear"}')},
+                {"role": "user", "content": (PRESET_PROMPTS_EN if request.locale == "en" else PRESET_PROMPTS)[request.preset]},
             ],
             "response_format": {"type": "json_object"},
             "max_tokens": 384,

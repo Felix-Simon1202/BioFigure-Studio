@@ -1,19 +1,21 @@
+import { BIODOT_NAME, biodotGreeting, biodotReply } from './biodot'
+import { branchExample, timelineExample } from './builtinExamples'
 import { useI18n } from './i18n'
 import { workbenchText } from './workbenchEnglish'
 import { useEffect, useState, type ReactNode } from 'react'
 import type { Chart } from './Workflow'
 import WorkbenchSettings from './WorkbenchSettings'
 import SvgHandoffInspector from './SvgHandoffInspector'
-import { branchWorkflowFields, buildBranchWorkflow, syntheticBranchExample, verifySyntheticExtraction, type BranchWorkflowInput, type IllustrationModelExtraction } from './illustrationSkill'
+import { branchWorkflowFields, buildBranchWorkflow, verifySyntheticExtraction, type BranchWorkflowInput, type IllustrationModelExtraction } from './illustrationSkill'
 import type { IllustrationSpec } from './illustration'
-import { buildTimeline, emptyTimelineInput, syntheticTimelineExample, type TimelineInput } from './illustrationTimeline'
+import { buildTimeline, emptyTimelineInput, type TimelineInput } from './illustrationTimeline'
 import TimelineFields from './TimelineFields'
 import './DrawingWorkbench.css'
 
 export type WorkbenchProvider = 'local' | 'demo' | 'external'
 export type WorkbenchProposal = { action: 'chart'; chart: Chart } | { action: 'fiji_sample'; chart: null }
 export type WorkbenchConnection = { url: string; token: string; expires_in: number }
-export type ExternalDraft = { base_url: string; model: string; api_key: string; preset: 'scatter' | 'line'; consent: true }
+export type ExternalDraft = { base_url: string; model: string; api_key: string; preset: 'scatter' | 'line'; consent: true; locale?: 'en' | 'zh-CN' }
 
 type Category = 'chart' | 'image' | 'figure' | 'illustration'
 type Integration = { id: string; name: string; mode: 'native' | 'file'; ready: boolean; detail: string; handoff: string; automation_ready?: boolean; path?: string }
@@ -60,6 +62,7 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
   const [workspace, setWorkspace] = useState<'draw' | 'generate'>('draw')
   const [settings, setSettings] = useState(false)
   const [prompt, setPrompt] = useState('')
+  const [socialInput, setSocialInput] = useState<string | null>(null)
   const [provider, setProvider] = useState<'local' | 'external'>('local')
   const [external, setExternal] = useState({ base_url: '', model: '', api_key: '' })
   const [preset, setPreset] = useState<ExternalDraft['preset']>('scatter')
@@ -109,7 +112,7 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
   const section = categories[category]
   const usesExternal = category === 'chart' && provider === 'external'
   const canDraft = category === 'chart' || category === 'image'
-  const currentPrompt = usesExternal ? externalPrompts[preset] : prompt
+  const currentPrompt = usesExternal ? ui(externalPrompts[preset]) : prompt
   const canSend = canDraft && !busy && (usesExternal
     ? consent && Boolean(external.base_url.trim() && external.model.trim() && external.api_key.trim())
     : Boolean(prompt.trim()))
@@ -127,12 +130,14 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
   }
   const receive = (source: WorkbenchProvider) => (draft: WorkbenchProposal) => setProposal({ ...draft, provider: source })
   const submit = () => {
+    if (!usesExternal && biodotReply(prompt, locale)) { setSocialInput(prompt); setProposal(null); setConnector(null); return }
+    setSocialInput(null)
     if (!canSend) return
     setProposal(null)
     setConnector(null)
     if (usesExternal) {
       setConsent(false)
-      onDraft('external', '', receive('external'), { ...external, preset, consent: true })
+      onDraft('external', '', receive('external'), { ...external, preset, consent: true, locale })
     } else {
       onDraft('local', prompt, receive('local'))
     }
@@ -189,15 +194,16 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
         {!settings && (
           <div className="dw-center">
             <div className="dw-intro">
-              <p className="dw-caption">{workspace === 'generate' ? 'SCIENTIFIC ILLUSTRATION' : 'DRAWING WORKBENCH'}</p>
+              <p className="dw-caption">{BIODOT_NAME} · {workspace === 'generate' ? 'SCIENTIFIC ILLUSTRATION' : 'DRAWING WORKBENCH'}</p>
               <h1>{workspace === 'generate' ? ui("论文示意图") : ui(section.title)}</h1>
               <p>{workspace === 'generate' ? ui("把实验流程、机制关系与图形摘要做成可编辑的科研示意图。") : ui(section.description)}</p>
             </div>
+            <p role="status">{socialInput ? biodotReply(socialInput, locale) : biodotGreeting[locale]}</p>
             <form className="dw-composer" onSubmit={(event) => { event.preventDefault(); submit() }}>
               {workspace === 'generate' ? (
                 <div className="dw-skill-form">
                   <div className="dw-illustration-tabs" role="group" aria-label={ui("图示类型")}><button type="button" aria-pressed={illustrationForm==='branch'} onClick={()=>setIllustrationForm('branch')}>{ui("双分支流程")}</button><button type="button" aria-pressed={illustrationForm==='timeline'} onClick={()=>setIllustrationForm('timeline')}>{ui("共享尺度时间轴")}</button></div>
-                  {illustrationForm==='timeline' ? <><strong>{ui("共享尺度实验时间轴")}</strong><p>{ui("逐项填写时间点、两个组的采样、干预区间与阶段。数值决定间距；软件不会从文字推测实验事实。")}</p><TimelineFields value={timelineInput} disabled={busy} onChange={value=>{setTimelineInput(value);setTimelineDraft(null);setTimelineError('')}}/><div className="dw-quick"><button type="button" onClick={()=>{setTimelineInput(syntheticTimelineExample);setTimelineDraft(null);setTimelineError('')}}>{ui("填入合成示例")}</button><button type="button" className="dw-primary" onClick={()=>{try{setTimelineDraft(buildTimeline(timelineInput));setTimelineError('')}catch(error){setTimelineDraft(null);setTimelineError(error instanceof Error?error.message:'时间轴输入无效。')}}}>{ui("检查时间轴草案")}</button></div>{timelineError&&<p role="alert">{ui(timelineError)}</p>}</> : <><strong>{ui("双分支实验流程草案")}</strong>
+                  {illustrationForm==='timeline' ? <><strong>{ui("共享尺度实验时间轴")}</strong><p>{ui("逐项填写时间点、两个组的采样、干预区间与阶段。数值决定间距；软件不会从文字推测实验事实。")}</p><TimelineFields value={timelineInput} disabled={busy} onChange={value=>{setTimelineInput(value);setTimelineDraft(null);setTimelineError('')}}/><div className="dw-quick"><button type="button" onClick={()=>{setTimelineInput(timelineExample(locale));setTimelineDraft(null);setTimelineError('')}}>{ui("填入合成示例")}</button><button type="button" className="dw-primary" onClick={()=>{try{setTimelineDraft(buildTimeline(timelineInput));setTimelineError('')}catch(error){setTimelineDraft(null);setTimelineError(error instanceof Error?error.message:'时间轴输入无效。')}}}>{ui("检查时间轴草案")}</button></div>{timelineError&&<p role="alert">{ui(timelineError)}</p>}</> : <><strong>{ui("双分支实验流程草案")}</strong>
                   <p>{ui("可让已审核的本机模型从固定合成段落逐字提取，再核对字段；也可手动填写已有步骤。不会上传数据或推断科学结论。")}</p>
                   <button type="button" disabled={busy} onClick={() => { setModelExtraction(null); setWorkflowDraft(null); setWorkflowError(''); onDraftIllustration(receiveExtraction, setWorkflowError) }}>{ui("从固定合成段落提取 · 本机模型")}</button>
                   {busy && <p role="status">{ui("本机任务正在处理，请稍候。")}</p>}
@@ -205,12 +211,12 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
                   <div className="dw-skill-grid">{branchWorkflowFields.map(({ key, label, max }) => <label key={key}>{ui(label)}
                     <input value={workflowInput[key]} maxLength={max} disabled={busy} onChange={(event) => { setWorkflowInput({ ...workflowInput, [key]: event.target.value }); setModelExtraction(null); setWorkflowDraft(null); setWorkflowError('') }} />
                   </label>)}</div>
-                  <div className="dw-quick"><button type="button" disabled={busy} onClick={() => { setWorkflowInput(syntheticBranchExample); setModelExtraction(null); setWorkflowDraft(null); setWorkflowError('') }}>{ui("填入合成示例")}</button><button type="button" className="dw-primary" disabled={busy} onClick={prepareWorkflow}>{ui("检查结构化草案")}</button></div>
+                  <div className="dw-quick"><button type="button" disabled={busy} onClick={() => { setWorkflowInput(branchExample(locale)); setModelExtraction(null); setWorkflowDraft(null); setWorkflowError('') }}>{ui("填入合成示例")}</button><button type="button" className="dw-primary" disabled={busy} onClick={prepareWorkflow}>{ui("检查结构化草案")}</button></div>
                   {workflowError && <p role="alert">{ui(workflowError)}</p>}</>}
                 </div>
               ) : canDraft ? (
                 <textarea aria-label={ui("合成样例绘图指令")} rows={3} maxLength={320} value={currentPrompt} readOnly={usesExternal}
-                  placeholder={prompts[category]} onChange={(event) => { setPrompt(event.target.value); setProposal(null); setConnector(null) }} />
+                  placeholder={ui(prompts[category])} onChange={(event) => { setPrompt(event.target.value); setProposal(null); setConnector(null) }} />
               ) : (
                 <div className="dw-placeholder"><strong>{ui(section.label)}</strong><p>{ui("从本地编辑器继续。此类别的 AI 草案尚未开放。")}</p></div>
               )}
@@ -275,7 +281,7 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
                 <button onClick={() => onOpen(category)}>{ui(section.local)} ↗</button>
               </section>}
               {canDraft && <div className="dw-quick">
-                {!usesExternal && <button onClick={() => { setPrompt(prompts[category]); setProposal(null) }}>{ui("使用合成指令")}</button>}
+                {!usesExternal && <button onClick={() => { setPrompt(ui(prompts[category])); setProposal(null) }}>{ui("使用合成指令")}</button>}
                 {category === 'chart' && <button onClick={() => { setProposal(null); setConnector(null); onDraft('demo', '', receive('demo')) }}>{ui("打开内置草案")}</button>}
                 <button onClick={() => onOpen(category)}>{ui(section.local)} ↗</button>
               </div>}

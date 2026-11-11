@@ -1,5 +1,15 @@
 # 第三方依赖说明
 
+## DeepTutor persona adaptation
+
+The active-persona framing in backend/core/biodot.py is adapted from
+HKUDS/DeepTutor at commit 60fb3bdfddb30b7740c7ce3bd9b28d908f2af6db under Apache-2.0.
+That derived module retains Apache-2.0; original project code remains MIT.
+Upstream license, file hashes, and modification notes are in licenses/DeepTutor.
+No DeepTutor runtime or additional dependencies are bundled.
+
+Biodot 人格框架小段改编自上述固定版本，保留 Apache-2.0 许可与来源；其余原创代码仍为 MIT。
+
 ## Windows 0.4.3 公开测试候选
 
 0.4.3 增加本机界面双语切换，沿用 0.4.2 已有运行时与元数据修复，无新增运行依赖。安装包 third-party 目录额外包含原创代码 MIT 许可文本。

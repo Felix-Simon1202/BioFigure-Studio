@@ -8,6 +8,7 @@ from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from backend.core.ai_boundary import AiBoundaryError
+from backend.core.biodot import assistant_profile
 from backend.core.workbench_catalog import capability_catalog, integration_ready
 from backend.core.workbench import (BranchWorkflowIntent, ChartIntent, LocalModelUnavailable,
                                     LOCAL_MODEL_NAME, SYNTHETIC_BRANCH_SOURCE,
@@ -27,6 +28,7 @@ class DraftRequest(BaseModel):
 
     provider: Literal["demo", "local"]
     prompt: str = Field(default="", max_length=320)
+    locale: Literal["en", "zh-CN"] = "en"
 
 
 class DraftResponse(BaseModel):
@@ -51,7 +53,7 @@ class IllustrationDraftResponse(BaseModel):
 @router.get("/capabilities")
 def workbench_capabilities() -> dict[str, object]:
     catalog = capability_catalog()
-    return {**catalog, "fiji_sample_available": integration_ready(catalog, "fiji"),
+    return {**catalog, "assistant": assistant_profile(catalog), "fiji_sample_available": integration_ready(catalog, "fiji"),
         "drafts": {"method": "POST", "path": "/api/workbench/v1/drafts",
                    "dataset": "synthetic", "local_model": LOCAL_MODEL_NAME}}
 
@@ -60,7 +62,7 @@ def workbench_capabilities() -> dict[str, object]:
 def create_draft(request: DraftRequest) -> DraftResponse:
     if request.provider == "demo":
         return DraftResponse(provider="demo", chart=build_chart_draft(ChartIntent(
-            chart_type="scatter", title="合成细胞响应", theme_id="scientific_clear"
+            chart_type="scatter", title="合成细胞响应" if request.locale == "zh-CN" else "Synthetic cell response", theme_id="scientific_clear"
         )))
     if not request.prompt:
         raise HTTPException(status_code=422, detail="请输入一条针对合成样例的绘图指令。")

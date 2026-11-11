@@ -23,6 +23,7 @@ export default function CompositionEditor({doc,selectedSectionId,selectSection,c
   const insert=(kind:CompositionTemplate)=>{
     if(doc.nodes.length||doc.edges.length||doc.sections.length||doc.flow_links.length)return notify('布局模板只能插入空白项目；请先新建文档。')
     const next={...structuredClone(doc),...compositionTemplate(kind)}
+    if (locale === 'en') next.sections = next.sections.map((section, i) => ({ ...section, title: `${section.kind === 'panel' ? 'Panel' : 'Step'} ${i + 1}` }))
     commit(next,'已插入原创空白布局；没有组件、科学关系、流程箭头或结论。')
     selectSection(next.sections[0].id)
   }
@@ -33,7 +34,7 @@ export default function CompositionEditor({doc,selectedSectionId,selectSection,c
     if(doc.sections.length>=limit)return notify(`此模式最多 ${limit} 个分区。`)
     if(doc.nodes.some(node=>node.section_id))return notify('先解除组件的分区归属，再使用“增加并重排”。')
     const next=structuredClone(doc),index=next.sections.length,cols=doc.document_kind==='graphical_abstract'?Math.min(3,index+1):2,rows=Math.ceil((index+1)/cols),width=(880-(cols-1)*20)/cols,height=(540-(rows-1)*20)/rows
-    next.sections.push({id:nextId('section'),kind:doc.document_kind==='graphical_abstract'?'panel':'step',title:`${doc.document_kind==='graphical_abstract'?'面板':'步骤'} ${index+1}`,description:'',x:0,y:0,width,height,scientific_status:'illustrative',evidence_ids:[]})
+    next.sections.push({id:nextId('section'),kind:doc.document_kind==='graphical_abstract'?'panel':'step',title:`${locale === 'en' ? (doc.document_kind === 'graphical_abstract' ? 'Panel' : 'Step') : (doc.document_kind === 'graphical_abstract' ? '面板' : '步骤')} ${index+1}`,description:'',x:0,y:0,width,height,scientific_status:'illustrative',evidence_ids:[]})
     next.sections.forEach((section,i)=>{section.x=40+(i%cols)*(width+20);section.y=50+Math.floor(i/cols)*(height+20);section.width=width;section.height=height})
     commit(next,'已增加分区并重新排版；请检查各分区文字和流程顺序。')
   }

@@ -35,6 +35,7 @@ export default function WorkbenchSettings({ visible, provider, external, onProvi
 
   return <div className="dw-settings" hidden={!visible}>
     <LanguageSettings />
+    <section className="dw-card"><h2>{ui("Biodot 绘图助手")}</h2><p>{ui("我会先帮你整理受支持的草案，核对后再执行；只有实际工具返回成功，才表示绘图完成。")}</p><p>{ui("Biodot 是助手名称；下方保留实际模型与服务商信息。")}</p></section>
     <button onClick={onClose}>{ui("← 返回工作台")}</button>
     <section className="dw-card">
       <h2>{ui("模型连接")}</h2>

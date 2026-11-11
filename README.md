@@ -50,6 +50,10 @@ These editable SVGs were exported from the v0.4.1 application using synthetic ex
 
 Scientific content remains subject to author review. Check final dimensions, labels, and the target journal’s requirements before submission.
 
+## Biodot drawing assistant
+
+Biodot is a warm, concise bilingual drawing assistant. Greetings and help work locally, and settings retain the real model identity. Its persona guides existing local and configured external model proposals using the actual capability catalog. Review drafts before confirming execution; current AI demos use synthetic inputs. Built-in examples, input hints and fixed diagram labels follow the interface language. See [Biodot scope and DeepTutor attribution](docs/BIODOT_ASSISTANT.md).
+
 ## Interface language
 
 New profiles start in English. Open **Settings → Language** to choose English or 简体中文. The preference is saved locally and applies immediately. Switching preserves data, entered figure titles, and saved projects. The original spotlight artwork, pointer interaction, and bilingual text are unchanged. Future interface updates must use this shared bilingual system.

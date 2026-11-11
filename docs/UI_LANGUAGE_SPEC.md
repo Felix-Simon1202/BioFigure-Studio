@@ -28,8 +28,9 @@ explicitly excluded from this change and must remain exactly as they are.
   menus, and locally generated status/error text. Keep source/user content
   original. Store bilingual notices when needed so existing notices can update.
 - Keep current white visual design and existing offline behavior. No new
-  dependencies, network translation service, or product-AI changes in this
-  English-first update. Lock files change only synchronized product-version
+  dependencies or network translation service. The user subsequently authorized
+  Biodot's persona on the existing reviewed AI paths in this same release.
+  Lock files change only synchronized product-version
   metadata for the new installer, not dependency resolutions.
 - Check English default, Chinese switching, persisted reopening, unavailable
   storage, representative workflows, and unchanged data/export inputs. Run

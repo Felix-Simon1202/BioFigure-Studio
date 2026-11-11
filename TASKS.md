@@ -12,10 +12,15 @@
 
 ## Next task: Biodot drawing assistant
 
-- [ ] Review DeepTutor's licensed role/tool organization and record provenance.
-- [ ] Add a warm bilingual Biodot identity to existing supported drawing paths.
-- [ ] Keep real provider/model identity visible in settings; greetings use
+- [x] Review DeepTutor's licensed role/tool organization and record provenance.
+- [x] Add a warm bilingual Biodot identity to existing supported drawing paths.
+- [x] Keep real provider/model identity visible in settings; greetings use
   Biodot. Do not claim unavailable tools or completed actions.
-- [ ] Verify persona, supported operation dispatch and existing consent rules.
+- [x] Verify persona, supported operation dispatch and existing consent rules.
+- [x] Fix and test English built-in examples, diagram labels and input hints;
+  preserve original user/scientific content and spotlight.
 
-Order: complete and deliver the English-first update before the Biodot task.
+Updated user order: deliver English-default UI and Biodot together as one
+final v0.4.3 candidate. The interim English-only installer is not for release.
+Before upload, also check built-in illustration labels, example values and
+gray-input placeholders for untranslated UI content; preserve user content.

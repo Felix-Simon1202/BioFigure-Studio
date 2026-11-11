@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from backend.core.ai_boundary import AiBoundaryError, parse_draft_object, validate_draft
 from backend.core.specs import ChartSpec
+from backend.core.biodot import system_instructions
 from backend.data.simulated import SIMULATED_DATASET_ID
 
 
@@ -165,7 +166,7 @@ def _model_object(prompt: str, instructions: str, schema: dict, *, max_predict: 
     response = _ollama_json("/api/chat", {
         "model": LOCAL_MODEL_NAME,
         "messages": [
-            {"role": "system", "content": instructions},
+            {"role": "system", "content": system_instructions(instructions)},
             {"role": "user", "content": prompt},
         ],
         "format": schema,

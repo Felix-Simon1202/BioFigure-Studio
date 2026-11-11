@@ -238,7 +238,7 @@ function FormatPicker({ value, onChange, tiff = false }: { value: string; onChan
 }
 
 export default function Workflow() {
-  const { t } = useI18n()
+  const { locale, t } = useI18n()
   const { ecologyDirections, omicsDirections, spatialKinds } = getWorkflowCatalog(t)
   const [languageSettingsOpen, setLanguageSettingsOpen] = useState(false)
   const languageDialog = useRef<HTMLDialogElement>(null)
@@ -556,7 +556,7 @@ const figureMeasureLabels: Record<string, string> = {
     void run('workbench-draft', async (signal) => {
       const proposal = external
         ? await json('/api/workbench/v1/external-drafts', signal, external)
-        : await json('/api/workbench/v1/drafts', signal, { provider, prompt })
+        : await json('/api/workbench/v1/drafts', signal, { provider, prompt, locale })
       if (!signal.aborted) receive(proposal)
     })
   const proposeIllustrationDraft = (receive: (value: unknown) => void, fail: (message: string) => void) =>
