@@ -8,6 +8,7 @@ fiji_scripts = [(str(path), 'scripts') for path in sorted((root / 'scripts').glo
 project_metadata = copy_metadata('matplotlib') + copy_metadata('pandas')
 a = Analysis([str(root / 'scripts/engine_entry.py')], pathex=[str(root)],
     binaries=[], datas=[(str(root / 'apps/web/dist'), 'apps/web/dist'), (str(root / 'assets/fonts'), 'assets/fonts'),
+                        (str(root / 'assets/palettes'), 'assets/palettes'),
                         (str(root / 'docs/FIJI_COMMAND_INVENTORY.json'), 'docs'), *fiji_scripts, *project_metadata],
     hiddenimports=['uvicorn.logging', 'uvicorn.loops.asyncio', 'uvicorn.protocols.http.h11_impl',
                    'uvicorn.lifespan.off', 'openpyxl',

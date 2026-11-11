@@ -7,6 +7,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from backend.core.specs import ChartSpec, IllustrationSpec
+from backend.themes.palettes import PaletteId
 
 
 AI_MODE: Literal["off"] = "off"
@@ -23,7 +24,7 @@ class ThemeDraft(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
     theme_id: Literal["scientific_clear", "modern_soft", "high_contrast"]
-    palette_id: Literal["theme", "colorblind", "viridis", "cividis", "magma", "coolwarm", "clay", "lagoon"]
+    palette_id: PaletteId
     palette_version: Literal["1.0"] = "1.0"
     font_size: float = Field(default=10, ge=7, le=24)
     line_width: float = Field(default=1.2, ge=0.5, le=5)

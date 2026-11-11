@@ -1,5 +1,16 @@
 # Tasks
 
+## Scientific chart color and style choices
+
+- [x] Review the five user-provided repositories and exact upstream licenses.
+- [x] Add five local, versioned palettes and three presentation-only presets.
+- [x] Share palette metadata between the chart UI and Biodot; permit validated
+  chart proposals to select colors without changing data or tool permissions.
+- [x] Add bilingual swatches, usage advice, low-contrast warnings and paired-order input.
+- [x] Verify actual exports, schema/save roundtrip, locale UI, build/lint and spotlight preservation.
+- [x] Record provenance, sample sheet and delivery limits. User acceptance pending;
+  this source update is not a new published installer.
+
 ## Next release: interface language
 
 - [x] Freeze shared locale API and persistence rules in docs/UI_LANGUAGE_SPEC.md.

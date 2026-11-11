@@ -9,6 +9,8 @@ import { getWorkflowCatalog, type EcologyDirection, type OmicsDirection } from '
 import './WorkflowPrototype.css'
 import { useI18n, translate } from './i18n'
 import LanguageSettings from './LanguageSettings'
+import ChartStyleChoices from './ChartStyleChoices'
+import { paletteChoices, scientificPaletteColors, scientificPalettes } from './chartPalettes'
 
 type SvgTextMode = 'outline' | 'editable'
 type Mode = 'table' | 'single_cell' | 'omics' | 'ecology'
@@ -121,6 +123,7 @@ type RenderArtifact = { type: 'renders' | 'figures'; id: string; formats: string
 
 
 const palettes: Record<string, string[]> = {
+  ...scientificPaletteColors,
   scientific_clear: ['#2374ab', '#d05a3b', '#3e8e72'],
   modern_soft: ['#5f8f9b', '#d6806c', '#9eae79'],
   high_contrast: ['#0072b2', '#d55e00', '#009e73'],
@@ -267,6 +270,7 @@ const themes: Record<string, string> = {
   high_contrast: t("高对比", "High Contrast"),
 }
 const paletteLabels: Record<string, string> = {
+  ...Object.fromEntries(scientificPalettes.map(item => [item.id, item.name[locale]])),
   theme: t("跟随主题", "Use theme colors"), colorblind: t("高辨识分类色", "Distinct categorical colors"), viridis: t("Viridis 连续色", "Viridis sequential"), cividis: t("Cividis 连续色", "Cividis sequential"),
   magma: t("Magma 连续色", "Magma sequential"), coolwarm: t("Coolwarm 发散色", "Coolwarm diverging"), clay: t("陶土 / Clay", "Clay"), lagoon: t("湖湾 / Lagoon", "Lagoon"),
 }
@@ -1685,11 +1689,18 @@ const figureMeasureLabels: Record<string, string> = {
                     </label>
                     <label>
                       {t("色板", "Palette")}<select value={draft.palette_id} onChange={(e) => change({ palette_id: e.target.value })}>
-                        {['theme', 'colorblind', 'viridis', 'cividis', 'magma', 'coolwarm', 'clay', 'lagoon'].map((key) => (
+                        {Object.keys(paletteLabels).filter(key => !scientificPalettes.some(item => item.id === key) || key === draft.palette_id || paletteChoices(draft.chart_type).some(item => item.id === key)).map((key) => (
                           <option key={key} value={key}>{paletteLabels[key]}</option>
                         ))}
                       </select>
                     </label>
+                    <ChartStyleChoices chartType={draft.chart_type} paletteId={draft.palette_id} onChange={change} />
+                    {draft.palette_id === 'oc_paired' && ['scatter', 'line', 'embedding_categorical', 'spatial_categorical', 'ecology_composition'].includes(draft.chart_type) && <label>
+                      {t('类别顺序（每行一个，依次对应色样）', 'Category order (one per line, matching swatch order)')}
+                      <textarea key={`${draft.dataset_id}:${draft.palette_id}`} defaultValue={draft.category_order.join('\n')} rows={4}
+                        placeholder={t('请原样填写数据中的类别名称', 'Enter exact category names from your data')}
+                        onBlur={event => change({ category_order: event.target.value.split('\n').filter(Boolean) })} />
+                    </label>}
                     {(['width_mm', 'height_mm', 'dpi', 'font_size', 'line_width'] as const).map((key) => (
                       <label key={key}>
                         {chartMeasureLabels[key]}

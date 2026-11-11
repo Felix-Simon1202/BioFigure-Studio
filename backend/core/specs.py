@@ -5,6 +5,7 @@ import math
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from backend.themes.palettes import PaletteId
 
 
 CHART_SPEC_VERSION = "1.0"
@@ -48,9 +49,7 @@ class ChartSpec(BaseModel):
     point_size: float = Field(default=8, ge=1, le=100)
     title: str = Field(default="", max_length=160)
     theme_id: Literal["scientific_clear", "modern_soft", "high_contrast"] = "scientific_clear"
-    palette_id: Literal[
-        "theme", "colorblind", "viridis", "cividis", "magma", "coolwarm", "clay", "lagoon",
-    ] = "theme"
+    palette_id: PaletteId = "theme"
     category_order: list[str] = Field(default_factory=list, max_length=100)
     palette_version: Literal["1.0"] = "1.0"
     width_mm: float = Field(default=160, ge=60, le=300)

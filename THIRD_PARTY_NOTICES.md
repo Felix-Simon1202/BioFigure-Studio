@@ -73,3 +73,12 @@ Microsoft Evergreen 条款原文保存在 `licenses/desktop/Microsoft-WebView2-R
 
 
 组学依赖的精确许可证文本位于 `licenses/omics/`：Biopython 1.88 的 `LICENSE.rst`、pyCirclize 1.10.1 的 MIT `LICENSE`、DNA Features Viewer 3.1.5 的 MIT `LICENSE`。R 4.6.1 与 ggplot2 4.0.3 保持为本机可选运行时，不复制进源码或桌面安装包；官方许可证入口见 `licenses/omics/README.md`。
+## Scientific chart palettes / 科研图表配色
+
+Selected, reordered Open Color swatches are distributed in
+`assets/palettes/scientific.json`. Upstream: https://github.com/yeun/open-color,
+commit `3a716ee1f5ff5456db33cb8a6e964afdca1e7bc3`, MIT, copyright
+(c) 2016 heeyeun. Full license: `licenses/OpenColor/LICENSE`.
+BioFigure Studio authors the chart-use recommendations and style combinations.
+Other reviewed color projects are research references, not bundled runtimes;
+see `docs/SCIENTIFIC_CHART_STYLES.md`.

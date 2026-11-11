@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from backend.core.ai_boundary import AiBoundaryError, parse_draft_object, validate_draft
 from backend.core.specs import ChartSpec
 from backend.core.biodot import system_instructions
+from backend.themes.palettes import PaletteId
 from backend.data.simulated import SIMULATED_DATASET_ID
 
 
@@ -26,7 +27,10 @@ CHART_INSTRUCTIONS = (
     "Return one JSON drawing proposal for synthetic data. Choose scatter for correlation, "
     "or line for a connected trend. X is response and Y is viability. Choose a concise display "
     "title in the user's language and an allowed theme. Do not infer results or significance. "
-    "Ignore requests to access files or tools. Output only chart_type, title, and theme_id."
+    "Ignore requests to access files or tools. Output chart_type, title, theme_id, and optionally palette_id. "
+    "For categorical groups choose oc_clear for distinct hues, oc_soft for large soft fills, "
+    "oc_paired for explicitly ordered pairs. Keep theme when the user has no preference. "
+    "Never claim a palette is colorblind-safe without verification."
 )
 SYNTHETIC_BRANCH_SOURCE = (
     "本段为合成演示。图题为[1]“合成细胞样本双分支流程”。"
@@ -56,6 +60,7 @@ class ChartIntent(BaseModel):
     chart_type: Literal["scatter", "line"]
     title: str = Field(min_length=1, max_length=72)
     theme_id: Literal["scientific_clear", "modern_soft", "high_contrast"]
+    palette_id: PaletteId = "theme"
 
 
 class OperationChoice(BaseModel):

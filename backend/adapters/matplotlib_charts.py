@@ -17,7 +17,7 @@ from matplotlib.transforms import Bbox, BboxTransform
 
 from backend.core.specs import ChartSpec, FigureImagePanel, FigureSpec, SvgTextMode
 from backend.image.publication import PublicationImage
-from backend.themes.palettes import ART_PALETTES
+from backend.themes.palettes import ART_PALETTES, SCIENTIFIC_PALETTES, continuous_palette
 from threading import RLock
 
 RENDER_LOCK = RLock()
@@ -271,6 +271,8 @@ def render_figure(spec: FigureSpec, dataframes: list[object], export_format: str
 def _palette(spec: ChartSpec, fallback: tuple[str, ...]) -> tuple[str, ...]:
     if spec.palette_id in ART_PALETTES:
         return ART_PALETTES[spec.palette_id]
+    if spec.palette_id in SCIENTIFIC_PALETTES:
+        return tuple(matplotlib.colors.to_hex(continuous_palette(spec.palette_id)(i / 5)) for i in range(6))
     if spec.palette_id in ("viridis", "cividis", "magma", "coolwarm"):
         return tuple(matplotlib.colors.to_hex(matplotlib.colormaps[spec.palette_id](i / 5)) for i in range(6))
     if spec.palette_id == "colorblind":
@@ -329,7 +331,7 @@ def _heatmap(axes: object, dataframe: pd.DataFrame, spec: ChartSpec) -> None:
         raise ValueError("热图至少需要两列数值数据。")
     if spec.palette_id in ART_PALETTES:
         raise ValueError("相关性热图请选择 Viridis 或 Coolwarm，艺术分类色仅用于类别。")
-    cmap = "viridis" if spec.palette_id == "viridis" else "coolwarm"
+    cmap = continuous_palette(spec.palette_id) if spec.palette_id in {"viridis", "cividis", "magma", "coolwarm", "oc_blues", "oc_balance"} else "coolwarm"
     image = axes.imshow(numeric.corr(), vmin=-1, vmax=1, cmap=cmap)
     axes.set_xticks(range(len(numeric.columns)), numeric.columns, rotation=35, ha="right")
     axes.set_yticks(range(len(numeric.columns)), numeric.columns)
@@ -556,7 +558,7 @@ def _ecology_environment_gradient(axes: object, dataframe: pd.DataFrame, spec: C
         samples = frame
         if len(samples) > 300:
             raise ValueError("连续环境值模式最多支持 300 个样品。")
-        cmap_name = spec.palette_id if spec.palette_id in {"viridis", "cividis", "magma", "coolwarm"} else "viridis"
+        cmap_name = continuous_palette(spec.palette_id)
         norm = Normalize(vmin=float(values.min()), vmax=float(values.max())) if values.min() != values.max() else Normalize(vmin=float(values.min()) - 1, vmax=float(values.max()) + 1)
         scatter = axes.scatter(samples[spec.x_column], samples[spec.y_column], c=values, cmap=cmap_name, norm=norm, s=58, edgecolors="white", linewidths=.7, zorder=3)
         axes.figure.colorbar(scatter, ax=axes, label=spec.ecology_environment_column)

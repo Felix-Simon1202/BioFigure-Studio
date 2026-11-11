@@ -24,6 +24,30 @@ const { biodotGreeting, biodotReply } = require(path.join(web, 'src/biodot.ts'))
 const { branchExample, timelineExample } = require(path.join(web, 'src/builtinExamples.ts'))
 const { buildTimeline, timelineSvg } = require(path.join(web, 'src/illustrationTimeline.ts'))
 const { mechanismRelationStyle } = require(path.join(web, 'src/illustrationMechanismStyle.ts'))
+const ChartStyleChoices = require(path.join(web, 'src/ChartStyleChoices.tsx')).default
+const { paletteChoices, chartStylePresets, contrastAgainstWhite } = require(path.join(web, 'src/chartPalettes.ts'))
+
+test('scientific palette choices are bilingual and distinguish categorical from numeric values', () => {
+  for (const locale of ['en', 'zh-CN']) {
+    global.window = { localStorage: { getItem: () => locale } }
+    const markup = renderToStaticMarkup(React.createElement(LanguageProvider, null,
+      React.createElement(ChartStyleChoices, { chartType: 'scatter', paletteId: 'oc_clear', onChange: () => {} })))
+    assert.match(markup, /aria-pressed="true"/)
+    assert.match(markup, locale === 'en' ? /Open Clear/ : /清晰分组/)
+    assert.match(markup, locale === 'en' ? /not certified colorblind-safe/ : /不保证色觉无障碍/)
+    if (locale === 'en') assert.doesNotMatch(markup, /\p{Script=Han}/u)
+  }
+  assert.deepEqual(paletteChoices('heatmap').map(item => item.kind), ['sequential', 'diverging'])
+  assert.equal(paletteChoices('embedding_continuous').length, 2)
+  assert.equal(paletteChoices('scatter').length, 3)
+  assert.equal(paletteChoices('r_ggplot').length, 0)
+  assert.equal(contrastAgainstWhite('#000000'), 21)
+  assert.equal(contrastAgainstWhite('#ffffff'), 1)
+  assert.throws(() => contrastAgainstWhite('invalid'))
+  for (const preset of chartStylePresets) {
+    assert.deepEqual(Object.keys(preset).sort(), ['font_size', 'id', 'line_width', 'name', 'palette_id', 'theme_id'])
+  }
+})
 
 function settings(storage) {
   global.window = { localStorage: storage }

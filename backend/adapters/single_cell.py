@@ -13,7 +13,7 @@ import pandas as pd
 from scipy import sparse
 
 from backend.core.specs import ChartSpec
-from backend.themes.palettes import ART_PALETTES
+from backend.themes.palettes import ART_PALETTES, continuous_palette
 from backend.themes.registry import get_theme
 
 
@@ -193,8 +193,8 @@ def _categorical_palette(spec: ChartSpec) -> tuple[str, ...]:
     return get_theme(spec.theme_id).palette
 
 
-def _continuous_palette(spec: ChartSpec) -> str:
-    return spec.palette_id if spec.palette_id in {"viridis", "cividis", "magma", "coolwarm"} else "viridis"
+def _continuous_palette(spec: ChartSpec):
+    return continuous_palette(spec.palette_id)
 
 
 def _coordinate_label(key: str) -> str:

@@ -1,0 +1,104 @@
+{
+  "version": "1.0",
+  "source": "yeun/open-color@3a716ee1f5ff5456db33cb8a6e964afdca1e7bc3",
+  "palettes": [
+    {
+      "id": "oc_clear",
+      "kind": "categorical",
+      "name": {
+        "en": "Open Clear",
+        "zh-CN": "清晰分组"
+      },
+      "description": {
+        "en": "Distinct hues for experimental groups and cell classes. Use shapes as well when accessibility matters.",
+        "zh-CN": "用于实验分组与细胞分类；需要无障碍辨识时同时使用点形。"
+      },
+      "colors": [
+        "#1c7ed6",
+        "#f76707",
+        "#0ca678",
+        "#ae3ec9",
+        "#d6336c",
+        "#1098ad"
+      ]
+    },
+    {
+      "id": "oc_soft",
+      "kind": "categorical",
+      "name": {
+        "en": "Open Soft",
+        "zh-CN": "柔和分组"
+      },
+      "description": {
+        "en": "Soft fills for bars and large areas; avoid tiny points or thin lines.",
+        "zh-CN": "适合柱形与大面积填色；避免用于细小散点和细线。"
+      },
+      "colors": [
+        "#4dabf7",
+        "#ffa94d",
+        "#38d9a9",
+        "#da77f2",
+        "#f783ac",
+        "#3bc9db"
+      ]
+    },
+    {
+      "id": "oc_paired",
+      "kind": "categorical",
+      "name": {
+        "en": "Open Paired",
+        "zh-CN": "成对分组"
+      },
+      "description": {
+        "en": "Three hue pairs, light then dark. Set category order explicitly to match your comparisons.",
+        "zh-CN": "三组同色深浅配对；请明确类别顺序，使配对与实验比较一致。"
+      },
+      "colors": [
+        "#4dabf7",
+        "#1971c2",
+        "#ffa94d",
+        "#e8590c",
+        "#9775fa",
+        "#6741d9"
+      ]
+    },
+    {
+      "id": "oc_blues",
+      "kind": "sequential",
+      "name": {
+        "en": "Expression Blues",
+        "zh-CN": "表达量蓝阶"
+      },
+      "description": {
+        "en": "Low-to-high values such as expression or abundance. For signed correlations prefer a diverging palette.",
+        "zh-CN": "用于表达量、丰度等由低到高的数值；有正负的相关性优先使用发散色。"
+      },
+      "colors": [
+        "#e7f5ff",
+        "#a5d8ff",
+        "#4dabf7",
+        "#228be6",
+        "#1864ab"
+      ]
+    },
+    {
+      "id": "oc_balance",
+      "kind": "diverging",
+      "name": {
+        "en": "Blue–Orange Balance",
+        "zh-CN": "蓝橙双向"
+      },
+      "description": {
+        "en": "Negative–neutral–positive values, including correlation. Colors do not imply significance.",
+        "zh-CN": "用于负值—中性—正值，如相关性；颜色不代表统计显著性。"
+      },
+      "colors": [
+        "#1971c2",
+        "#4dabf7",
+        "#f8f9fa",
+        "#ffa94d",
+        "#e8590c"
+      ]
+    }
+  ]
+}

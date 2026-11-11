@@ -48,16 +48,30 @@ def render_persona_block() -> str:
 
 def system_instructions(task: str) -> str:
     """Use the same identity for local, external and structured extraction tasks."""
-    return f"{render_persona_block()}\n\n## Drawing playbook\n{DRAWING_PLAYBOOK}\n\n## Current task\n{task}"
+    return f"{render_persona_block()}\n\n## Drawing playbook\n{DRAWING_PLAYBOOK}\n\n## Chart color guidance\n{COLOR_PLAYBOOK}\n\n## Current task\n{task}"
 
 
 def assistant_profile(catalog: dict) -> dict:
     """Describe real tools separately from currently exposed model proposals."""
+    from backend.themes.palettes import palette_catalog
     return {
         "name": ASSISTANT_NAME, "version": PERSONA_VERSION, "greeting": dict(GREETINGS),
         "model_identity": "Shown separately in settings; not replaced by the assistant name.",
         "proposal_actions": ["chart", "fiji_sample"],
         "workflow": ["clarify", "propose", "review", "execute", "verify"],
+        "chart_palettes": palette_catalog(),
         "connector_access": "paired_local_client",
         "tools": [{"name": tool["name"], "ready": tool["ready"]} for tool in catalog["tools"]],
     }
+
+
+COLOR_PLAYBOOK = (
+    "Choose categorical colors for groups, sequential ramps for low-to-high values, and diverging "
+    "colors for signed changes or correlations. oc_clear: distinct groups; oc_soft: large soft fills, "
+    "not tiny points; oc_paired: three light/dark pairs, requiring explicit category order; "
+    "oc_blues: continuous expression; oc_balance: negative/neutral/positive. "
+    "Keep group colors consistent across panels. Never imply significance through color or change data. "
+    "Do not call these palettes colorblind-safe; suggest cividis or the existing distinct palette "
+    "and redundant shapes, labels or line styles when needed. Recommend only; current task schemas "
+    "define which choices can actually be applied."
+)

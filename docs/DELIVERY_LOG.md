@@ -54,3 +54,25 @@ Biodot. The interim English-only package is archived and is not for upload.
 - Deliver one installer/source/checksum set for user upload. New repository
   main/develop synchronization preserves v0.4.2 and adds immutable v0.4.3;
   no repository visibility change or automatic Release publication.
+# Scientific chart styles — 2026-11-11
+
+- Reviewed pinned README/license snapshots for all five requested color projects.
+  Redistributed only selected Open Color swatches, with its full MIT license.
+  Study and reuse choices: SCIENTIFIC_CHART_STYLES.md.
+- Added three categorical palettes, expression-blue and blue/orange ramps, and
+  three presentation-only chart presets. Bilingual swatch cards, usage advice,
+  low-contrast warnings and paired category ordering join the existing workflow.
+- Biodot discovers the same palette catalog and can propose a validated optional
+  palette ID. Existing schemas, synthetic-data scope and model consent remain.
+- Real SVG exports and preserved data/labels, save/config roundtrip, heatmap
+  limits/endpoints, single-cell resolver, genome track colors, ecology ramp and
+  Biodot metadata/validation: 9 focused tests passed. Earlier combined palette,
+  Biodot and workbench run: 21 passed; 2 subsequently added renderer tests passed
+  in the final focused run. Existing dependency deprecation warnings only.
+- Language/UI tests: 11 passed; production build and lint passed. Existing bundle
+  chunk-size warning remains. Original spotlight/interaction/CSS/assets check passed.
+- Inspected the generated synthetic sample sheet in docs/media. No personal data,
+  network runtime, new dependency or real research data was introduced.
+- Delivered source on codex/scientific-chart-palettes. User acceptance pending.
+  No push, Release/tag mutation or new installer build. v0.4.3 artifacts remain
+  unchanged; frozen-engine palette data inclusion is prepared for the next build.

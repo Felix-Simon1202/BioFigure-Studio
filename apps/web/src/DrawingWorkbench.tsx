@@ -1,4 +1,5 @@
 import { BIODOT_NAME, biodotGreeting, biodotReply } from './biodot'
+import { scientificPalettes } from './chartPalettes'
 import { branchExample, timelineExample } from './builtinExamples'
 import { useI18n } from './i18n'
 import { workbenchText } from './workbenchEnglish'
@@ -289,7 +290,7 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
                 <section className="dw-card" aria-label={ui("图表草案")}>
                   <p className="dw-caption">{ui(({ local: '本机模型', external: '外部模型', demo: '内置合成示例' })[proposal.provider])} {ui("· 待确认")}</p>
                   <h2>{proposal.chart.title}</h2>
-                  <p>{proposal.chart.chart_type === 'scatter' ? ui("散点图") : ui("折线图")} · {ui(themeNames[proposal.chart.theme_id])} · X response / Y viability</p>
+                  <p>{proposal.chart.chart_type === 'scatter' ? ui("散点图") : ui("折线图")} · {ui(themeNames[proposal.chart.theme_id])} · {scientificPalettes.find(item => item.id === proposal.chart?.palette_id)?.name[locale] ?? proposal.chart.palette_id} · X response / Y viability</p>
                   {!canApply && <p role="status">{ui("当前有手动项目或图版，请保存后在单独会话试用合成草案。")}</p>}
                   <div className="dw-quick">
                     <button disabled={!canApply} onClick={() => onApply(proposal.chart, false)}>{ui("继续手动编辑")}</button>

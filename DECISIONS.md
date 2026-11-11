@@ -37,3 +37,20 @@ defaults beyond labels. New English examples, placeholder titles/sections,
 gray-input hints and fixed timeline/relation labels now follow locale. Existing
 source paragraphs and user/project text remain unchanged. SVG label locale
 does not change geometry, identifiers, scientific status or evidence.
+# Scientific chart color and style choices (2026-11-11)
+
+The user clarified that color research must improve generated biological charts,
+not the application shell. Keep the white UI and spotlight untouched. Add a bounded
+set of five Open Color-derived palettes (three categorical, one sequential, one
+diverging) and three chart presentation presets. Freeze existing palette IDs and
+values; new IDs are additive within the existing palette version. Use one bundled
+JSON catalog for Python rendering, the bilingual UI and Biodot metadata.
+
+No npm/Python dependency or remote runtime is added. ColorUI informs saturated
+accent usage only; Colorbox is a jQuery lightbox, not a palette generator; iTerm's
+collection license does not replace individual theme rights, so no themes are
+copied. TinyColor informs the distinction between contrast and color accessibility;
+the local contrast helper implements the standard sRGB luminance formula independently.
+Do not certify categorical palettes as colorblind-safe. R retains its own styling.
+Only presentation fields change when applying a preset; project/scientific data
+and saved v0.4.3 defaults are retained. No publication or installer rebuild here.

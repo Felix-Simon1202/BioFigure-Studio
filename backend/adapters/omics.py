@@ -18,6 +18,7 @@ import pandas as pd
 from backend.core.specs import ChartSpec
 from backend.data.store import DatasetRecord
 from backend.themes.registry import get_theme
+from backend.themes.palettes import ART_PALETTES
 
 
 def render_omics(spec: ChartSpec, record: DatasetRecord, export_format: str) -> bytes:
@@ -55,6 +56,7 @@ def _require_adata(record: DatasetRecord):
 
 def _draw_genome_tracks(axes, spec: ChartSpec, record: DatasetRecord) -> None:
     theme = get_theme(spec.theme_id)
+    palette = ART_PALETTES.get(spec.palette_id, theme.palette)
     if record.manifest is not None:
         manifest = record.manifest
         tracks = manifest.get("tracks")
@@ -83,9 +85,9 @@ def _draw_genome_tracks(axes, spec: ChartSpec, record: DatasetRecord) -> None:
                 raise ValueError("基因组轨道坐标超出展示区间或不是递增区间。")
             if track_type in {"signal", "bedgraph"} or "value" in row:
                 value = float(row.get("value", 0))
-                axes.plot([start, end], [row_index + value * 0.25, row_index + value * 0.25], color=theme.palette[row_index % len(theme.palette)], linewidth=max(1, spec.line_width * 2))
+                axes.plot([start, end], [row_index + value * 0.25, row_index + value * 0.25], color=palette[row_index % len(palette)], linewidth=max(1, spec.line_width * 2))
             else:
-                axes.add_patch(plt.Rectangle((start, row_index - 0.25), end - start, 0.5, facecolor=theme.palette[row_index % len(theme.palette)], alpha=.78, linewidth=0))
+                axes.add_patch(plt.Rectangle((start, row_index - 0.25), end - start, 0.5, facecolor=palette[row_index % len(palette)], alpha=.78, linewidth=0))
     axes.grid(axis="x", alpha=.18)
     axes.set_title(spec.title or "Genome tracks", loc="left", color=theme.text_color, fontsize=spec.font_size + 2, fontweight="bold")
 
@@ -116,6 +118,7 @@ def _draw_circos(spec: ChartSpec, record: DatasetRecord):
         raise ValueError("Circos sectors 长度必须为正数。")
     circos = Circos(sectors, space=float(manifest.get("space", 3)))
     theme = get_theme(spec.theme_id)
+    palette = ART_PALETTES.get(spec.palette_id, theme.palette)
     for index, sector in enumerate(circos.sectors):
         sector.text(sector.name, r=108, size=max(8, spec.font_size), color=theme.text_color)
         track = sector.add_track((78, 98), r_pad_ratio=.08)
@@ -126,14 +129,14 @@ def _draw_circos(spec: ChartSpec, record: DatasetRecord):
             y = np.asarray(values.get("y", []), dtype=float)
             if len(x) != len(y) or np.any(x < sector.start) or np.any(x > sector.end):
                 raise ValueError(f"Circos 轨道 {sector.name} 的 x/y 长度或范围无效。")
-            track.line(x, y, color=theme.palette[index % len(theme.palette)], lw=spec.line_width)
+            track.line(x, y, color=palette[index % len(palette)], lw=spec.line_width)
     for link in manifest.get("links", []):
         if not isinstance(link, dict):
             continue
         source, target = link.get("source"), link.get("target")
         if not (isinstance(source, list) and len(source) == 3 and isinstance(target, list) and len(target) == 3):
             raise ValueError("Circos link 必须是 [sector, start, end]。")
-        circos.link((str(source[0]), float(source[1]), float(source[2])), (str(target[0]), float(target[1]), float(target[2])), color=str(link.get("color", theme.palette[0])), alpha=.55)
+        circos.link((str(source[0]), float(source[1]), float(source[2])), (str(target[0]), float(target[1]), float(target[2])), color=str(link.get("color", palette[0])), alpha=.55)
     figure = circos.plotfig(dpi=spec.dpi, figsize=(spec.width_mm / 25.4, spec.height_mm / 25.4))
     if spec.title:
         figure.text(.5, .98, spec.title, ha="center", va="top", fontsize=spec.font_size + 2, color=theme.text_color, fontweight="bold")
@@ -146,7 +149,7 @@ def _draw_dna_features(axes, spec: ChartSpec, record: DatasetRecord) -> None:
         raise ValueError("DNA 图需要 GenBank 文件。")
     sequence = record.sequence_record
     features = []
-    palette = get_theme(spec.theme_id).palette
+    palette = ART_PALETTES.get(spec.palette_id, get_theme(spec.theme_id).palette)
     for index, feature in enumerate(sequence.features):
         if feature.location is None:
             continue
