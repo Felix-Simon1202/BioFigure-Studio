@@ -19,8 +19,8 @@
 - Generated new placeholder illustration titles/component labels in the
   chosen language; reopening or switching does not rewrite existing content.
 - Original code MIT text is included in future packaged third-party notices.
-- Installer build, packaged checks and repository synchronization are the
-  remaining delivery steps. No user acceptance is inferred from these tests.
+- Installer build and packaged checks subsequently completed for the combined
+  candidate below. No user acceptance is inferred from these tests.
 
 ## Combined release scope, as subsequently requested
 
@@ -45,3 +45,12 @@ Biodot. The interim English-only package is archived and is not for upload.
   invalid-action rejection and the pre-existing extraction/consent checks.
 - Spotlight subtree, pointer effect, CSS and artwork still match the original.
   Final package, privacy and remote checks are recorded with the attachments.
+- Final installer and exact tagged source use build commit 963854240b63e9a1fcf16e9ba0a20fbaef4136f8,
+  SHA-256 5BEDD3D5DF0400E1297D6A5B76C0A80C37EA1DB6F90D4C6E81194CC65939BD54.
+  Real reviewed-model-to-PDF, packaged project restart/reopen/PDF, native
+  homepage, manifest and privacy checks passed. Detailed scope is in
+  RELEASE_VALIDATION_0.4.3.md. Only later documentation records were added
+  after the installer build; release runtime code is unchanged.
+- Deliver one installer/source/checksum set for user upload. New repository
+  main/develop synchronization preserves v0.4.2 and adds immutable v0.4.3;
+  no repository visibility change or automatic Release publication.

@@ -58,6 +58,8 @@ Biodot is a warm, concise bilingual drawing assistant. Greetings and help work l
 
 New profiles start in English. Open **Settings → Language** to choose English or 简体中文. The preference is saved locally and applies immediately. Switching preserves data, entered figure titles, and saved projects. The original spotlight artwork, pointer interaction, and bilingual text are unchanged. Future interface updates must use this shared bilingual system.
 
+Current package checks are summarized in [v0.4.3 validation](docs/RELEASE_VALIDATION_0.4.3.md).
+
 ## Release and validation
 
 The current candidate is **v0.4.3, a Windows x64 public preview**, adding English by default and a shared language preference in Settings. The installation matrix below is retained evidence for v0.4.2. That version fixes project-save failures in the packaged v0.4.1 application by including the Matplotlib and pandas distribution metadata. The gallery retains actual v0.4.1 synthetic exports; the figure interfaces and illustration features are unchanged.

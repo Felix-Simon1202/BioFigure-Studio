@@ -6,9 +6,9 @@
 - [x] Implement default English, shared locale state, and language settings.
 - [x] Translate active plotting, image, workbench, and illustration interfaces.
 - [x] Verify switching, persistence, fallback, workflow state, build and lint.
-- [ ] Prepare the English-first release candidate, update the repository, and
+- [x] Prepare the combined English/Biodot release candidate, update the repository, and
   deliver installer/source/checksum attachments for user upload.
-- [ ] Record final packaged checks and user-reviewable delivery.
+- [x] Record final packaged checks and user-reviewable delivery.
 
 ## Next task: Biodot drawing assistant
 
