@@ -13,6 +13,7 @@
     }
   },
   "bundle": {
+    "useLocalToolsDir": true,
     "active": true,
     "icon": [
       "icons/icon.ico"

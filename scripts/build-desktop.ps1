@@ -1,7 +1,8 @@
 param(
     [switch]$SkipEngine,
     [switch]$NoBundle,
-    [string]$PythonExecutable = (Join-Path (Split-Path $PSScriptRoot -Parent) '.venv/Scripts/python.exe')
+    [string]$PythonExecutable = (Join-Path (Split-Path $PSScriptRoot -Parent) '.venv/Scripts/python.exe'),
+    [string]$ReviewedToolCache = (Join-Path $env:LOCALAPPDATA 'tauri')
 )
 $ErrorActionPreference = 'Stop'
 if ($SkipEngine -and !$NoBundle) {
@@ -40,7 +41,7 @@ if (!$NoBundle) {
     if ($currentUrl -ne $approvedUrl) {
         throw 'Current Microsoft WebView2 installer differs from the reviewed local cache; bundle stopped before download'
     }
-    $webviewCache = Join-Path $env:LOCALAPPDATA ('tauri/x64/' + $approvedGuid + '/' + $installerName)
+    $webviewCache = Join-Path $ReviewedToolCache ('x64/' + $approvedGuid + '/' + $installerName)
     if (!(Test-Path -LiteralPath $webviewCache -PathType Leaf)) {
         throw 'Reviewed WebView2 offline installer is not in the Tauri cache'
     }
@@ -54,7 +55,7 @@ if (!$NoBundle) {
     if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch '^CN=Microsoft Corporation,') {
         throw 'WebView2 cache does not have a valid Microsoft signature'
     }
-    $nsisRoot = Join-Path $env:LOCALAPPDATA 'tauri/NSIS'
+    $nsisRoot = Join-Path $ReviewedToolCache 'NSIS'
     foreach ($required in @('Bin/makensis.exe', 'Plugins/x86-unicode/additional/nsis_tauri_utils.dll', 'Include/MUI2.nsh')) {
         if (!(Test-Path -LiteralPath (Join-Path $nsisRoot $required) -PathType Leaf)) {
             throw "Reviewed NSIS cache is missing $required"
@@ -69,6 +70,17 @@ if (!$NoBundle) {
             throw "Reviewed NSIS cache hash differs for $required"
         }
     }
+    # Keep Tauri's native known-folder lookup independent of packaged-shell
+    # AppData redirection. All tool inputs above are pinned and verified.
+    $localTools = Join-Path $projectRoot 'work/cargo-target/.tauri'
+    $localNsis = Join-Path $localTools 'NSIS'
+    New-Item -ItemType Directory -Path $localNsis -Force | Out-Null
+    Get-ChildItem -LiteralPath $nsisRoot | ForEach-Object {
+        Copy-Item -LiteralPath $_.FullName -Destination $localNsis -Recurse -Force
+    }
+    $localWebview = Join-Path $localTools ('x64/' + $approvedGuid)
+    New-Item -ItemType Directory -Path $localWebview -Force | Out-Null
+    Copy-Item -LiteralPath $webviewCache -Destination (Join-Path $localWebview $installerName) -Force
 }
 $env:CARGO_NET_OFFLINE = 'true'
 $env:NPM_CONFIG_OFFLINE = 'true'
