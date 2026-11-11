@@ -1,0 +1,14 @@
+{
+  "spec_version": "1.0",
+  "title": "受体与配体示意",
+  "canvas": { "width": 960, "height": 640, "background": "#ffffff" },
+  "nodes": [
+    { "id": "receptor_1", "component_id": "receptor_membrane", "x": 260, "y": 250, "width": 105, "height": 120, "rotation": 0, "z_index": 0, "label": "膜受体", "fill": "#79a3a0", "text_color": "#26332f", "scientific_status": "illustrative" },
+    { "id": "ligand_1", "component_id": "ligand_generic", "x": 520, "y": 270, "width": 70, "height": 58, "rotation": 0, "z_index": 1, "label": "配体", "fill": "#bc78a1", "text_color": "#26332f", "scientific_status": "needs_review" }
+  ],
+  "edges": [
+    { "id": "edge_1", "source": { "node_id": "ligand_1", "anchor_id": "left" }, "target": { "node_id": "receptor_1", "anchor_id": "right" }, "relation": "activation", "label": "", "scientific_status": "needs_review" }
+  ],
+  "groups": [],
+  "provenance": { "registry_version": "1.0", "component_ids": ["ligand_generic", "receptor_membrane"], "note": "BioFigure Studio 原创组件；科学关系需由用户核实。" }
+}

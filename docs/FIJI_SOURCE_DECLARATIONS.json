@@ -1,0 +1,1438 @@
+{
+  "schema_version": "1.0",
+  "source_repository": "https://github.com/fiji/fiji",
+  "source_ref": "ddc9a45d6042ed664d33ad95847096318c365aa4",
+  "source_file": "pom.xml",
+  "source_sha256": "b9703f296f56c6ef6e2d7b657e84d18c81964b742e29aca519023ce54d267663",
+  "source_project_version": "2.18.1-SNAPSHOT",
+  "parent": {
+    "groupId": "org.scijava",
+    "artifactId": "pom-scijava",
+    "version": "45.1.0"
+  },
+  "declaration_count": 157,
+  "unique_coordinate_count": 155,
+  "runtime_inventory_complete": false,
+  "runtime_installed": false,
+  "limitations": [
+    "Source declarations include inactive Maven profiles and test scope.",
+    "Inherited versions and transitive dependencies are unresolved.",
+    "One artifact can expose many commands; these counts are not feature counts.",
+    "Runtime JARs, scripts, macros, commands and interactive tools must be enumerated separately."
+  ],
+  "declarations": [
+    {
+      "group_id": "net.imagej",
+      "artifact_id": "imagej",
+      "declared_version": null,
+      "scope": "compile",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "net.imagej",
+      "artifact_id": "ij",
+      "declared_version": null,
+      "scope": "compile",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "net.imagej",
+      "artifact_id": "ij1-patcher",
+      "declared_version": null,
+      "scope": "compile",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "net.imagej",
+      "artifact_id": "imagej-legacy",
+      "declared_version": null,
+      "scope": "compile",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "app-launcher",
+      "declared_version": null,
+      "scope": "compile",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-common",
+      "declared_version": null,
+      "scope": "compile",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.javassist",
+      "artifact_id": "javassist",
+      "declared_version": null,
+      "scope": "compile",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "fiji-links",
+      "declared_version": "${fiji-links.version}",
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "net.imagej",
+      "artifact_id": "op-finder",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.janelia",
+      "artifact_id": "H5J_Loader_Plugin",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "3D_Blob_Segmentation",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "3D_Objects_Counter",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "3D_Viewer",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "AnalyzeSkeleton_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Anisotropic_Diffusion_2D",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Archipelago_Plugins",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Arrow_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Auto_Local_Threshold",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Auto_Threshold",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "BalloonSegmentation_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Bug_Submitter",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "CPU_Meter",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Calculator_Plus",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Cell_Counter",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Colocalisation_Analysis",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Color_Histogram",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Color_Inspector_3D",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Colour_Deconvolution",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "CorrectBleach_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Correct_3D_Drift",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Descriptor_based_registration",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Dichromacy_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Directionality_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "FS_Align_TrakEM2",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Feature_Detection",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Fiji_Archipelago",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Fiji_Developer",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Fiji_Package_Maker",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Fiji_Plugins",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "FilamentDetector",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "FlowJ_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Graph_Cut",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Gray_Morphology",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "HDF5_Vibez",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Helmholtz_Analysis",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "IJ_Robot",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "IO_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Image_5D",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Image_Expression_Parser",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Interactive_3D_Surface_Plot",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "IsoData_Classifier",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Kappa",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Kuwahara_Filter",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "KymographBuilder",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "LSM_Reader",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "LSM_Toolbox",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Lasso_and_Blow_Tool",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Linear_Kuwahara",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "LocalThickness_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "MTrack2_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "M_I_P",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Manual_Tracking",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Multi_Kymograph",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "OMEVisual",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "PIV_analyser",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "QuickPALM_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "RATS_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Reconstruct_Reader",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "SPIM_Opener",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "SPIM_Registration",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Samples_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Series_Labeler",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Siox_Segmentation",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Skeletonize3D_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "SplineDeformationGenerator_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Stack_Manipulation",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Statistical_Region_Merging",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Stitching_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Sync_Win",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Thread_Killer",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Time_Lapse",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Time_Stamper",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "ToAST_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "TopoJ_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "TrackMate",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Trainable_Segmentation",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "TrakEM2_Archipelago",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "VIB-lib",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "VIB_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Vaa3d_Reader",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Vaa3d_Writer",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Video_Editing",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Volume_Calculator",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "Volume_Viewer",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "bUnwarpJ_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "blockmatching_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "fiji-lib",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "legacy-imglib1",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "level_sets",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "pal-optimization",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "panorama_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "register_virtual_stack_slices",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "registration_3d",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "weave_jy2java",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "z_spacing",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "de.nanoimaging",
+      "artifact_id": "View5D_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "jitk",
+      "artifact_id": "jitk-tps",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "mpicbg",
+      "artifact_id": "mpicbg_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "net.preibisch",
+      "artifact_id": "BigStitcher",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "ome",
+      "artifact_id": "bio-formats_plugins",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.janelia.saalfeldlab",
+      "artifact_id": "n5-viewer_fiji",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "bigwarp_fiji",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "labkit-ui",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "trakem2_tps",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "bigdataviewer-core",
+      "declared_version": null,
+      "scope": "compile",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "bigdataviewer_fiji",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "spim_data",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "T2-NIT",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "T2-TreelineGraph",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "TrakEM2_",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "VectorString",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "sc.fiji",
+      "artifact_id": "trakem2-transform",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "io.scif",
+      "artifact_id": "scifio-bf-compat",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "io.scif",
+      "artifact_id": "scifio-hdf5",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "io.scif",
+      "artifact_id": "scifio-lifesci",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "io.scif",
+      "artifact_id": "scifio-ome-xml",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-collections",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-common3",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-concurrent",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-desktop",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-discovery",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-function",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-legacy",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-meta",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-ops-api",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-ops-engine",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-ops-flim",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-ops-image",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-ops-indexer",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-ops-opencv",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-ops-spi",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-priority",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-progress",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-struct",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-taglets",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-types",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.apposed",
+      "artifact_id": "appose",
+      "declared_version": "${appose.version}",
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "ch.qos.reload4j",
+      "artifact_id": "reload4j",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.jfree",
+      "artifact_id": "jfreesvg",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.jogamp.gluegen",
+      "artifact_id": "gluegen-rt",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.jogamp.jogl",
+      "artifact_id": "jogl-all",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.jogamp.gluegen",
+      "artifact_id": "gluegen-rt",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": "${scijava.natives.classifier.gluegen}",
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.jogamp.jogl",
+      "artifact_id": "jogl-all",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": "${scijava.natives.classifier.jogl}",
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "org.scijava",
+      "artifact_id": "scijava-config",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": true,
+      "profile_id": null
+    },
+    {
+      "group_id": "net.preibisch",
+      "artifact_id": "multiview-reconstruction",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    },
+    {
+      "group_id": "ch.qos.logback",
+      "artifact_id": "logback-classic",
+      "declared_version": null,
+      "scope": "runtime",
+      "classifier": null,
+      "optional": true,
+      "profile_id": null
+    },
+    {
+      "group_id": "junit",
+      "artifact_id": "junit",
+      "declared_version": null,
+      "scope": "test",
+      "classifier": null,
+      "optional": false,
+      "profile_id": null
+    }
+  ]
+}

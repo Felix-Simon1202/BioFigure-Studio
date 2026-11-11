@@ -1,0 +1,1 @@
+selectors 0.36.1 lib.rs copyright header and Cargo.toml declare MPL-2.0. Full MPL-2.0 text copied from the reviewed cssparser 0.36.0 release LICENSE. Exact unmodified selectors source is included in the installation notices.

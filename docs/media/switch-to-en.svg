@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="112" height="27" viewBox="0 0 112 27" role="img">
+  <title>Switch to English</title>
+  <rect x="0.5" y="0.5" width="111" height="26" rx="13" fill="#f4f5f6" stroke="#d0d5da"/>
+  <g fill="none" stroke="#435261" stroke-width="1.15">
+    <circle cx="15.5" cy="13.5" r="5.5"/>
+    <ellipse cx="15.5" cy="13.5" rx="2.4" ry="5.5"/>
+    <path d="M10 13.5h11"/>
+  </g>
+  <text x="28" y="18" font-size="13" fill="#202934" font-family="system-ui, Segoe UI, sans-serif">English</text>
+  <path d="M91 13.5h10m-3-3 3 3-3 3" fill="none" stroke="#435261" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

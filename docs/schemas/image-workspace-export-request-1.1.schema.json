@@ -1,0 +1,227 @@
+{
+  "$defs": {
+    "GridRecipe": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Columns",
+          "type": "integer"
+        },
+        "gap_px": {
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Gap Px",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "columns",
+        "gap_px"
+      ],
+      "title": "GridRecipe",
+      "type": "object"
+    },
+    "WorkspaceNativeMeasurement": {
+      "additionalProperties": false,
+      "properties": {
+        "settings": {
+          "additionalProperties": true,
+          "title": "Settings",
+          "type": "object"
+        },
+        "roi": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Roi"
+        },
+        "redirect_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Redirect Source"
+        },
+        "redirect_plane": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "propertyNames": {
+                "enum": [
+                  "C",
+                  "Z",
+                  "T"
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Redirect Plane"
+        }
+      },
+      "required": [
+        "settings"
+      ],
+      "title": "WorkspaceNativeMeasurement",
+      "type": "object"
+    },
+    "WorkspaceSelection": {
+      "additionalProperties": false,
+      "properties": {
+        "indices": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "enum": [
+              "C",
+              "Z",
+              "T"
+            ]
+          },
+          "title": "Indices",
+          "type": "object"
+        },
+        "roi": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Roi"
+        },
+        "extra_measurements": {
+          "items": {
+            "enum": [
+              "std_dev",
+              "median",
+              "mode",
+              "integrated_density"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Extra Measurements",
+          "type": "array"
+        }
+      },
+      "title": "WorkspaceSelection",
+      "type": "object"
+    },
+    "WorkspaceSourceState": {
+      "additionalProperties": false,
+      "properties": {
+        "collection": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Collection"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorkspaceSelection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "native_measurement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorkspaceNativeMeasurement"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "WorkspaceSourceState",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "asset_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Asset Ids",
+      "type": "array"
+    },
+    "source_states": {
+      "additionalProperties": {
+        "$ref": "#/$defs/WorkspaceSourceState"
+      },
+      "title": "Source States",
+      "type": "object"
+    },
+    "active_asset_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Active Asset Id"
+    },
+    "selected_asset_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Selected Asset Ids",
+      "type": "array"
+    },
+    "grid": {
+      "$ref": "#/$defs/GridRecipe"
+    }
+  },
+  "required": [
+    "asset_ids",
+    "grid"
+  ],
+  "title": "WorkspaceExportRequest",
+  "type": "object"
+}

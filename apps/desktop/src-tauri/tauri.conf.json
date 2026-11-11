@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "BioFigure Studio",
+  "version": "0.4.2",
+  "identifier": "local.biofigure.studio",
+  "build": {
+    "frontendDist": "../../web/dist"
+  },
+  "app": {
+    "windows": [],
+    "security": {
+      "capabilities": []
+    }
+  },
+  "bundle": {
+    "active": true,
+    "icon": [
+      "icons/icon.ico"
+    ],
+    "targets": [
+      "nsis"
+    ],
+    "resources": {
+      "../../../work/engine-dist/biofigure-engine/": "engine/",
+      "../../../work/third-party/": "third-party/",
+      "../../../scripts/Set-BioFigure-FijiRuntime.ps1": "tools/Set-BioFigure-FijiRuntime.ps1"
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "offlineInstaller"
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": [
+          "SimpChinese",
+          "English"
+        ],
+        "compression": "zlib"
+      }
+    }
+  }
+}

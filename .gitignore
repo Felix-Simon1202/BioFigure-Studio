@@ -1,0 +1,26 @@
+# Local development environments and generated files
+.venv/
+node_modules/
+dist/
+coverage/
+
+# Temporary files, installers, local data and exports must not enter Git
+work/
+data/
+exports/
+*.log
+__pycache__/
+*.py[cod]
+
+# `data/` above is for local datasets; backend/data contains application source.
+!backend/data/
+!backend/data/**
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Keep Python caches ignored after backend/data source exceptions.
+**/__pycache__/
+*.py[cod]

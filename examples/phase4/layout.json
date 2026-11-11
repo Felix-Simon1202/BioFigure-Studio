@@ -1,0 +1,99 @@
+{
+  "spec_version": "1.0",
+  "panels": [
+    {
+      "spec_version": "1.0",
+      "chart_type": "scatter",
+      "dataset_id": "simulated-cell-response-v1",
+      "x_column": "response",
+      "y_column": "viability",
+      "group_column": "condition",
+      "title": "Scatter",
+      "theme_id": "scientific_clear",
+      "palette_id": "clay",
+      "category_order": [
+        "Control",
+        "Treatment A",
+        "Treatment B"
+      ],
+      "palette_version": "1.0",
+      "width_mm": 160.0,
+      "height_mm": 105.0,
+      "dpi": 300,
+      "font_size": 10.0,
+      "line_width": 1.2,
+      "show_legend": true
+    },
+    {
+      "spec_version": "1.0",
+      "chart_type": "line",
+      "dataset_id": "simulated-cell-response-v1",
+      "x_column": "response",
+      "y_column": "viability",
+      "group_column": "condition",
+      "title": "Line",
+      "theme_id": "scientific_clear",
+      "palette_id": "clay",
+      "category_order": [
+        "Control",
+        "Treatment A",
+        "Treatment B"
+      ],
+      "palette_version": "1.0",
+      "width_mm": 160.0,
+      "height_mm": 105.0,
+      "dpi": 300,
+      "font_size": 10.0,
+      "line_width": 1.2,
+      "show_legend": true
+    },
+    {
+      "spec_version": "1.0",
+      "chart_type": "box",
+      "dataset_id": "simulated-cell-response-v1",
+      "x_column": "condition",
+      "y_column": "viability",
+      "group_column": "condition",
+      "title": "Box",
+      "theme_id": "scientific_clear",
+      "palette_id": "clay",
+      "category_order": [
+        "Control",
+        "Treatment A",
+        "Treatment B"
+      ],
+      "palette_version": "1.0",
+      "width_mm": 160.0,
+      "height_mm": 105.0,
+      "dpi": 300,
+      "font_size": 10.0,
+      "line_width": 1.2,
+      "show_legend": true
+    },
+    {
+      "spec_version": "1.0",
+      "chart_type": "heatmap",
+      "dataset_id": "simulated-cell-response-v1",
+      "x_column": "response",
+      "y_column": "viability",
+      "group_column": "condition",
+      "title": "Heatmap",
+      "theme_id": "scientific_clear",
+      "palette_id": "coolwarm",
+      "category_order": [],
+      "palette_version": "1.0",
+      "width_mm": 160.0,
+      "height_mm": 105.0,
+      "dpi": 300,
+      "font_size": 10.0,
+      "line_width": 1.2,
+      "show_legend": true
+    }
+  ],
+  "columns": 2,
+  "labels": "upper",
+  "theme_id": "scientific_clear",
+  "width_mm": 280.0,
+  "height_mm": 240.0,
+  "dpi": 150
+}
