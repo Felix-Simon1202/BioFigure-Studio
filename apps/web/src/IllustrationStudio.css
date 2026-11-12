@@ -68,6 +68,13 @@
   height:calc(100vh - 155px);
   box-sizing:border-box
 }
+/* Panels own their scroll gestures, including when reaching either edge. */
+.ill-grid > .ill-library,
+.ill-grid > .ill-inspector{
+  min-height:0;
+  min-width:0;
+  overscroll-behavior:contain
+}
 .ill-library,.ill-inspector,.ill-work{
   background:#fff;
   border:1px solid #e2e5e9;
@@ -153,6 +160,8 @@
 }
 .ill-canvas-wrap{
   flex:1;
+  min-height:0;
+  overscroll-behavior:contain;
   overflow:hidden;
   padding:20px;
   background-color:#eef0f3;

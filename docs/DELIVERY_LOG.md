@@ -98,3 +98,20 @@ Biodot. The interim English-only package is archived and is not for upload.
   heatmaps. Reproducible via scripts/render_palette_catalog.py.
 - Source update only; user acceptance pending. Existing v0.4.3 installation
   artifacts and remote repository remain unchanged.
+# Illustration wheel fix — 2026-11-12
+
+- Fixed canvas zoom leaking wheel default scrolling: canvas-local native wheel
+  listener is explicitly non-passive, prevents the default even at zoom limits,
+  and removes its listener on cleanup. Horizontal-only wheel does not zoom.
+- Contained scroll chaining for both direct grid sidebars; canvas/panels can
+  shrink within their layout. Outside-page scrolling remains enabled, keeping
+  composition and evidence sections reachable. No scientific data or copy changed.
+- Actual existing headless Edge + local Vite check passed with native CDP wheel
+  events: zoom changes, zoom clamps, sidebar scroll, both sidebars' top/bottom
+  boundaries, and ordinary outer-page scrolling. Evidence: ignored local
+  work/illustration-wheel-check.log. Isolated synthetic editor fixture only;
+  no user browser profile, external service or dependency installation.
+- Production build and lint passed; existing large-chunk warning remains.
+  Original spotlight content, pointer code and decorative assets are unchanged.
+- Local source fix only. No new installer, push or Release publication;
+  user acceptance remains pending.

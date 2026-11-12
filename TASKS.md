@@ -1,5 +1,15 @@
 # Tasks
 
+## Illustration wheel scrolling fix (2026-11-12)
+
+- [x] Bind a canvas-local non-passive wheel listener with cleanup, preventing
+  document scrolling while preserving cursor-centered zoom and zoom limits.
+- [x] Contain scroll chaining within both editor sidebars; retain normal page
+  scrolling outside those regions and keep document/artwork data unchanged.
+- [x] Verify real headless Edge mouse-wheel input: zoom, clamps, local sidebar
+  scrolling, top/bottom boundaries and outer page scrolling; build/lint pass.
+- [x] Record evidence. Source-only fix; user acceptance and installer update pending.
+
 ## Additional 20 scientific palettes (2026-11-12)
 
 - [x] Add exactly 20 reviewed-swatch combinations: 8 categorical (2 paired),

@@ -70,3 +70,13 @@ prompts free from the larger catalog. All 25 remain discoverable in capabilities
 Group swatches by meaning in a bounded keyboard-accessible region. Extend paired
 ordering to both new paired palettes. No additional one-click style bundles,
 services, software installation, published tag changes or installer rebuild.
+# Illustration wheel handling (2026-11-12)
+
+The user reported wheel zoom and sidebar scrolling moving the entire editor.
+Use a native non-passive listener on the canvas rather than React's delegated
+wheel listener, so preventDefault can cancel browser scrolling. Remove it on
+cleanup and rebind when viewport zoom or the timeline/canvas branch changes.
+Keep cursor-centered zoom, 25–400% bounds and existing pointer interactions.
+CSS overscroll containment applies only to direct grid sidebars and the canvas;
+do not lock body scrolling or hide the lower composition/evidence sections.
+No interface text, user/project data, dependency or spotlight code is changed.
