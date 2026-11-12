@@ -14,6 +14,7 @@ import { defaultNativeMeasurementDraft, nativeDraftGeometry, nativeDraftParamete
 import { draftFromImportedRoi } from './roiFile'
 
 import './ImageWorkspace.css'
+import ImageStyleQueue from './ImageStyleQueue'
 
 type CountKey = 'discovered' | 'source_reviewed' | 'runtime_verified' | 'ui_adapted' | 'parity_verified'
 type Counts = Record<CountKey, number>
@@ -113,7 +114,7 @@ async function responseError(response: Response, fallback: string): Promise<Erro
 }
 
 export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
-  const { locale } = useI18n()
+  const { locale, t } = useI18n()
   const tx = (text: string) => interfaceDiagnostic(locale, text)
 
   const [runtime, setRuntime] = useState<Runtime | null>(null)
@@ -662,6 +663,7 @@ export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
     return <p>{job.result.pixel_type || tx('像素类型未知')} · {job.result.bit_depth ?? '?'} {tx("位 ·")}{job.result.axes?.map((axis) => `${axis.name} ${axis.length}${axis.unit ? ` ${axis.unit}` : ''}`).join(' × ') || tx('轴信息未知')}</p>
   }
 
+  const [styleQueueOpen,setStyleQueueOpen]=useState(false)
   return (
     <section className="iw" aria-label={tx("图像工作台")}>
       <div className="iw-heading">
@@ -672,6 +674,11 @@ export default function ImageWorkspace({ onBack }: { onBack: () => void }) {
         </div>
         <button type="button" onClick={onBack}>{tx("← 返回作品类型")}</button>
       </div>
+
+      <details open={styleQueueOpen} onToggle={event=>setStyleQueueOpen(event.currentTarget.open)}>
+        <summary>{t('统一风格处理队列','Unified image presentation queue')}</summary>
+        {styleQueueOpen&&<ImageStyleQueue/>}
+      </details>
 
       <div className="iw-runtime" role="status">
         <div className="iw-runtime-title"><span className={`iw-state-dot iw-state-${runtime?.state ?? 'unavailable'}`} />

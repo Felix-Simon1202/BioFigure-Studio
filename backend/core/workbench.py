@@ -5,6 +5,7 @@ from http.client import HTTPConnection, HTTPException
 import json
 import re
 from typing import Literal
+from threading import Lock
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -16,6 +17,7 @@ from backend.data.simulated import SIMULATED_DATASET_ID
 
 
 LOCAL_MODEL_NAME = "qwen3:4b"
+MODEL_ADMISSION = Lock()
 LOCAL_MODEL_DIGEST = "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7"
 MAX_MODEL_RESPONSE = 64 * 1024
 ACTION_INSTRUCTIONS = (

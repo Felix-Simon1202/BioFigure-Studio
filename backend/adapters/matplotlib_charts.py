@@ -104,7 +104,7 @@ def draw_chart(axes, spec, dataframe):
     elif spec.chart_type == "scatter":
         _scatter(axes, dataframe, spec, palette)
     elif spec.chart_type == "bar":
-        _bar(axes, dataframe, spec, palette[0])
+        _bar(axes, dataframe, spec, palette)
     elif spec.chart_type == "line":
         _line(axes, dataframe, spec, palette)
     elif spec.chart_type == "box":
@@ -296,10 +296,11 @@ def _scatter(axes: object, dataframe: pd.DataFrame, spec: ChartSpec, palette: tu
         axes.scatter(dataframe[spec.x_column], dataframe[spec.y_column], s=54, color=palette[0], edgecolors="white", linewidths=.7)
 
 
-def _bar(axes: object, dataframe: pd.DataFrame, spec: ChartSpec, color: str) -> None:
+def _bar(axes: object, dataframe: pd.DataFrame, spec: ChartSpec, palette: tuple[str, ...]) -> None:
     _numeric(dataframe, spec.y_column)
     summary = dataframe.groupby(spec.x_column, dropna=False)[spec.y_column].mean()
-    axes.bar(summary.index.astype(str), summary.values, color=color)
+    colors = [palette[spec.category_order.index(str(label)) % len(palette)] if str(label) in spec.category_order else palette[0] for label in summary.index]
+    axes.bar(summary.index.astype(str), summary.values, color=colors)
 
 
 def _line(axes: object, dataframe: pd.DataFrame, spec: ChartSpec, palette: tuple[str, ...]) -> None:
@@ -321,7 +322,7 @@ def _box(axes: object, dataframe: pd.DataFrame, spec: ChartSpec, palette: tuple[
     labels, values = zip(*((str(label), group.dropna().tolist()) for label, group in groups))
     box = axes.boxplot(values, tick_labels=labels, patch_artist=True)
     for index, patch in enumerate(box["boxes"]):
-        patch.set_facecolor(palette[index % len(palette)])
+        patch.set_facecolor(palette[(spec.category_order.index(labels[index]) if labels[index] in spec.category_order else index) % len(palette)])
         patch.set_alpha(.75)
 
 

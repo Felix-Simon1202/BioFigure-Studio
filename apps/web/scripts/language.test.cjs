@@ -27,6 +27,26 @@ const { mechanismRelationStyle } = require(path.join(web, 'src/illustrationMecha
 const ChartStyleChoices = require(path.join(web, 'src/ChartStyleChoices.tsx')).default
 const { paletteChoices, chartStylePresets, contrastAgainstWhite, isPairedPalette } = require(path.join(web, 'src/chartPalettes.ts'))
 
+test('linked figure, reviewed edit and image queue interfaces follow both languages', () => {
+  require.extensions['.css'] = module => { module.exports = {} }
+  const FigureStyle = require(path.join(web, 'src/FigureConsistencyPanel.tsx')).default
+  const ReviewedEdit = require(path.join(web, 'src/ReviewedEditPanel.tsx')).default
+  const ImageQueue = require(path.join(web, 'src/ImageStyleQueue.tsx')).default
+  const { emptyIllustration } = require(path.join(web, 'src/illustration.ts'))
+  for (const locale of ['en','zh-CN']) {
+    global.window = { localStorage: { getItem: () => locale } }
+    for (const [Component, props, en, zh] of [
+      [FigureStyle,{figure:{panels:[]},busy:false,canUndo:false,onApply:()=>{},onUndo:()=>{}},'Linked figure style','整套图版风格'],
+      [ReviewedEdit,{document:emptyIllustration(),selected:[],apply:()=>{}},'Biodot reviewed edit','Biodot 局部改图'],
+      [ImageQueue,{},'Unified image presentation queue','统一风格处理队列'],
+    ]) {
+      const markup = renderToStaticMarkup(React.createElement(LanguageProvider,null,React.createElement(Component,props)))
+      assert.ok(markup.includes(locale==='en'?en:zh))
+      if(locale==='en') assert.doesNotMatch(markup,/\p{Script=Han}/u)
+    }
+  }
+})
+
 test('navigation and sliding mode control are bilingual accessible disclosures', () => {
   require.extensions['.css'] = module => { module.exports = {} }
   const ModeSwitch = require(path.join(web, 'src/WorkspaceModeSwitch.tsx')).default

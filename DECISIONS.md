@@ -1,5 +1,27 @@
 # Decisions
 
+## Ordered figure workflow (2026-11-13)
+
+Reuse existing FigureSpec, ThemeDraft, IllustrationSpec, rendering and undo paths.
+Shared style is a pure preview with explicit group mapping; only confirmed panels
+render, then commit atomically. Preserve continuous heatmap colors. Selected-object
+Biodot uses strict typed intents and the existing reviewed model/admission lock;
+it cannot run code, widen selection or bypass verified-object/document constraints.
+
+The user's batch requirement explicitly preserves original data and labels.
+Implement presentation-only styles with retained source bytes, separate caption,
+an editable SVG and operation manifest. No microscopy recoloring, OCR rewriting,
+high-bit flattening or generative replacement. Support bounded PNG/RGB JPEG/8-bit
+single-plane TIFF first; reject unsupported types instead of converting silently.
+Persist queue state and style snapshots locally, isolate each worker process,
+limit capacity/time/disk/retry, and elect one coordinator across app instances.
+Archive only queue-owned opaque references, never caller-supplied server paths.
+
+中文：三项复用现有图版、图示和项目协议，避免建立平行框架。确认前不改文档；
+共享样式保留科研数据，局部改图不越过选区与核验保护。队列只统一展示层并保留
+原图、标签和核验清单，采用有界容量、独立进程与持久化恢复。源码交付后停止扩展，
+待用户验收；新安装包须另行验证，不沿用旧包结论。06:00 为一次性续接。
+
 ## Interface language
 
 Use a shared lightweight React provider and explicit bilingual interface text

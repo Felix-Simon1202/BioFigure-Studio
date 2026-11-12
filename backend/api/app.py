@@ -38,6 +38,8 @@ from backend.data.store import (
 )
 from backend.registry.charts import get_chart_adapter, register_chart
 from backend.image.api import router as image_router
+from backend.api.figure_workflow import router as figure_workflow_router
+from backend.api.style_queue import router as style_queue_router
 from backend.image.assets import ImageAsset, ImageAssetStore, store as image_store
 from backend.image.publication import MAX_FIGURE_IMAGE_BYTES, prepare_publication_image
 from backend.image.admission import BatchUploadAdmissionMiddleware
@@ -120,6 +122,8 @@ app.add_middleware(
 )
 app.add_middleware(BatchUploadAdmissionMiddleware)
 app.include_router(image_router)
+app.include_router(figure_workflow_router)
+app.include_router(style_queue_router)
 app.include_router(workbench_router)
 
 

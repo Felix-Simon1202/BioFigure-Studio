@@ -1,5 +1,35 @@
 # Delivery log
 
+## Ordered figure workflow source delivery — 2026-11-13
+
+- Completed 1 → 2 → 3: shared four-panel styling with explicit group colors and
+  atomic render/apply/undo; five reviewed selected-object edit operations; durable
+  image presentation queue with three styles and exact original copies.
+- Queue supports submission, isolated failures, retry/cancel, restart recovery,
+  one coordinator/worker, manifests, individual and organized bulk downloads.
+  PNG/RGB JPEG/single-plane 8-bit TIFF only; 100 jobs, 64 MiB/16 MP per input,
+  120 seconds per item, five attempts, 1 GiB queue/512 MiB archive budgets.
+- Stage 1/2: 23 backend checks passed. Updated four-panel PDF/project roundtrip:
+  two passed. Queue: 97 valid of 100 done, three corrupt isolated, no repeated
+  completed work on retry; recovery/TIFF/coordinator/cancel passed. An initial
+  wrapped filename assertion was corrected with full SVG title metadata; the
+  affected integrity/API checks passed. Final changed-path run: eight passed.
+- Fifteen frontend language/UI checks, production build and lint passed. Existing
+  bundle-size/framework deprecation warnings remain. Real local headless Edge
+  checked preview/apply/stale rejection/save/undo and queue upload/retry/archive;
+  original bytes and label-preservation metadata matched. Reviewed local model
+  returned a valid color-only intent from a natural-language synthetic request.
+- Inspected three tracked screenshots. FIGURE_WORKFLOW_DELIVERY.md records user
+  flows, limits and evidence; roadmap and Biodot capability notes updated.
+  Exact protected spotlight subtree/pointer/CSS/artwork check retained.
+- Source only. No new dependency/model/service, real data upload, installation,
+  push or publication. Frozen worker entry prepared, but no new installer built
+  or verified. User acceptance remains pending. Once-only 06:00 continuation
+  reads actual remaining work and stops when this bounded delivery is complete.
+
+中文：按序完成三项源码和实际流程检查，保留原始数据及标签；批量美化限于展示层。
+新安装包及用户验收未完成，不冒充已发布版本。凌晨任务不重复已通过验证或扩展范围。
+
 ## English-first interface candidate
 
 - Baseline: clean develop commit 067a532, keeping the published v0.4.2 tag intact.

@@ -1,5 +1,20 @@
 # Tasks
 
+## Ordered core workflow: 1 → 2 → 3 (2026-11-13)
+
+- [x] 1: Shared four-panel styling, explicit group mapping, review/apply/undo,
+  real rendering and project roundtrip without changing source data/labels.
+- [x] 2: Biodot selected-object color/label/move/align/size proposals, review,
+  bounded local execution, stale/evidence protection and undo.
+- [x] 3: Durable image presentation queue, unified styles, original data/labels
+  preserved, bounded throughput, isolated failures/retry/resume and manifests.
+- [x] Record expanded queue requirement in docs/FIGURE_WORKFLOW_ROADMAP.md and
+  schedule one-time 2026-11-13 06:00 Asia/Shanghai continuation.
+- [x] Verify real UI workflows, reviewed local-model intent, source preservation,
+  100-job failure isolation, restart recovery and bilingual build/lint checks.
+- [x] Record source delivery in docs/FIGURE_WORKFLOW_DELIVERY.md. User review
+  and a newly packaged installer remain pending; no push or publication.
+
 ## AI-first navigation and local spotlight home (2026-11-12)
 
 - [x] Default to the AI conversation workspace without automatically running AI.

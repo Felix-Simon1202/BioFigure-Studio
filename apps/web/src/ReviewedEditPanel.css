@@ -1,0 +1,5 @@
+.ill-reviewed-edit { margin-bottom:16px; }
+.ill-reviewed-edit>summary { cursor:pointer;padding:10px 0;font-size:13px;font-weight:600; }
+.ill-reviewed-edit textarea { display:block;width:100%;box-sizing:border-box;min-height:76px;resize:vertical;padding:8px;border:1px solid #d4d8dd;border-radius:8px;font:inherit; }
+.ill-reviewed-edit .ill-summary { margin-top:4px; }
+.ill-reviewed-edit ul { padding-left:16px;overflow-wrap:anywhere; }

@@ -23,10 +23,11 @@ class BatchUploadAdmissionMiddleware:
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         if (scope["type"] != "http" or scope["method"] != "POST"
-                or scope["path"] not in ("/api/image/jobs/batch-grid", "/api/image/jobs/open-project", "/api/image/jobs/open-workspace")):
+                or scope["path"] not in ("/api/image/jobs/batch-grid", "/api/image/jobs/open-project", "/api/image/jobs/open-workspace", "/api/image/style-queue/jobs")):
             return await self.app(scope, receive, send)
         project = scope["path"] in ("/api/image/jobs/open-project", "/api/image/jobs/open-workspace")
-        limit = MAX_PROJECT_REQUEST_BYTES if project else MAX_BATCH_REQUEST_BYTES
+        presentation = scope["path"] == "/api/image/style-queue/jobs"
+        limit = 65 * 1024 * 1024 if presentation else MAX_PROJECT_REQUEST_BYTES if project else MAX_BATCH_REQUEST_BYTES
         length = Headers(scope=scope).get("content-length")
         if length is None or not length.isdecimal():
             return await JSONResponse({"detail": "批量上传需要明确的请求长度。"}, status_code=411)(scope, receive, send)

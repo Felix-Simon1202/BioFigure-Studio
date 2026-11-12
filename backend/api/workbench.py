@@ -1,6 +1,6 @@
 """Local workbench discovery and draft proposal endpoints."""
 
-from threading import Lock
+from backend.core.workbench import MODEL_ADMISSION
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Request
@@ -20,7 +20,7 @@ from backend.image.workbench_sample import fiji_sample_available, submit_fiji_sa
 
 
 router = APIRouter(prefix="/api/workbench/v1", tags=["workbench"])
-_model_admission = Lock()
+_model_admission = MODEL_ADMISSION
 
 
 class DraftRequest(BaseModel):

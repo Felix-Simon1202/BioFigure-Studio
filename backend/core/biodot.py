@@ -60,6 +60,9 @@ def assistant_profile(catalog: dict) -> dict:
         "proposal_actions": ["chart", "fiji_sample"],
         "workflow": ["clarify", "propose", "review", "execute", "verify"],
         "chart_palettes": palette_catalog(),
+        "local_edit_proposals": {"path":"/api/figure-workflow/v1/edit-preview", "scope":"explicitly selected illustration nodes",
+                                 "operations":["color","label","move","align","size"], "confirmation_required":True,
+                                 "providers":["rules","reviewed_local_model"], "external_real_data":False},
         "connector_access": "paired_local_client",
         "tools": [{"name": tool["name"], "ready": tool["ready"]} for tool in catalog["tools"]],
     }

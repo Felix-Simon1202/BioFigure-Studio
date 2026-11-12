@@ -1,0 +1,13 @@
+.image-style-queue { padding:14px 0; }
+.image-style-queue>label { display:grid;gap:6px;max-width:340px; }
+.isq-file-picker { display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:12px 0; }
+.isq-file-picker>span { font-size:12px;color:#657080; }
+.image-style-queue>button { margin:4px 8px 8px 0; }
+.isq-list { list-style:none;padding:0;display:grid;gap:12px; }
+.isq-list>li { display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:14px;border:1px solid #e1e5ec;border-radius:12px;background:#fff; }
+.wf .iw .isq-select { display:inline-flex;align-items:center;gap:8px;flex:1 1 220px;margin:0;min-width:0; }
+.wf .iw .isq-select input[type=checkbox] { display:inline-block;width:16px;min-width:16px;height:16px;min-height:0;margin:0; }
+.isq-select strong { overflow-wrap:anywhere;font-size:13px; }
+.isq-state { font-size:12px;color:#596575; }
+.isq-list>li>p { flex-basis:100%;margin:0; }
+.isq-list a { font-size:13px; }

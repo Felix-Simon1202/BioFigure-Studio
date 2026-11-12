@@ -1,3 +1,4 @@
+import FigureConsistencyPanel from './FigureConsistencyPanel'
 import WorkspaceModeSwitch from './WorkspaceModeSwitch'
 import NavigationGroup from './NavigationGroup'
 import { useEffect, useRef, useState } from 'react'
@@ -96,7 +97,7 @@ type ImageCheck = {
   below_output_dpi: boolean
 }
 type Snapshot = { chart: Chart; image: string }
-type Figure = {
+export type Figure = {
   spec_version: string
   panels: Chart[]
   columns: number
@@ -294,6 +295,7 @@ const figureMeasureLabels: Record<string, string> = {
     [preview, setPreview] = useState<Preview | null>(null),
     [result, setResult] = useState<(Snapshot & { artifact: RenderArtifact }) | null>(null),
     [panels, setPanels] = useState<Snapshot[]>([])
+  const [styleUndo, setStyleUndo] = useState<{panels:Snapshot[];layout:Omit<Figure,'panels'>;afterSignature:string}|null>(null)
   const [assemblyIntent, setAssemblyIntent] = useState(false)
   const [figureImage, setFigureImage] = useState<{ name: string; panel: FigureImage } | null>(null)
   const [showFileGuide, setShowFileGuide] = useState(false)
@@ -617,6 +619,28 @@ const figureMeasureLabels: Record<string, string> = {
     panels: panels.map((p) => p.chart),
     ...(figureImage ? { image_panel: figureImage.panel } : {}),
   })
+  const applyLinkedStyle = (next: Figure, before: Figure, changed: number[]) =>
+    void run('figure-style', async signal => {
+      if (JSON.stringify(figurePayload()) !== JSON.stringify(before)) throw new Error(t('图版已变化，请重新预览。', 'The figure changed. Preview again.'))
+      const rendered:Snapshot[] = []
+      for (const [index,chart] of next.panels.entries()) {
+        if (!changed.includes(index)) { rendered.push({...panels[index],chart}); continue }
+        const result = await json('/api/renders',signal,{chart})
+        const image = await dataImage(await (await request(`/api/renders/${result.render_id}.png`,signal)).blob())
+        rendered.push({chart,image})
+      }
+      if (signal.aborted) return
+      const nextLayout={...layout,theme_id:next.theme_id,label_font_size:next.label_font_size}
+      setStyleUndo({panels,layout,afterSignature:JSON.stringify({panels:rendered.map(p=>p.chart),layout:nextLayout})})
+      setPanels(rendered)
+      setLayout(nextLayout)
+      setAssembly(null)
+      setNotice('已统一展示样式，原数据和标签保持不变。','Presentation unified; original data and labels are unchanged.')
+    })
+  const undoLinkedStyle = () => {
+    if (!styleUndo || styleUndo.afterSignature!==JSON.stringify({panels:panels.map(p=>p.chart),layout})) return
+    setPanels(styleUndo.panels);setLayout(styleUndo.layout);setAssembly(null);setStyleUndo(null)
+  }
   const importFigureImage = (file: File) =>
     run('image', async (signal) => {
       if (file.size > 64 * 1024 * 1024) throw new Error(t("请选择不超过 64 MiB 的图像。", "Choose an image no larger than 64 MiB."))
@@ -676,6 +700,7 @@ const figureMeasureLabels: Record<string, string> = {
     })
   const openProject = (file: File) =>
     run('project', async (signal) => {
+      setStyleUndo(null)
       const data = await json('/api/projects/open', signal, undefined, file)
       const project = data.project
       setName(project.name)
@@ -1321,6 +1346,7 @@ const figureMeasureLabels: Record<string, string> = {
   )
   const figureWorkspace = (
     <>
+      <details><summary>{t('统一整套图版风格','Unify figure style')}</summary><FigureConsistencyPanel figure={figurePayload()} busy={!!busy} canUndo={!!styleUndo&&styleUndo.afterSignature===JSON.stringify({panels:panels.map(p=>p.chart),layout})} onApply={applyLinkedStyle} onUndo={undoLinkedStyle}/></details>
       <div className="wf-title">
         <span className="wf-overline">{t("MULTI-PANEL FIGURE / 图版工作栏", "MULTI-PANEL FIGURE / ASSEMBLY")}</span>
         <h1>{t("排版多图图版", "Assemble a multi-panel figure")}</h1>
