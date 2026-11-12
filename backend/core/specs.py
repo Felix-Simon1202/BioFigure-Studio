@@ -224,6 +224,9 @@ class IllustrationNode(IllustrationBase):
     component_id: Literal[
         "cell_generic", "nucleus_generic", "dna_helix", "rna_single",
         "protein_generic", "receptor_membrane", "ligand_generic", "drug_tablet",
+        "cell_animal", "cell_plant", "cell_bacterium", "cell_neuron", "cell_erythrocyte", "cell_lymphocyte", "cell_macrophage", "cell_epithelial",
+        "mitochondrion", "chloroplast", "rough_er", "smooth_er", "golgi", "lysosome", "peroxisome", "ribosome", "vesicle",
+        "membrane_bilayer", "ion_channel", "antibody",
     ]
     x: float = Field(ge=0)
     y: float = Field(ge=0)
@@ -289,7 +292,7 @@ class IllustrationGroup(IllustrationBase):
 
 class IllustrationProvenance(IllustrationBase):
     registry_version: Literal["1.0"] = "1.0"
-    component_ids: list[str] = Field(default_factory=list, max_length=8)
+    component_ids: list[str] = Field(default_factory=list, max_length=28)
     note: str = Field(default="BioFigure Studio 原创组件；科学关系需由用户核实。", max_length=300)
     mechanism_schema_version: Literal["1.0"] | None = None
     composition_schema_version: Literal["1.0"] | None = None

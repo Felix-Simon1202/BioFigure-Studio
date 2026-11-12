@@ -80,3 +80,18 @@ Keep cursor-centered zoom, 25–400% bounds and existing pointer interactions.
 CSS overscroll containment applies only to direct grid sidebars and the canvas;
 do not lock body scrolling or hide the lower composition/evidence sections.
 No interface text, user/project data, dependency or spotlight code is changed.
+# Cell biology artwork 2.0 (2026-11-12)
+
+The user explicitly authorized redrawing all illustration components and adding
+cell types based on textbook cell biology. Use original SVG primitives informed
+by openly accessible AP-level and university OpenStax texts, not copied figures.
+Keep distinct cell/organellar cues and bilingual limitations instead of implying
+species, signaling activity, diagnostic status or scale from generic icons.
+
+Unify the formerly duplicated JSX/SVG geometry in illustrationArtwork.ts and move
+export assembly to illustrationExport.ts. Extend the reviewed ID allowlist and
+provenance capacity to 28; retain old IDs, dimensions and project/schema versions.
+Record artwork 2.0 in SVG metadata. Existing projects deliberately display the
+requested new art while their scientific data, labels, transforms and evidence
+remain intact. Category filters keep the larger library usable. No new network
+service, dependency, model action or spotlight modification is introduced.

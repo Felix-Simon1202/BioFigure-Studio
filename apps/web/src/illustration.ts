@@ -1,3 +1,5 @@
+import { additionalComponents } from './illustrationArtwork'
+
 export type ScientificStatus = 'illustrative' | 'verified' | 'needs_review'
 export type EntityType = 'context' | 'molecule' | 'ligand' | 'receptor' | 'protein' | 'gene' | 'transcript' | 'drug'
 export type RelationType = 'association' | 'activation' | 'inhibition' | 'binding' | 'translocation' | 'expression'
@@ -6,6 +8,9 @@ export type DocumentKind = 'mechanism' | 'graphical_abstract' | 'experimental_wo
 export type SectionKind = 'panel' | 'step'
 export type AnchorId = 'top' | 'right' | 'bottom' | 'left'
 export type ComponentId = 'cell_generic' | 'nucleus_generic' | 'dna_helix' | 'rna_single' | 'protein_generic' | 'receptor_membrane' | 'ligand_generic' | 'drug_tablet'
+  | 'cell_animal' | 'cell_plant' | 'cell_bacterium' | 'cell_neuron' | 'cell_erythrocyte' | 'cell_lymphocyte' | 'cell_macrophage' | 'cell_epithelial'
+  | 'mitochondrion' | 'chloroplast' | 'rough_er' | 'smooth_er' | 'golgi' | 'lysosome' | 'peroxisome' | 'ribosome' | 'vesicle'
+  | 'membrane_bilayer' | 'ion_channel' | 'antibody'
 export type IllustrationNode = { id:string; component_id:ComponentId; x:number; y:number; width:number; height:number; rotation:number; z_index:number; label:string; fill:string; text_color:string; scientific_status:ScientificStatus; entity_type:EntityType; evidence_ids:string[]; section_id:string|null }
 export type IllustrationEdge = { id:string; source:{node_id:string;anchor_id:AnchorId}; target:{node_id:string;anchor_id:AnchorId}; relation:RelationType; routing:'orthogonal'; label:string; scientific_status:ScientificStatus; evidence_ids:string[] }
 export type IllustrationEvidence = { id:string; evidence_type:EvidenceType; citation:string; locator:string; note:string; added_by:string; date:string }
@@ -14,7 +19,7 @@ export type IllustrationSection = { id:string; kind:SectionKind; title:string; d
 export type FlowLink = { id:string; source_section_id:string; target_section_id:string; label:string }
 export type IllustrationTimeline = { version:'timeline-shared-scale/1.0'; unit:'day'; ticks:{id:string;day:number;label:string}[]; groups:{id:string;label:string;sample_days:number[]}[]; intervals:{id:string;group_id:string;start_day:number;end_day:number;label:string}[]; stages:{id:string;start_day:number;end_day:number;label:string}[] }
 export type IllustrationSpec = { spec_version:'1.3'; document_kind:DocumentKind; title:string; canvas:{width:number;height:number;background:string;grid_size:number;show_grid:boolean;snap_to_grid:boolean}; nodes:IllustrationNode[]; edges:IllustrationEdge[]; groups:IllustrationGroup[]; sections:IllustrationSection[]; flow_links:FlowLink[]; timeline?:IllustrationTimeline; evidence_records:IllustrationEvidence[]; provenance:{registry_version:'1.0';mechanism_schema_version:'1.0';composition_schema_version:'1.0';component_ids:ComponentId[];note:string} }
-export type ComponentDefinition = { id:ComponentId; name:string; english:string; meaning:string; version:'1.0'; source:string; license:string; width:number; height:number; fill:string }
+export type ComponentDefinition = { id:ComponentId; name:string; english:string; meaning:string; meaning_en?:string; category?:'cells'|'organelles'|'molecules'; version:'1.0'; source:string; license:string; width:number; height:number; fill:string }
 export type Point = {x:number;y:number}
 export type Bounds = {x:number;y:number;width:number;height:number}
 
@@ -23,6 +28,7 @@ export const relationLabels:Record<RelationType,string> = {association:'关联',
 export const evidenceLabels:Record<EvidenceType,string> = {literature:'文献',experiment:'实验',database_record:'数据库记录',user_note:'用户说明'}
 
 export const componentRegistry:ComponentDefinition[] = [
+  ...additionalComponents,
   {id:'cell_generic',name:'通用细胞',english:'Generic cell',meaning:'抽象细胞轮廓，不代表特定细胞类型',version:'1.0',source:'BioFigure Studio 原创',license:'项目许可证',width:190,height:130,fill:'#d7ece7'},
   {id:'nucleus_generic',name:'细胞核',english:'Nucleus',meaning:'抽象细胞核，不表达染色状态',version:'1.0',source:'BioFigure Studio 原创',license:'项目许可证',width:110,height:82,fill:'#cfc8e8'},
   {id:'dna_helix',name:'DNA',english:'DNA helix',meaning:'教学式双链符号，不表达具体序列或构象',version:'1.0',source:'BioFigure Studio 原创',license:'项目许可证',width:130,height:84,fill:'#6d91c9'},
@@ -33,8 +39,9 @@ export const componentRegistry:ComponentDefinition[] = [
   {id:'drug_tablet',name:'药物',english:'Drug tablet',meaning:'通用药片，不代表具体药物或剂量',version:'1.0',source:'BioFigure Studio 原创',license:'项目许可证',width:92,height:54,fill:'#ef9b86'},
 ]
 
-const componentEntity:Record<ComponentId,EntityType> = {cell_generic:'context',nucleus_generic:'context',dna_helix:'gene',rna_single:'transcript',protein_generic:'protein',receptor_membrane:'receptor',ligand_generic:'ligand',drug_tablet:'drug'}
-export const defaultEntityType = (componentId:ComponentId) => componentEntity[componentId]
+const componentEntity:Partial<Record<ComponentId,EntityType>> = {cell_generic:'context',nucleus_generic:'context',dna_helix:'gene',rna_single:'transcript',protein_generic:'protein',receptor_membrane:'receptor',ligand_generic:'ligand',drug_tablet:'drug',ion_channel:'protein',antibody:'protein'}
+export const defaultEntityType = (componentId:ComponentId):EntityType => componentEntity[componentId] ?? 'context'
+export const componentCategory = (item:ComponentDefinition) => item.category ?? (item.id === 'cell_generic' ? 'cells' : item.id === 'nucleus_generic' ? 'organelles' : 'molecules')
 export const emptyIllustration = (kind:DocumentKind='mechanism'):IllustrationSpec => ({spec_version:'1.3',document_kind:kind,title:kind==='graphical_abstract'?'未命名图形摘要':kind==='experimental_workflow'?'未命名实验流程图':'未命名生物图示',canvas:{width:960,height:640,background:'#ffffff',grid_size:20,show_grid:true,snap_to_grid:true},nodes:[],edges:[],groups:[],sections:[],flow_links:[],evidence_records:[],provenance:{registry_version:'1.0',mechanism_schema_version:'1.0',composition_schema_version:'1.0',component_ids:[],note:'BioFigure Studio 原创组件；文字、流程和科学状态均由用户负责。'}})
 
 const safeId = /^[A-Za-z0-9_-]{1,64}$/, color = /^#[0-9a-fA-F]{6}$/, isoDate = /^\d{4}-\d{2}-\d{2}$/, control = /[\r\n\0]/

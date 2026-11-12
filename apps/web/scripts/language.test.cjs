@@ -27,6 +27,53 @@ const { mechanismRelationStyle } = require(path.join(web, 'src/illustrationMecha
 const ChartStyleChoices = require(path.join(web, 'src/ChartStyleChoices.tsx')).default
 const { paletteChoices, chartStylePresets, contrastAgainstWhite, isPairedPalette } = require(path.join(web, 'src/chartPalettes.ts'))
 
+test('all cell components share vector artwork across preview/export and survive projects', () => {
+  require.extensions['.css'] = module => { module.exports = {} }
+  const { componentRegistry, emptyIllustration, validateIllustration, defaultEntityType } = require(path.join(web, 'src/illustration.ts'))
+  const { componentArtwork, componentSvg } = require(path.join(web, 'src/illustrationArtwork.ts'))
+  const { toSvg } = require(path.join(web, 'src/illustrationExport.ts'))
+  assert.equal(componentRegistry.length, 28)
+  assert.equal(new Set(componentRegistry.map(item => item.id)).size, 28)
+  const doc = emptyIllustration()
+  doc.nodes = componentRegistry.map((item, index) => ({ id: `shape_${index}`, component_id: item.id,
+    x: 50, y: 50, width: item.width, height: item.height, rotation: 0, z_index: index,
+    label: `Original 科学标签 ${index}`, fill: item.fill, text_color: '#26332f', scientific_status: 'illustrative',
+    entity_type: defaultEntityType(item.id), evidence_ids: [], section_id: null }))
+  doc.provenance.component_ids = componentRegistry.map(item => item.id).sort()
+  const before = JSON.stringify(doc)
+  const restored = validateIllustration(JSON.parse(before))
+  assert.equal(JSON.stringify(doc), before)
+  assert.deepEqual(restored, doc)
+  const svg = toSvg(restored, 'en')
+  assert.match(svg, /component_artwork_version/)
+  for (const item of componentRegistry) {
+    const primitives = componentArtwork(item.id, item.fill)
+    const fragment = componentSvg(item.id, item.fill)
+    assert.ok(primitives.length >= 2, item.id)
+    assert.ok(svg.includes(fragment), item.id)
+    assert.equal((fragment.match(/<\w+ /g) || []).length, primitives.length)
+    assert.doesNotMatch(fragment, /<script|<image|<foreignObject|https?:|onload=|NaN|undefined/)
+    assert.ok(svg.includes(`data-component-id="${item.id}"`))
+  }
+  assert.match(svg, /Original 科学标签 27/)
+  assert.throws(() => componentSvg('cell_animal', 'url(https://invalid.test)'))
+  assert.equal(defaultEntityType('ion_channel'), 'protein')
+})
+
+test('expanded component library uses English and Chinese names and guidance', () => {
+  require.extensions['.css'] = module => { module.exports = {} }
+  const Studio = require(path.join(web, 'src/IllustrationStudio.tsx')).default
+  for (const locale of ['en', 'zh-CN']) {
+    global.window = { localStorage: { getItem: () => locale } }
+    const markup = renderToStaticMarkup(React.createElement(LanguageProvider, null,
+      React.createElement(Studio, { onBack: () => {} })))
+    assert.equal((markup.match(/class="ill-component"/g) || []).length, 28)
+    assert.match(markup, locale === 'en' ? /Mature mammalian erythrocyte/ : /成熟哺乳动物红细胞/)
+    assert.match(markup, locale === 'en' ? /Component category/ : /组件分类/)
+    if (locale === 'en') assert.equal(markup.match(/.{0,35}\p{Script=Han}.{0,35}/u)?.[0] ?? '', '', 'Unexpected Chinese interface text')
+  }
+})
+
 test('scientific palette choices are bilingual and distinguish categorical from numeric values', () => {
   for (const locale of ['en', 'zh-CN']) {
     global.window = { localStorage: { getItem: () => locale } }

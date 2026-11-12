@@ -115,3 +115,26 @@ Biodot. The interim English-only package is archived and is not for upload.
   Original spotlight content, pointer code and decorative assets are unchanged.
 - Local source fix only. No new installer, push or Release publication;
   user acceptance remains pending.
+# Cell biology component artwork — 2026-11-12
+
+- Added 20 original components: 8 cell types, 9 organelle/vesicle symbols and
+  3 membrane/molecular symbols. Redrew the prior 8, making 28 total. Bilingual
+  library names, guidance and category filtering follow the shared locale.
+- Reviewed AP-level and university textbook sources; documented links, biological
+  cues and schematic limitations in CELL_COMPONENT_ARTWORK.md. No textbook images
+  or third-party art/code were copied. Original artwork remains project MIT.
+- Unified React/thumbnail/SVG geometry; separated export assembly. Old component
+  IDs, dimensions and scientific/project values remain; all symbols use artwork
+  2.0. A pre-existing untranslated default provenance note now translates only
+  at display, leaving saved notes unchanged.
+- 13 frontend language/artwork checks and 39 backend illustration/extraction
+  checks passed. Build/lint passed; existing chunk/deprecation warnings remain.
+- Real existing local headless Edge check passed: category counts, component
+  insertion, local project save/reopen, SVG export and previous wheel-scroll fix.
+  All 28 entries also insert successfully into the default canvas after bounding
+  new-node placement; existing nodes are not moved automatically.
+  Evidence: ignored work/cell-browser-check.log. Isolated synthetic data only.
+- Rendered and inspected docs/media/cell-component-catalog.svg and .png. SVG is
+  reproducible with scripts/render_cell_catalog.cjs. Original spotlight remains
+  unchanged. No new dependency/service, installation package, push or publication.
+- Source delivered for user review; user acceptance pending.

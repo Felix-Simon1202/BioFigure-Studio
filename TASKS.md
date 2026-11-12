@@ -1,5 +1,18 @@
 # Tasks
 
+## Cell biology component artwork (2026-11-12)
+
+- [x] Study open AP-level/high-school and university cell biology references.
+- [x] Add 8 cell types, 9 organelle/vesicle symbols and 3 membrane/molecular
+  components; redraw all 8 legacy symbols (28 total).
+- [x] Share one vector geometry source between thumbnail, editor and exports;
+  isolate export assembly and retain legacy IDs/project values/evidence.
+- [x] Add bilingual category filtering and scientific-use guidance.
+- [x] Verify 13 frontend and 39 backend checks, build/lint, actual local browser
+  insertion/save/reopen/export and preserved wheel behavior.
+- [x] Deliver inspected SVG/PNG catalog, source notes and limits. User acceptance
+  pending; no new installer or publication in this slice.
+
 ## Illustration wheel scrolling fix (2026-11-12)
 
 - [x] Bind a canvas-local non-passive wheel listener with cleanup, preventing
