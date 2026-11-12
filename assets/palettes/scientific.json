@@ -99,6 +99,396 @@
         "#ffa94d",
         "#e8590c"
       ]
+    },
+    {
+      "id": "oc_ocean",
+      "kind": "categorical",
+      "name": {
+        "en": "Marine Study",
+        "zh-CN": "海洋分组"
+      },
+      "description": {
+        "en": "Cool-leading groups with warm accents; use explicit labels for related blue/cyan hues.",
+        "zh-CN": "冷色为主、暖色强调的分组；蓝青近似色请配合明确标签。"
+      },
+      "colors": [
+        "#1c7ed6",
+        "#0ca678",
+        "#f76707",
+        "#7048e8",
+        "#1098ad",
+        "#d6336c"
+      ]
+    },
+    {
+      "id": "oc_garden",
+      "kind": "categorical",
+      "name": {
+        "en": "Botanical Study",
+        "zh-CN": "植物分组"
+      },
+      "description": {
+        "en": "Plant and ecology categories. Hues do not encode biological function; label each group.",
+        "zh-CN": "适合植物与生态类别；色相不代表生物功能，请标注每组名称。"
+      },
+      "colors": [
+        "#2f9e44",
+        "#6741d9",
+        "#e8590c",
+        "#0c8599",
+        "#c2255c",
+        "#66a80f"
+      ]
+    },
+    {
+      "id": "oc_warm",
+      "kind": "categorical",
+      "name": {
+        "en": "Warm Tissue",
+        "zh-CN": "暖调组织"
+      },
+      "description": {
+        "en": "Warm tissue-category accents. Similar red/pink hues need labels; no diagnostic meaning.",
+        "zh-CN": "适合组织类别的暖调强调；红粉近似色需标签辅助，不表示诊断含义。"
+      },
+      "colors": [
+        "#e03131",
+        "#e8590c",
+        "#c2255c",
+        "#9c36b5",
+        "#f08c00",
+        "#6741d9"
+      ]
+    },
+    {
+      "id": "oc_cool",
+      "kind": "categorical",
+      "name": {
+        "en": "Cool Cell Atlas",
+        "zh-CN": "冷调细胞图谱"
+      },
+      "description": {
+        "en": "Cool category colors for labeled cell atlases. Similar hues need redundant labels or shapes.",
+        "zh-CN": "适合带标签的细胞分类图；相近色需标签或点形辅助辨识。"
+      },
+      "colors": [
+        "#3b5bdb",
+        "#099268",
+        "#6741d9",
+        "#0c8599",
+        "#2f9e44",
+        "#9c36b5"
+      ]
+    },
+    {
+      "id": "oc_flower",
+      "kind": "categorical",
+      "name": {
+        "en": "Petal Contrast",
+        "zh-CN": "花瓣对比"
+      },
+      "description": {
+        "en": "Floral accents for group comparisons and large marks. Check small-mark contrast on white.",
+        "zh-CN": "适合分组比较与较大图形的花瓣色调；白底细小元素请核对对比度。"
+      },
+      "colors": [
+        "#e64980",
+        "#7950f2",
+        "#12b886",
+        "#fd7e14",
+        "#4c6ef5",
+        "#82c91e"
+      ]
+    },
+    {
+      "id": "oc_jewel",
+      "kind": "categorical",
+      "name": {
+        "en": "Deep Jewel",
+        "zh-CN": "深色宝石"
+      },
+      "description": {
+        "en": "Deep accents for white-background line and point charts. Use labels for hue discrimination.",
+        "zh-CN": "适合白底折线与散点的深色强调；色相辨识请结合标签。"
+      },
+      "colors": [
+        "#1864ab",
+        "#862e9c",
+        "#087f5b",
+        "#d9480f",
+        "#a61e4d",
+        "#2b8a3e"
+      ]
+    },
+    {
+      "id": "oc_pair_teal_rose",
+      "kind": "categorical",
+      "name": {
+        "en": "Teal–Rose Pairs",
+        "zh-CN": "青玫成对"
+      },
+      "description": {
+        "en": "Three light/dark pairs: teal, rose and indigo. Set exact category order; colors imply no treatment role.",
+        "zh-CN": "青、玫红、靛蓝三组深浅配对；请指定类别顺序，颜色不暗示处理角色。"
+      },
+      "colors": [
+        "#38d9a9",
+        "#099268",
+        "#f783ac",
+        "#c2255c",
+        "#748ffc",
+        "#3b5bdb"
+      ],
+      "paired": true
+    },
+    {
+      "id": "oc_pair_garden",
+      "kind": "categorical",
+      "name": {
+        "en": "Garden Pairs",
+        "zh-CN": "园林成对"
+      },
+      "description": {
+        "en": "Green, grape and orange light/dark pairs. Check category order and avoid tiny pale marks.",
+        "zh-CN": "绿、葡萄紫、橙三组深浅配对；请核对类别顺序，避免细小浅色元素。"
+      },
+      "colors": [
+        "#69db7c",
+        "#2f9e44",
+        "#da77f2",
+        "#9c36b5",
+        "#ffa94d",
+        "#e8590c"
+      ],
+      "paired": true
+    },
+    {
+      "id": "oc_seq_teal",
+      "kind": "sequential",
+      "name": {
+        "en": "Teal Abundance",
+        "zh-CN": "丰度青阶"
+      },
+      "description": {
+        "en": "Light-to-dark magnitude, such as expression or abundance; low values are pale. Not for signed differences.",
+        "zh-CN": "浅至深表示表达量、丰度等大小，低值为浅色；不适合表示正负差异。"
+      },
+      "colors": [
+        "#e6fcf5",
+        "#96f2d7",
+        "#38d9a9",
+        "#12b886",
+        "#087f5b"
+      ]
+    },
+    {
+      "id": "oc_seq_green",
+      "kind": "sequential",
+      "name": {
+        "en": "Leaf Density",
+        "zh-CN": "密度绿阶"
+      },
+      "description": {
+        "en": "Light-to-dark magnitude, such as expression or abundance; low values are pale. Not for signed differences.",
+        "zh-CN": "浅至深表示表达量、丰度等大小，低值为浅色；不适合表示正负差异。"
+      },
+      "colors": [
+        "#ebfbee",
+        "#b2f2bb",
+        "#69db7c",
+        "#40c057",
+        "#2b8a3e"
+      ]
+    },
+    {
+      "id": "oc_seq_violet",
+      "kind": "sequential",
+      "name": {
+        "en": "Violet Intensity",
+        "zh-CN": "强度紫阶"
+      },
+      "description": {
+        "en": "Light-to-dark magnitude, such as expression or abundance; low values are pale. Not for signed differences.",
+        "zh-CN": "浅至深表示表达量、丰度等大小，低值为浅色；不适合表示正负差异。"
+      },
+      "colors": [
+        "#f3f0ff",
+        "#d0bfff",
+        "#9775fa",
+        "#7950f2",
+        "#5f3dc4"
+      ]
+    },
+    {
+      "id": "oc_seq_orange",
+      "kind": "sequential",
+      "name": {
+        "en": "Amber Intensity",
+        "zh-CN": "强度橙阶"
+      },
+      "description": {
+        "en": "Light-to-dark magnitude, such as expression or abundance; low values are pale. Not for signed differences.",
+        "zh-CN": "浅至深表示表达量、丰度等大小，低值为浅色；不适合表示正负差异。"
+      },
+      "colors": [
+        "#fff4e6",
+        "#ffd8a8",
+        "#ffa94d",
+        "#fd7e14",
+        "#d9480f"
+      ]
+    },
+    {
+      "id": "oc_seq_red",
+      "kind": "sequential",
+      "name": {
+        "en": "Rose Intensity",
+        "zh-CN": "强度红阶"
+      },
+      "description": {
+        "en": "Light-to-dark magnitude, such as expression or abundance; low values are pale. Not for signed differences.",
+        "zh-CN": "浅至深表示表达量、丰度等大小，低值为浅色；不适合表示正负差异。"
+      },
+      "colors": [
+        "#fff5f5",
+        "#ffc9c9",
+        "#ff8787",
+        "#fa5252",
+        "#c92a2a"
+      ]
+    },
+    {
+      "id": "oc_seq_gray",
+      "kind": "sequential",
+      "name": {
+        "en": "Graphite Values",
+        "zh-CN": "石墨灰阶"
+      },
+      "description": {
+        "en": "Light-to-dark magnitude, such as expression or abundance; low values are pale. Not for signed differences.",
+        "zh-CN": "浅至深表示表达量、丰度等大小，低值为浅色；不适合表示正负差异。"
+      },
+      "colors": [
+        "#f8f9fa",
+        "#e9ecef",
+        "#ced4da",
+        "#868e96",
+        "#212529"
+      ]
+    },
+    {
+      "id": "oc_seq_cyan",
+      "kind": "sequential",
+      "name": {
+        "en": "Cyan Concentration",
+        "zh-CN": "浓度青蓝阶"
+      },
+      "description": {
+        "en": "Light-to-dark magnitude, such as expression or abundance; low values are pale. Not for signed differences.",
+        "zh-CN": "浅至深表示表达量、丰度等大小，低值为浅色；不适合表示正负差异。"
+      },
+      "colors": [
+        "#e3fafc",
+        "#99e9f2",
+        "#3bc9db",
+        "#15aabf",
+        "#0b7285"
+      ]
+    },
+    {
+      "id": "oc_seq_pink",
+      "kind": "sequential",
+      "name": {
+        "en": "Pink Expression",
+        "zh-CN": "表达量粉阶"
+      },
+      "description": {
+        "en": "Light-to-dark magnitude, such as expression or abundance; low values are pale. Not for signed differences.",
+        "zh-CN": "浅至深表示表达量、丰度等大小，低值为浅色；不适合表示正负差异。"
+      },
+      "colors": [
+        "#fff0f6",
+        "#fcc2d7",
+        "#f783ac",
+        "#e64980",
+        "#a61e4d"
+      ]
+    },
+    {
+      "id": "oc_div_teal_rose",
+      "kind": "diverging",
+      "name": {
+        "en": "Teal–Rose Change",
+        "zh-CN": "青玫双向"
+      },
+      "description": {
+        "en": "Negative to neutral to positive, for example signed correlations. Review the numerical center; color is not significance.",
+        "zh-CN": "负值至中性至正值，如带符号相关性；请核对数值中心，颜色不表示显著性。"
+      },
+      "colors": [
+        "#099268",
+        "#38d9a9",
+        "#f8f9fa",
+        "#f783ac",
+        "#c2255c"
+      ]
+    },
+    {
+      "id": "oc_div_violet_lime",
+      "kind": "diverging",
+      "name": {
+        "en": "Violet–Lime Change",
+        "zh-CN": "紫青柠双向"
+      },
+      "description": {
+        "en": "Negative to neutral to positive, for example signed correlations. Review the numerical center; color is not significance.",
+        "zh-CN": "负值至中性至正值，如带符号相关性；请核对数值中心，颜色不表示显著性。"
+      },
+      "colors": [
+        "#6741d9",
+        "#9775fa",
+        "#f8f9fa",
+        "#a9e34b",
+        "#66a80f"
+      ]
+    },
+    {
+      "id": "oc_div_indigo_amber",
+      "kind": "diverging",
+      "name": {
+        "en": "Indigo–Amber Change",
+        "zh-CN": "靛蓝琥珀双向"
+      },
+      "description": {
+        "en": "Negative to neutral to positive, for example signed correlations. Review the numerical center; color is not significance.",
+        "zh-CN": "负值至中性至正值，如带符号相关性；请核对数值中心，颜色不表示显著性。"
+      },
+      "colors": [
+        "#3b5bdb",
+        "#748ffc",
+        "#f8f9fa",
+        "#ffd43b",
+        "#f08c00"
+      ]
+    },
+    {
+      "id": "oc_div_cyan_red",
+      "kind": "diverging",
+      "name": {
+        "en": "Cyan–Red Change",
+        "zh-CN": "青红双向"
+      },
+      "description": {
+        "en": "Negative to neutral to positive, for example signed correlations. Review the numerical center; color is not significance.",
+        "zh-CN": "负值至中性至正值，如带符号相关性；请核对数值中心，颜色不表示显著性。"
+      },
+      "colors": [
+        "#0c8599",
+        "#3bc9db",
+        "#f8f9fa",
+        "#ff8787",
+        "#e03131"
+      ]
     }
   ]
 }

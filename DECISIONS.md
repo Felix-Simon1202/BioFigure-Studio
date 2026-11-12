@@ -54,3 +54,19 @@ the local contrast helper implements the standard sRGB luminance formula indepen
 Do not certify categorical palettes as colorblind-safe. R retains its own styling.
 Only presentation fields change when applying a preset; project/scientific data
 and saved v0.4.3 defaults are retained. No publication or installer rebuild here.
+# Additional palette library (2026-11-12)
+
+The user requested 20 additional palettes, interpreted as 20 beyond the existing
+five, not a total of 20. Continue using the same reviewed Open Color commit and
+MIT notice without new dependencies or upstream runtime code. Add 8 categorical,
+8 light-to-dark sequential and 4 neutral-centered diverging combinations.
+Existing five catalog objects and colors remain identical; names indicate visual
+mood, not biological truth, diagnostic status or journal approval.
+
+Resolve reviewed ramps from catalog membership rather than maintaining a second
+hardcoded heatmap allowlist. Generate compact categorical palette names in the
+chart proposal instructions from the same catalog; keep classifier/extraction
+prompts free from the larger catalog. All 25 remain discoverable in capabilities.
+Group swatches by meaning in a bounded keyboard-accessible region. Extend paired
+ordering to both new paired palettes. No additional one-click style bundles,
+services, software installation, published tag changes or installer rebuild.

@@ -25,7 +25,7 @@ const { branchExample, timelineExample } = require(path.join(web, 'src/builtinEx
 const { buildTimeline, timelineSvg } = require(path.join(web, 'src/illustrationTimeline.ts'))
 const { mechanismRelationStyle } = require(path.join(web, 'src/illustrationMechanismStyle.ts'))
 const ChartStyleChoices = require(path.join(web, 'src/ChartStyleChoices.tsx')).default
-const { paletteChoices, chartStylePresets, contrastAgainstWhite } = require(path.join(web, 'src/chartPalettes.ts'))
+const { paletteChoices, chartStylePresets, contrastAgainstWhite, isPairedPalette } = require(path.join(web, 'src/chartPalettes.ts'))
 
 test('scientific palette choices are bilingual and distinguish categorical from numeric values', () => {
   for (const locale of ['en', 'zh-CN']) {
@@ -37,9 +37,14 @@ test('scientific palette choices are bilingual and distinguish categorical from 
     assert.match(markup, locale === 'en' ? /not certified colorblind-safe/ : /不保证色觉无障碍/)
     if (locale === 'en') assert.doesNotMatch(markup, /\p{Script=Han}/u)
   }
-  assert.deepEqual(paletteChoices('heatmap').map(item => item.kind), ['sequential', 'diverging'])
-  assert.equal(paletteChoices('embedding_continuous').length, 2)
-  assert.equal(paletteChoices('scatter').length, 3)
+  assert.equal(paletteChoices('heatmap').filter(item => item.kind === 'sequential').length, 9)
+  assert.equal(paletteChoices('heatmap').filter(item => item.kind === 'diverging').length, 5)
+  assert.equal(paletteChoices('embedding_continuous').length, 14)
+  assert.equal(paletteChoices('scatter').length, 11)
+  assert.ok(isPairedPalette('oc_paired'))
+  assert.ok(isPairedPalette('oc_pair_teal_rose'))
+  assert.ok(isPairedPalette('oc_pair_garden'))
+  assert.equal(isPairedPalette('oc_ocean'), false)
   assert.equal(paletteChoices('r_ggplot').length, 0)
   assert.equal(contrastAgainstWhite('#000000'), 21)
   assert.equal(contrastAgainstWhite('#ffffff'), 1)

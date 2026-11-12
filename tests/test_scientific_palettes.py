@@ -39,6 +39,14 @@ def test_palette_roundtrip_real_svg_and_unchanged_data(palette):
         assert _categorical_palette(chart) == ART_PALETTES[palette]
     else:
         assert _continuous_palette(chart).name == palette
+        figure, axes = plt.subplots()
+        try:
+            draw_chart(axes, chart, FRAME)
+            assert axes.images[0].cmap.name == palette
+            assert to_hex(axes.images[0].cmap(0.0)) == SCIENTIFIC_PALETTES[palette]['colors'][0]
+            assert to_hex(axes.images[0].cmap(1.0)) == SCIENTIFIC_PALETTES[palette]['colors'][-1]
+        finally:
+            plt.close(figure)
 
 
 def test_signed_heatmap_ramp_and_sequential_lightness():
@@ -74,6 +82,30 @@ def test_biodot_catalog_schema_and_reviewed_style_proposal():
     assert ChartIntent(chart_type='line', title='Existing', theme_id='modern_soft').palette_id == 'theme'
     with pytest.raises(ValueError):
         ChartIntent(chart_type='scatter', title='Reject', theme_id='scientific_clear', palette_id='unreviewed')
+
+
+def test_expanded_catalog_has_distinct_palettes_and_usable_model_ids():
+    from collections import Counter
+    from backend.core.workbench import CHART_INSTRUCTIONS
+    assert len(SCIENTIFIC_PALETTES) == 25
+    assert Counter(item['kind'] for item in SCIENTIFIC_PALETTES.values()) == {
+        'categorical': 11, 'sequential': 9, 'diverging': 5}
+    assert len({tuple(item['colors']) for item in SCIENTIFIC_PALETTES.values()}) == 25
+    for key, item in SCIENTIFIC_PALETTES.items():
+        for locale in ('en', 'zh-CN'):
+            assert item['name'][locale] and item['description'][locale]
+        intent = ChartIntent(chart_type='scatter', title='Synthetic', theme_id='scientific_clear', palette_id=key)
+        assert build_chart_draft(intent).palette_id == key
+        if item['kind'] == 'categorical':
+            assert key in CHART_INSTRUCTIONS
+        elif item['kind'] == 'sequential':
+            # Sequential ramps must not reverse lightness as values increase.
+            def luminance(hex_color):
+                values = [int(hex_color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+                linear = [value / 12.92 if value <= .04045 else ((value + .055) / 1.055) ** 2.4 for value in values]
+                return sum(channel * weight for channel, weight in zip(linear, (.2126, .7152, .0722)))
+            lightness = [luminance(color) for color in item['colors']]
+            assert all(a > b for a, b in zip(lightness, lightness[1:]))
 
 
 def test_genome_tracks_use_selected_colors_and_preserve_explicit_source():

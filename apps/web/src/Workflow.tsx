@@ -10,7 +10,7 @@ import './WorkflowPrototype.css'
 import { useI18n, translate } from './i18n'
 import LanguageSettings from './LanguageSettings'
 import ChartStyleChoices from './ChartStyleChoices'
-import { paletteChoices, scientificPaletteColors, scientificPalettes } from './chartPalettes'
+import { isPairedPalette, paletteChoices, scientificPaletteColors, scientificPalettes } from './chartPalettes'
 
 type SvgTextMode = 'outline' | 'editable'
 type Mode = 'table' | 'single_cell' | 'omics' | 'ecology'
@@ -1695,7 +1695,7 @@ const figureMeasureLabels: Record<string, string> = {
                       </select>
                     </label>
                     <ChartStyleChoices chartType={draft.chart_type} paletteId={draft.palette_id} onChange={change} />
-                    {draft.palette_id === 'oc_paired' && ['scatter', 'line', 'embedding_categorical', 'spatial_categorical', 'ecology_composition'].includes(draft.chart_type) && <label>
+                    {isPairedPalette(draft.palette_id) && ['scatter', 'line', 'embedding_categorical', 'spatial_categorical', 'ecology_composition'].includes(draft.chart_type) && <label>
                       {t('类别顺序（每行一个，依次对应色样）', 'Category order (one per line, matching swatch order)')}
                       <textarea key={`${draft.dataset_id}:${draft.palette_id}`} defaultValue={draft.category_order.join('\n')} rows={4}
                         placeholder={t('请原样填写数据中的类别名称', 'Enter exact category names from your data')}

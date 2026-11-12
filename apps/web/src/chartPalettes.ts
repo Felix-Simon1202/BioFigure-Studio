@@ -4,6 +4,10 @@ export const scientificPalettes = catalog.palettes
 export const scientificPaletteColors: Record<string, string[]> = Object.fromEntries(
   scientificPalettes.map(item => [item.id, item.colors]))
 
+export function isPairedPalette(id: string) {
+  return id === 'oc_paired' || scientificPalettes.some(item => item.id === id && item.paired)
+}
+
 export function paletteChoices(chartType: string) {
   if (chartType === 'r_ggplot') return [] // R connector owns its plotting styles.
   const continuous = ['heatmap', 'embedding_continuous', 'feature', 'dotplot', 'spatial_continuous', 'spatial_feature', 'ecology_environment_gradient']

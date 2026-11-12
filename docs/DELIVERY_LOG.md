@@ -76,3 +76,25 @@ Biodot. The interim English-only package is archived and is not for upload.
 - Delivered source on codex/scientific-chart-palettes. User acceptance pending.
   No push, Release/tag mutation or new installer build. v0.4.3 artifacts remain
   unchanged; frozen-engine palette data inclusion is prepared for the next build.
+# Additional 20 palettes — 2026-11-12
+
+- Delivered exactly 20 additions, making 25 curated choices: 11 categorical,
+  9 sequential and 5 diverging overall. Reused the fixed reviewed Open Color
+  snapshot and retained the MIT notice. Previous five catalog entries match
+  the prior commit exactly as data; all complete color arrays are distinct.
+- Bilingual names, usage guidance, grouped scrollable swatches and paired-order
+  controls are wired to the current chart workflow. Biodot's compact categorical
+  names and capability metadata use the shared registry. No runtime network or
+  dependency was added; no underlying user/scientific data was modified.
+- Focused palette/Biodot/workbench tests: 44 passed, including all 25 real SVG
+  exports/config roundtrips, actual ramp names/endpoints, strictly descending
+  sequential luminance, expanded model IDs and unknown-ID rejection.
+- UI/language checks: 11 passed; build and lint passed. Existing bundle-size
+  warning and two dependency deprecation warnings remain. Spotlight subtree,
+  pointer, CSS and decorative assets match the protected baseline; the asset
+  checker explicitly excludes the authorized chart palette data directory.
+- Generated and visually inspected docs/media/scientific-palette-catalog.png:
+  synthetic category lines, nonnegative magnitude maps and signed correlation
+  heatmaps. Reproducible via scripts/render_palette_catalog.py.
+- Source update only; user acceptance pending. Existing v0.4.3 installation
+  artifacts and remote repository remain unchanged.

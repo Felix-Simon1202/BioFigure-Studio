@@ -1,5 +1,10 @@
 # Scientific chart color and style choices
 
+Current library (2026-11-12): **25 curated palettes**, including 20 additions
+to the first five described below. 当前共 25 套精选配色，本轮新增 20 套。
+The first-slice description and its validation history below are retained;
+the expansion section records the current totals and sample sheet.
+
 ## Scope / 范围
 
 Improve generated biological charts rather than changing the application shell.
@@ -82,3 +87,54 @@ New palette JSON is explicitly included in future frozen-engine builds.
   chunk-size and dependency deprecation warnings remain unrelated.
 - User acceptance and new installer packaging are pending. No claim of a newly
   tested clean Windows install, external live-model run or colorblind certification.
+
+## Additional 20 palettes / 新增 20 套 (2026-11-12)
+
+The original five palette records and all old IDs remain unchanged. The total
+curated library now has 11 categorical palettes (3 paired), 9 sequential ramps
+and 5 diverging ramps. Every new scheme reuses the pinned Open Color swatches;
+this is a local selection/reordering, not a claim of perceptual uniformity or
+color-vision certification. R retains its separate styles.
+
+| ID | English | 中文 | Type |
+| --- | --- | --- | --- |
+| oc_ocean | Marine Study | 海洋分组 | Categorical / 分类 |
+| oc_garden | Botanical Study | 植物分组 | Categorical / 分类 |
+| oc_warm | Warm Tissue | 暖调组织 | Categorical / 分类 |
+| oc_cool | Cool Cell Atlas | 冷调细胞图谱 | Categorical / 分类 |
+| oc_flower | Petal Contrast | 花瓣对比 | Categorical / 分类 |
+| oc_jewel | Deep Jewel | 深色宝石 | Categorical / 分类 |
+| oc_pair_teal_rose | Teal–Rose Pairs | 青玫成对 | Categorical / 分类 |
+| oc_pair_garden | Garden Pairs | 园林成对 | Categorical / 分类 |
+| oc_seq_teal | Teal Abundance | 丰度青阶 | Sequential / 连续 |
+| oc_seq_green | Leaf Density | 密度绿阶 | Sequential / 连续 |
+| oc_seq_violet | Violet Intensity | 强度紫阶 | Sequential / 连续 |
+| oc_seq_orange | Amber Intensity | 强度橙阶 | Sequential / 连续 |
+| oc_seq_red | Rose Intensity | 强度红阶 | Sequential / 连续 |
+| oc_seq_gray | Graphite Values | 石墨灰阶 | Sequential / 连续 |
+| oc_seq_cyan | Cyan Concentration | 浓度青蓝阶 | Sequential / 连续 |
+| oc_seq_pink | Pink Expression | 表达量粉阶 | Sequential / 连续 |
+| oc_div_teal_rose | Teal–Rose Change | 青玫双向 | Diverging / 双向 |
+| oc_div_violet_lime | Violet–Lime Change | 紫青柠双向 | Diverging / 双向 |
+| oc_div_indigo_amber | Indigo–Amber Change | 靛蓝琥珀双向 | Diverging / 双向 |
+| oc_div_cyan_red | Cyan–Red Change | 青红双向 | Diverging / 双向 |
+
+![25 scientific palettes with synthetic data](media/scientific-palette-catalog.png)
+
+The swatches are grouped by category, magnitude and signed change in a bounded
+scrollable region with keyboard access. Paired schemes expose exact category
+ordering in supported charts. Existing presets remain three; this request adds
+palette choices, not 20 redundant preset definitions.
+
+Biodot receives the expanded categorical names only for chart drafting; its
+capability profile exposes all 25 bilingual records. Every new ID passes the
+existing strict schema. Heatmaps resolve the catalog ramp directly, preserve
+the -1 to 1 correlation scale, and do not silently substitute Coolwarm.
+
+Validation: 44 focused backend tests, 11 language/UI tests, build and lint
+passed. Original spotlight/artwork checks passed. Sample sheet uses nonnegative
+magnitude maps for sequential palettes and signed correlation maps for diverging
+palettes. It is reproducible with scripts/render_palette_catalog.py.
+
+中文：选择分类、连续或双向配色；成对配色核对类别顺序；生成当前数据的实际
+图表再审阅导出。此次交付为源码扩展，尚未上传或打包新安装程序。

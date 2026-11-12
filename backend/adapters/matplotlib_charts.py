@@ -331,7 +331,7 @@ def _heatmap(axes: object, dataframe: pd.DataFrame, spec: ChartSpec) -> None:
         raise ValueError("热图至少需要两列数值数据。")
     if spec.palette_id in ART_PALETTES:
         raise ValueError("相关性热图请选择 Viridis 或 Coolwarm，艺术分类色仅用于类别。")
-    cmap = continuous_palette(spec.palette_id) if spec.palette_id in {"viridis", "cividis", "magma", "coolwarm", "oc_blues", "oc_balance"} else "coolwarm"
+    cmap = continuous_palette(spec.palette_id) if spec.palette_id in SCIENTIFIC_PALETTES or spec.palette_id in {"viridis", "cividis", "magma", "coolwarm"} else "coolwarm"
     image = axes.imshow(numeric.corr(), vmin=-1, vmax=1, cmap=cmap)
     axes.set_xticks(range(len(numeric.columns)), numeric.columns, rotation=35, ha="right")
     axes.set_yticks(range(len(numeric.columns)), numeric.columns)

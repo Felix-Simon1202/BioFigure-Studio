@@ -1,5 +1,18 @@
 # Tasks
 
+## Additional 20 scientific palettes (2026-11-12)
+
+- [x] Add exactly 20 reviewed-swatch combinations: 8 categorical (2 paired),
+  8 sequential and 4 diverging; 25 curated palettes total.
+- [x] Preserve previous five entries, existing project colors and palette IDs.
+- [x] Share expanded IDs/names with Biodot, validate all proposals, and resolve
+  every new ramp in actual heatmap exports rather than falling back silently.
+- [x] Group and bound the swatch list; use bilingual advice and paired-order controls.
+- [x] Verify 44 focused backend checks, 11 UI/language checks, build/lint,
+  actual palette exports and spotlight preservation; deliver the 25-palette sample.
+- [x] Record usage/provenance and source delivery. User acceptance pending;
+  no new installer or repository publication in this slice.
+
 ## Scientific chart color and style choices
 
 - [x] Review the five user-provided repositories and exact upstream licenses.
