@@ -95,3 +95,22 @@ Record artwork 2.0 in SVG metadata. Existing projects deliberately display the
 requested new art while their scientific data, labels, transforms and evidence
 remain intact. Category filters keep the larger library usable. No new network
 service, dependency, model action or spotlight modification is introduced.
+# AI-first navigation (2026-11-12)
+
+The user requested a DeepTutor-like conversation landing page, a sliding switch
+to the existing local spotlight home, concise task groups with explanatory child
+flyouts and restrained Apple-like material treatment. Use original local CSS and
+shared bilingual components rather than new UI dependencies or copied product art.
+AI is the default interface mode only; no model inference runs automatically.
+
+Retain the exact spotlight subtree, pointer effect and assets. Replace only its
+outside navigation. Reuse real routes/actions and separate connectors from examples.
+Hover is optional: click/touch, ArrowDown, Tab, Escape and outside dismissal all work.
+Only open groups attach outside-pointer listeners; motion respects reduced-motion.
+
+Switching Local goes to the home, so preserve already opened illustration/image
+instances instead of unmounting unsaved content. Retention is bounded to those two
+instances; route events set retention directly. Hidden illustration keyboard hooks
+are inactive. Choosing a new blank illustration increments its reset revision.
+Keep the existing parent chart/figure state and offer a plot resume entry when data
+is present. Navigation is not autosave; no new project persistence format is added.

@@ -1,3 +1,4 @@
+import NavigationGroup from './NavigationGroup'
 import { BIODOT_NAME, biodotGreeting, biodotReply } from './biodot'
 import { scientificPalettes } from './chartPalettes'
 import { branchExample, timelineExample } from './builtinExamples'
@@ -56,7 +57,7 @@ const externalPrompts = {
 const themeNames: Record<string, string> = { scientific_clear: '科研清晰', modern_soft: '现代柔和', high_contrast: '高对比' }
 
 export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, recent, onOpenProject, onOpen, onDraft, onApply, onInspect, onConnect, onDisconnect, onApplyIllustration, onDraftIllustration }: Props) {
-  const { locale } = useI18n()
+  const { locale, t } = useI18n()
   const ui = (text: string) => workbenchText(locale, text)
 
   const [category, setCategory] = useState<Category>('chart')
@@ -169,13 +170,22 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
     <div className="drawing-workbench" hidden={!visible}>
       <aside className="dw-sidebar">
         <div className="dw-brand"><span aria-hidden="true">✳</span><strong>BioFigure</strong><small>Studio</small></div>
-        <nav className="dw-nav" aria-label={ui("作图大类")}>
-          <p className="dw-caption">{ui("作图大类")}</p>
-          {(Object.keys(categories) as Category[]).map((key) => (
-            <button key={key} aria-pressed={category === key && workspace === 'draw' && !settings} onClick={() => changeCategory(key)}>
-              <span aria-hidden="true">{categories[key].icon}</span>{ui(categories[key].label)}
-            </button>
-          ))}
+        <button className="dw-home" onClick={()=>{setSettings(false);setWorkspace('draw')}}>{t('⌂ 对话工作台', '⌂ Conversation workspace')}</button>
+        <nav className="dw-nav" aria-label={t('创作导航', 'Creation navigation')}>
+          <p className="dw-caption">{t('创作', 'CREATE')}</p>
+          {(Object.keys(categories) as Category[]).map(key => <NavigationGroup key={key}
+            label={ui(categories[key].label)} icon={categories[key].icon} description={ui(categories[key].description)}
+            active={category===key&&workspace==='draw'&&!settings} items={[
+              {label:t('在工作台查看', 'View in workbench'),onSelect:()=>changeCategory(key)},
+              {label:ui(categories[key].local),description:t('使用本机编辑器与文件', 'Use local editors and files'),onSelect:()=>onOpen(key)},
+              ...(key==='illustration'?[{label:t('生图与流程草案', 'Generate illustrations and workflows'),onSelect:()=>{setSettings(false);setWorkspace('generate');setConsent(false)}}]:[]),
+            ]}/>)}
+          <NavigationGroup label={t('连接器', 'Connectors')} icon="⌘"
+            description={failedCatalog?t('暂时无法读取连接状态；可进入设置检查。', 'Connection status unavailable; check settings.'):t('连接本机绘图软件，或交接可编辑文件。', 'Connect local drawing software or hand off editable files.')}
+            active={Boolean(connector)} items={[
+              ...integrations.map(entry=>({label:entry.name,description:entry.mode==='file'?ui('文件交接'):entry.ready?ui('已就绪'):ui('待配置'),onSelect:()=>{changeCategory(entry.id==='fiji'?'image':entry.id==='r'?'chart':'figure');setConnector(entry)}})),
+              {label:t('连接设置', 'Connection settings'),onSelect:()=>{setSettings(true);setConsent(false)}},
+            ]}/>
         </nav>
         <section className="dw-recent" aria-labelledby="dw-recent-title">
           <p className="dw-caption" id="dw-recent-title">{ui("近期项目 · 本次会话")}</p>
@@ -196,7 +206,7 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
           <div className="dw-center">
             <div className="dw-intro">
               <p className="dw-caption">{BIODOT_NAME} · {workspace === 'generate' ? 'SCIENTIFIC ILLUSTRATION' : 'DRAWING WORKBENCH'}</p>
-              <h1>{workspace === 'generate' ? ui("论文示意图") : ui(section.title)}</h1>
+              <h1>{workspace === 'generate' ? ui("论文示意图") : t('今天想做一张什么图？', 'What would you like to draw?')}</h1>
               <p>{workspace === 'generate' ? ui("把实验流程、机制关系与图形摘要做成可编辑的科研示意图。") : ui(section.description)}</p>
             </div>
             <p role="status">{socialInput ? biodotReply(socialInput, locale) : biodotGreeting[locale]}</p>
@@ -257,16 +267,6 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
                 <label><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /> {ui("同意本次向所配置服务发送内置合成指令，服务可能计费。")}</label>
                 {(!external.api_key || !external.model || !external.base_url) && <button onClick={() => setSettings(true)}>{ui("配置外部模型")}</button>}
               </div>}
-              <div className="dw-connectors" aria-label={ui("绘图连接器")}>
-                <span className="dw-caption">{ui("连接器")}</span>
-                {integrations.filter((entry) => section.connectors.includes(entry.id)).map((entry) => (
-                  <button key={entry.id} aria-pressed={connector?.id === entry.id} onClick={() => setConnector(connector?.id === entry.id ? null : entry)}>
-                    {entry.name} <small>{entry.mode === 'file' ? ui("文件交接") : entry.ready ? ui("已就绪") : ui("待配置")}</small>
-                  </button>
-                ))}
-                {failedCatalog && <span className="dw-muted">{ui("暂时无法读取连接状态。")}</span>}
-                <button onClick={() => setSettings(true)}>{ui("连接设置")}</button>
-              </div>
               {connector && <section className="dw-card" aria-label={connector.name}>
                 <h2>{connector.name}</h2><p>{ui(connector.detail)}</p>
                 {connector.id === 'fiji' && connector.ready &&
@@ -281,11 +281,11 @@ export default function DrawingWorkbench({ visible, modeSwitch, busy, canApply, 
                 {handoffError && <p role="alert">{ui(handoffError)}</p>}
                 <button onClick={() => onOpen(category)}>{ui(section.local)} ↗</button>
               </section>}
-              {canDraft && <div className="dw-quick">
+              {canDraft && <details className="dw-tools"><summary>{t('示例与快捷操作', 'Examples and shortcuts')}</summary><div className="dw-quick">
                 {!usesExternal && <button onClick={() => { setPrompt(ui(prompts[category])); setProposal(null) }}>{ui("使用合成指令")}</button>}
                 {category === 'chart' && <button onClick={() => { setProposal(null); setConnector(null); onDraft('demo', '', receive('demo')) }}>{ui("打开内置草案")}</button>}
                 <button onClick={() => onOpen(category)}>{ui(section.local)} ↗</button>
-              </div>}
+              </div></details>}
               {proposal?.action === 'chart' && (
                 <section className="dw-card" aria-label={ui("图表草案")}>
                   <p className="dw-caption">{ui(({ local: '本机模型', external: '外部模型', demo: '内置合成示例' })[proposal.provider])} {ui("· 待确认")}</p>

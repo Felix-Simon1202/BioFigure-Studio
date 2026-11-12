@@ -27,6 +27,27 @@ const { mechanismRelationStyle } = require(path.join(web, 'src/illustrationMecha
 const ChartStyleChoices = require(path.join(web, 'src/ChartStyleChoices.tsx')).default
 const { paletteChoices, chartStylePresets, contrastAgainstWhite, isPairedPalette } = require(path.join(web, 'src/chartPalettes.ts'))
 
+test('navigation and sliding mode control are bilingual accessible disclosures', () => {
+  require.extensions['.css'] = module => { module.exports = {} }
+  const ModeSwitch = require(path.join(web, 'src/WorkspaceModeSwitch.tsx')).default
+  const Group = require(path.join(web, 'src/NavigationGroup.tsx')).default
+  for (const locale of ['en', 'zh-CN']) {
+    global.window = { localStorage: { getItem: () => locale } }
+    for (const ai of [true, false]) {
+      const markup = renderToStaticMarkup(React.createElement(LanguageProvider, null,
+        React.createElement(ModeSwitch, { ai, onChange: () => {} })))
+      assert.match(markup, /role="switch"/)
+      assert.ok(markup.includes(`aria-checked="${ai}"`))
+      assert.match(markup, locale === 'en' ? /AI workspace/ : /AI 工作台/)
+    }
+    const menu = renderToStaticMarkup(React.createElement(Group, {label:'Synthetic navigation',
+      description:'Purpose and child actions',items:[{label:'Open synthetic editor',onSelect:()=>{}}]}))
+    assert.match(menu, /aria-expanded="false"/)
+    assert.match(menu, /aria-controls=/)
+    assert.match(menu, /class="nav-group-panel" hidden=""/)
+  }
+})
+
 test('all cell components share vector artwork across preview/export and survive projects', () => {
   require.extensions['.css'] = module => { module.exports = {} }
   const { componentRegistry, emptyIllustration, validateIllustration, defaultEntityType } = require(path.join(web, 'src/illustration.ts'))

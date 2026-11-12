@@ -138,3 +138,24 @@ Biodot. The interim English-only package is archived and is not for upload.
   reproducible with scripts/render_cell_catalog.cjs. Original spotlight remains
   unchanged. No new dependency/service, installation package, push or publication.
 - Source delivered for user review; user acceptance pending.
+# AI-first workspace navigation — 2026-11-12
+
+- Default entry is Biodot's conversation workspace. Shared bilingual sliding switch
+  opens the original local spotlight home. No model is invoked by startup.
+- Four local disclosure groups replace long task cards; AI sidebar groups reveal
+  workbench/local destinations, illustration generation and a separate connector
+  group. Examples/shortcuts are collapsed. Recent projects and settings remain.
+- Added original neutral surfaces, translucency, soft shadows and reduced-motion
+  support. Hover/click, touch, keyboard and outside dismissal share one component.
+- Retained chat draft and existing image/illustration editor instances across
+  home changes. Hidden illustration keyboard shortcuts are inactive. Resume actions
+  use retained state; explicit new illustrations reset, and project saving is manual.
+- 14 language/UI checks, production build and lint passed. Actual existing local
+  headless Edge passed home switching, real editor route, draft retention, unsaved
+  illustration resume/hidden Delete protection, hover, Escape/ArrowDown, generation
+  entry, 390px viewport bounds and native tap-to-open. No live model/real data used.
+- Inspected docs/media/navigation-ai-home.png and navigation-local-home.png.
+  WORKSPACE_NAVIGATION.md records flow, limits and evidence. Original spotlight
+  subtree, pointer effect and decorative assets remain unchanged.
+- Source only; no backend/dependency/service changes, installer, push or publication.
+  User acceptance remains pending.

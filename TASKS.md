@@ -1,5 +1,17 @@
 # Tasks
 
+## AI-first navigation and local spotlight home (2026-11-12)
+
+- [x] Default to the AI conversation workspace without automatically running AI.
+- [x] Add a bilingual accessible sliding AI/Local switch; Local returns to spotlight home.
+- [x] Replace long local task cards with four disclosure groups and actual subroutes;
+  organize AI categories/connectors and collapse examples.
+- [x] Support pointer hover, click/tap, keyboard, dismissal and reduced motion.
+- [x] Retain drafts/open editors across home switches; suspend hidden editor shortcuts.
+- [x] Verify 14 language/UI checks, build/lint, actual desktop/touch/navigation flows,
+  viewport bounds and exact spotlight preservation. Inspected screenshots delivered.
+- [x] Document scope and source delivery; user acceptance and installer update pending.
+
 ## Cell biology component artwork (2026-11-12)
 
 - [x] Study open AP-level/high-school and university cell biology references.

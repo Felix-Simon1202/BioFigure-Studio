@@ -1,3 +1,5 @@
+import WorkspaceModeSwitch from './WorkspaceModeSwitch'
+import NavigationGroup from './NavigationGroup'
 import { useEffect, useRef, useState } from 'react'
 import { FolderIcon, SampleChart } from './WorkflowPrototype'
 import IllustrationStudio from './IllustrationStudio'
@@ -284,7 +286,7 @@ const figureMeasureLabels: Record<string, string> = {
   panel_gap_mm: t("子图间距（mm）", "Panel spacing (mm)"), label_font_size: t("标签字号（pt）", "Panel label size (pt)"), dpi: t("分辨率（DPI）", "Resolution (DPI)"),
 }
 
-  const [page, setPage] = useState(0),
+  const [page, updatePage] = useState(0),
     [mode, setMode] = useState<Mode>('table'),
     [omicsDirection, setOmicsDirection] = useState<OmicsDirection | null>(null),
     [ecologyDirection, setEcologyDirection] = useState<EcologyDirection | null>(null),
@@ -334,8 +336,16 @@ const figureMeasureLabels: Record<string, string> = {
     [busy, setBusy] = useState('')
   const notice = t(noticeText.zh, noticeText.en)
   const setNotice = (zh: string, en = zh) => updateNotice({ zh, en })
-  const [aiMode, setAiMode] = useState(false)
-  const [visitedAI, setVisitedAI] = useState(false)
+  const [retainedEditors, setRetainedEditors] = useState({ illustration: false, image: false })
+  const [illustrationRevision, setIllustrationRevision] = useState(0)
+  const setPage = (next: number) => {
+    if (next === 6 || next === 10) setRetainedEditors(previous => {
+      const key = next === 6 ? 'illustration' : 'image'
+      return previous[key] ? previous : { ...previous, [key]: true }
+    })
+    updatePage(next)
+  }
+  const [aiMode, setAiMode] = useState(true)
   const [recentProjects, setRecentProjects] = useState<File[]>([])
   const active = useRef<AbortController | null>(null)
   const canApplyWorkbenchDraft = (!preview || draft.dataset_id === 'simulated-cell-response-v1') && !figureImage && !panels.length && page !== 6 && page !== 10
@@ -552,8 +562,7 @@ const figureMeasureLabels: Record<string, string> = {
   }
   const render = () => run('chart', (signal) => renderChart(draft, signal))
   const showMode = (enableAI: boolean) => {
-    if (enableAI) setVisitedAI(true)
-    else if (busy === 'workbench-draft') active.current?.abort()
+    if (!enableAI) { if (busy === 'workbench-draft') active.current?.abort(); setPage(0) }
     setAiMode(enableAI)
   }
   const proposeWorkbenchDraft = (provider: WorkbenchProvider, prompt: string, receive: (proposal: WorkbenchProposal) => void, external?: ExternalDraft) =>
@@ -742,6 +751,7 @@ const figureMeasureLabels: Record<string, string> = {
     setPage(1)
   }
   const chooseIllustration = (kind: DocumentKind) => {
+    setIllustrationRevision(value => value + 1)
     setIllustrationKind(kind)
     setIllustrationFile(null)
     setIllustrationSkillDraft(null)
@@ -1238,32 +1248,31 @@ const figureMeasureLabels: Record<string, string> = {
         </p>
         <button className="primary wf-workbench-entry" onClick={() => showMode(true)}>打开绘图工作台 <span lang="en">/ Drawing workbench</span></button>
       </div>
-      <div className="wf-categories wf-product-categories">
-        <button className="wf-category" onClick={() => { setAssemblyIntent(false); setPage(7) }}>
-          <span className="wf-category-icon">▦</span>
-          <strong>{t("制作数据图表", "Create data plots")}<span>↗</span></strong>
-          <p lang="en">Create a data chart</p>
-          <small>{t("基础表格、单细胞、空间组学、基因组、生态与 R 绘图", "Tabular, single-cell, spatial, genomic, ecological, and R plots")}</small>
-        </button>
-        <button className="wf-category" onClick={() => { setAssemblyIntent(true); setPage(8) }}>
-          <span className="wf-category-icon">▤</span>
-          <strong>{t("排版多图图版", "Assemble a multi-panel figure")}<span>↗</span></strong>
-          <p lang="en">Arrange a multi-panel figure</p>
-          <small>{t("把已生成的图表加入工作栏，统一标签、图例与尺寸", "Collect plots and unify panel labels, legends, and dimensions")}</small>
-        </button>
-        <button className="wf-category" onClick={() => setPage(9)}>
-          <span className="wf-category-icon">✦</span>
-          <strong>{t("绘制生物图示", "Create scientific illustrations")}<span>↗</span></strong>
-          <p lang="en">Draw a biological illustration</p>
-          <small>{t("机制图、实验流程图与图形摘要", "Mechanisms, experimental workflows, and graphical abstracts")}</small>
-        </button>
-        <button className="wf-category" onClick={() => setPage(10)}>
-          <span className="wf-category-icon">◫</span>
-          <strong>{t("处理科研图像", "Process scientific images")}<span>↗</span></strong>
-          <p lang="en">Explore the image workspace</p>
-          <small>{t("Fiji 原命令清单、来源与逐项核验状态", "Fiji command catalog, sources, and verification status")}</small>
-        </button>
-      </div>
+      <nav className="workspace-home-nav" aria-label={t('本地创作导航', 'Local creation navigation')}>
+        <NavigationGroup direction="above" icon="▦" label={t('数据图表', 'Data plots')}
+          description={t('按数据类型选择绘图方式。', 'Choose a workflow for your data.')} items={[
+            ...(preview?[{label:t('继续当前图表', 'Resume current plot'),onSelect:()=>setPage(result?3:2)}]:[]),
+            {label:t('表格图表', 'Tabular plots'),description:'CSV / XLSX',onSelect:chooseTable},
+            {label:t('单细胞与空间', 'Single-cell and spatial'),description:'H5AD',onSelect:()=>setPage(7)},
+            {label:t('组学、生态与 R', 'Omics, ecology and R'),onSelect:()=>setPage(7)},
+          ]}/>
+        <NavigationGroup direction="above" icon="▤" label={t('论文图版', 'Figure assembly')}
+          description={t('统一子图、标签和导出尺寸。', 'Unify panels, labels and export dimensions.')} items={[
+            {label:t('打开图版工作栏', 'Open figure assembly'),onSelect:()=>{setAssemblyIntent(true);setPage(8)}},
+            {label:t('打开已有项目', 'Open project'),onSelect:()=>projectInputRef.current?.click()},
+          ]}/>
+        <NavigationGroup direction="above" icon="◇" label={t('科研图示', 'Illustrations')}
+          description={t('从原创矢量组件组织科研故事。', 'Build a scientific story with original vector components.')} items={[
+            ...(retainedEditors.illustration?[{label:t('继续上次编辑', 'Resume illustration'),onSelect:()=>setPage(6)}]:[]),
+            {label:t('机制图', 'Mechanism diagram'),onSelect:()=>chooseIllustration('mechanism')},
+            {label:t('实验流程图', 'Experimental workflow'),onSelect:()=>chooseIllustration('experimental_workflow')},
+            {label:t('图形摘要', 'Graphical abstract'),onSelect:()=>chooseIllustration('graphical_abstract')},
+          ]}/>
+        <NavigationGroup direction="above" icon="◫" label={t('科研图像', 'Scientific images')}
+          description={t('本地图像、测量、拼接与批量处理。', 'Local images, measurement, assembly and batch processing.')} items={[
+            {label:t('打开图像工作台', 'Open image workspace'),onSelect:()=>setPage(10)},
+          ]}/>
+      </nav>
       <div className="wf-home-utilities">
         <button className="wf-open-project" onClick={() => projectInputRef.current?.click()}><FolderIcon />{t("打开已有项目", "Open project")}<span lang="en">/ Open a project</span></button>
         <button className="wf-file-guide-toggle" aria-expanded={showFileGuide} onClick={() => setShowFileGuide(!showFileGuide)}>{t("我有一个文件，先看从哪里开始", "I have a file. Where should I start?")}{showFileGuide ? '↑' : '↓'}</button>
@@ -1401,16 +1410,11 @@ const figureMeasureLabels: Record<string, string> = {
       </div>
     </>
   )
-  const modeSwitch = (
-    <div className="dw-switch dw-mode-switch" role="group" aria-label={t("工作模式", "Working mode")}>
-      <button type="button" aria-pressed={!aiMode} onClick={() => showMode(false)}>{t("本地模式", "Local mode")}</button>
-      <button type="button" aria-pressed={aiMode} onClick={() => showMode(true)}>{t("AI 模式", "AI mode")}</button>
-    </div>
-  )
+  const modeSwitch = <WorkspaceModeSwitch ai={aiMode} onChange={showMode} />
   const languageSettingsButton = <button type="button" onClick={() => setLanguageSettingsOpen(true)}>{t('设置', 'Settings')}</button>
   return (
     <div className={aiMode ? 'wf wf-ai' : 'wf'}>
-      {visitedAI && <DrawingWorkbench visible={aiMode} modeSwitch={modeSwitch} busy={!!busy}
+      <DrawingWorkbench visible={aiMode} modeSwitch={modeSwitch} busy={!!busy}
         canApply={canApplyWorkbenchDraft} recent={recentProjects}
         onOpenProject={(file) => { if (file) openSavedFile(file); else projectInputRef.current?.click() }}
         onOpen={(destination) => {
@@ -1422,13 +1426,13 @@ const figureMeasureLabels: Record<string, string> = {
         onDraft={proposeWorkbenchDraft} onApply={applyWorkbenchDraft} onInspect={inspectWorkbenchSample}
         onConnect={connectWorkbench} onDisconnect={disconnectWorkbench}
         onDraftIllustration={proposeIllustrationDraft}
-        onApplyIllustration={(document) => { if (!canApplyWorkbenchDraft) return; setIllustrationSkillDraft(document); setIllustrationSkillRevision((value) => value + 1); setIllustrationKind('experimental_workflow'); setIllustrationFile(null); setPage(6); setAiMode(false) }} />}
+        onApplyIllustration={(document) => { if (!canApplyWorkbenchDraft) return; setIllustrationSkillDraft(document); setIllustrationSkillRevision((value) => value + 1); setIllustrationKind('experimental_workflow'); setIllustrationFile(null); setPage(6); setAiMode(false) }} />
       <input ref={projectInputRef} className="wf-hidden-input" type="file" accept=".bfsproj,.bfsillustration.json" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) openSavedFile(file) }} />
       <div hidden={aiMode}>
-      {page === 6 ? <>
+      <div hidden={page !== 6}>
         <div className="dw-illustration-mode">{languageSettingsButton}{modeSwitch}</div>
-        <IllustrationStudio key={illustrationFile ? `${illustrationFile.name}-${illustrationFile.lastModified}` : illustrationSkillDraft ? `skill-${illustrationSkillRevision}` : illustrationKind} initialKind={illustrationKind} initialProject={illustrationFile} initialDocument={illustrationSkillDraft} onBack={() => { setIllustrationFile(null); setIllustrationSkillDraft(null); setPage(9) }} />
-      </> : <>
+        {(retainedEditors.illustration || page === 6) && <IllustrationStudio active={!aiMode && page === 6} key={illustrationFile ? `${illustrationFile.name}-${illustrationFile.lastModified}` : illustrationSkillDraft ? `skill-${illustrationSkillRevision}` : illustrationKind+'-'+illustrationRevision} initialKind={illustrationKind} initialProject={illustrationFile} initialDocument={illustrationSkillDraft} onBack={() => { setIllustrationFile(null); setIllustrationSkillDraft(null); setPage(9) }} />}
+      </div><div hidden={page === 6}>
       <header className="wf-header">
         <button className="wf-brand" onClick={() => setPage(0)}>
           <span className="wf-logo">✳</span>BioFigure <span>Studio</span>
@@ -1447,7 +1451,7 @@ const figureMeasureLabels: Record<string, string> = {
           ) : page === 9 ? (
             illustrationCatalog
           ) : page === 10 ? (
-            <ImageWorkspace onBack={() => setPage(0)} />
+            null
 
           ) : page === 5 ? (
             ecologyView
@@ -1793,6 +1797,7 @@ const figureMeasureLabels: Record<string, string> = {
               )}
             </>
           )}
+          <div hidden={page !== 10}>{(retainedEditors.image || page === 10) && <ImageWorkspace onBack={() => setPage(0)} />}</div>
         </main>
         {[1, 2, 3, 8].includes(page) && (
           <aside className="wf-sidebar">
@@ -1900,7 +1905,7 @@ const figureMeasureLabels: Record<string, string> = {
           </section>
         </div>
       )}
-      </>}
+      </div>
       </div>
       <dialog ref={languageDialog} className="wf-dialog" aria-label={t('设置', 'Settings')}
         onCancel={() => setLanguageSettingsOpen(false)} onClose={() => setLanguageSettingsOpen(false)}
