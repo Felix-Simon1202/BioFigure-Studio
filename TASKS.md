@@ -8,7 +8,8 @@
 - [x] Build v0.4.4 with synchronized version metadata and existing reviewed tools.
 - [x] Verify extracted packaged startup/project roundtrip and persistent queue;
   scan final payload and prepare installer/source/checksums/bilingual notes.
-- [ ] Publish reviewed code/docs to GitHub main/develop without rewriting tags.
+- [x] Publish reviewed code/docs to GitHub main/develop without rewriting tags;
+  add v0.4.4 at the exact installer build commit and verify both README hashes.
 
 ## Ordered core workflow: 1 → 2 → 3 (2026-11-13)
 

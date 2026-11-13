@@ -31,6 +31,12 @@
   80330FFFF921EE184DAC9A909E5572934F6657E162EF29C9A124F1DCB404FAAC.
   RELEASE_VALIDATION_0.4.4.md records actual limits; no clean install/upgrade matrix
   or user acceptance is inferred. Final attachments prepared separately.
+- GitHub main/develop synchronized at c579de117574aad376489cd32f4b4b0d955a50e6;
+  v0.4.4 points to exact build 091862a280c6a374e445730a1cfe84393976b968.
+  Previous tags preserved and clean history retained. Remote English/Chinese README
+  blob hashes match local files. This subsequent receipt is documentation-only;
+  installer/source ZIP remain at the build commit. Release attachments are local,
+  not uploaded; user acceptance remains pending.
 
 中文：双语 README 和源码脱敏检查已整理；新版安装包另行构建核验，尚未声称完成。
 
