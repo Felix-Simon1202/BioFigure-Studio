@@ -23,6 +23,14 @@
   disk limits and validating owned UUID paths, hash and style snapshot. Source
   multiprocessing remains unchanged. Engine shutdown now closes its queue worker
   before exit. Relevant protocol and packaged checks must pass before delivery.
+- Final build 091862a280c6a374e445730a1cfe84393976b968 passed actual frozen
+  startup/style/PDF/selected-edit/project-reopen/queue/archive/retry/restart checks.
+  Two native export tests and five focused protocol checks passed. All 1,210 engine
+  files matched; 375 source/1,914 extracted/224 nested/2,904 frozen entries scanned
+  without private-marker matches. Final installer SHA-256:
+  80330FFFF921EE184DAC9A909E5572934F6657E162EF29C9A124F1DCB404FAAC.
+  RELEASE_VALIDATION_0.4.4.md records actual limits; no clean install/upgrade matrix
+  or user acceptance is inferred. Final attachments prepared separately.
 
 中文：双语 README 和源码脱敏检查已整理；新版安装包另行构建核验，尚未声称完成。
 

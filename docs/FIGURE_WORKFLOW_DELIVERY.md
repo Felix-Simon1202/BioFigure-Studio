@@ -2,6 +2,9 @@
 
 2026-11-13. Ordered tasks 1 → 2 → 3 are implemented in source. User acceptance
 remains pending. Existing published installers have not been replaced or rebuilt.
+Subsequent user-authorized packaging produced a separate v0.4.4 candidate; see
+[package verification](RELEASE_VALIDATION_0.4.4.md). The initial source-only scope
+and evidence below are retained; no previous installer/tag is overwritten.
 No dependencies, services, downloaded models, real research data or cloud requests
 were added. The original bilingual spotlight art and pointer interaction remain
 unchanged. All added interfaces use the shared English/Simplified Chinese setting.

@@ -5,8 +5,8 @@
 - [x] Rewrite matched English/Chinese README around AI and local spotlight homes.
 - [x] Review tracked source and screenshot metadata for private data/credentials;
   preserve third-party notices, user data and spotlight assets.
-- [ ] Build v0.4.4 with synchronized version metadata and existing reviewed tools.
-- [ ] Verify extracted packaged startup/project roundtrip and persistent queue;
+- [x] Build v0.4.4 with synchronized version metadata and existing reviewed tools.
+- [x] Verify extracted packaged startup/project roundtrip and persistent queue;
   scan final payload and prepare installer/source/checksums/bilingual notes.
 - [ ] Publish reviewed code/docs to GitHub main/develop without rewriting tags.
 

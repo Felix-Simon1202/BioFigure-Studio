@@ -6,7 +6,7 @@ A local-first scientific figure workbench that brings data plots, microscopy pan
 
 [AI workspace](#start-with-the-ai-workspace) · [Local workspace](#work-directly-in-the-local-workspace) · [Figure workflows](#from-source-material-to-a-consistent-figure) · [Get started](#get-started) · [Roadmap](#roadmap)
 
-> **Source update — November 13, 2026.** This README describes the current source, including the two-home navigation, 25 scientific palettes, 28 cell-biology components and the three figure-workflow additions below. These additions are not included in the previously prepared **v0.4.3 Windows installer**. A **v0.4.4 Windows x64 candidate** is being prepared separately; its package checks and attachments will be recorded before delivery. Existing tags and installers remain unchanged. See [source delivery and checks](docs/FIGURE_WORKFLOW_DELIVERY.md) and [v0.4.3 package validation](docs/RELEASE_VALIDATION_0.4.3.md).
+> **Source update — November 13, 2026.** This README describes the current source, including the two-home navigation, 25 scientific palettes, 28 cell-biology components and the three figure-workflow additions below. These additions are not included in the previously prepared **v0.4.3 Windows installer**. A **v0.4.4 Windows x64 candidate** has been built and checked separately; see [package verification](docs/RELEASE_VALIDATION_0.4.4.md). Its attachments are prepared for a new Release, with older installers and tags preserved. See [source delivery and checks](docs/FIGURE_WORKFLOW_DELIVERY.md) and [v0.4.3 package validation](docs/RELEASE_VALIDATION_0.4.3.md).
 
 ## Two ways to begin, one figure workflow
 
@@ -84,14 +84,14 @@ Publication suitability depends on author review of scientific content, labels, 
 
 ## Get started
 
-- **Use an existing Windows package:** choose a versioned installer and its checksum from [Releases](https://github.com/Felix-Simon1202/BioFigure-Studio/releases). Read that version's notes; the current source additions require the separately prepared v0.4.4 candidate.
+- **Use an existing Windows package:** choose a versioned installer and its checksum from [Releases](https://github.com/Felix-Simon1202/BioFigure-Studio/releases). Read that version's notes; the current additions require v0.4.4. Candidate attachments are prepared separately; check whether that Release has been published before downloading.
 - **Try the current source:** follow the [local development and Windows build guide](docs/WINDOWS_BUILD.md). Locked dependencies and optional runtime setup are documented there. No runtime/model download is triggered by opening the home screen.
 - **Choose a language:** fresh profiles default to English. Open **Settings → Language** for English / 简体中文. The preference is local; switching does not translate or replace user data, scientific labels or saved project values.
 - **Keep editable work:** save the relevant local project before closing. Home switching retains an editor session, not an automatically saved file.
 
 ## Data safety and model choice
 
-Manual workflows remain local. A reviewed loopback Ollama model can provide supported AI assistance on the same computer. Selected external chart demos can use a configured API base URL, model identifier and key, with explicit per-request consent for a built-in synthetic prompt. This is not authorization to upload real research data. Use Local mode or the reviewed loopback path when data must remain on the computer.
+Manual workflows remain local. A reviewed loopback Ollama model can provide supported AI assistance on the same computer. Selected external chart demos can use a configured API base URL, model identifier and key, with explicit per-request consent for a built-in synthetic prompt. This is not authorization to upload real research data. The packaged engine enforces loopback-only network connections; switching to the AI home does not enable an external endpoint. Use Local mode or the reviewed loopback path when data must remain on the computer.
 
 Windows WebView2 and SmartScreen have separate platform-level network behavior. The installer is unsigned. Existing offline installation evidence covers the documented Windows 10 environment; it does not establish all Windows versions or whole-system network silence. See [security](SECURITY.md), [third-party notices](THIRD_PARTY_NOTICES.md), and [package validation](docs/RELEASE_VALIDATION_0.4.2.md).
 
