@@ -1,5 +1,18 @@
 # Delivery log
 
+## Public refresh / v0.4.4 preparation — 2026-11-13
+
+- English/Chinese README now follows AI conversation home and spotlight local
+  home workflows, with reviewed screenshots and explicit model/connector limits.
+- Tracked-source scan found no known personal device path/identifier, private key
+  or credential pattern. Email matches were existing third-party license credits;
+  retain them. README relative links resolve and screenshot EXIF is empty.
+- User additionally requested installer attachments. Version metadata synchronized
+  to 0.4.4; package build/checks and final GitHub synchronization remain pending.
+  Existing source-only evidence is retained; no new package success is claimed yet.
+
+中文：双语 README 和源码脱敏检查已整理；新版安装包另行构建核验，尚未声称完成。
+
 ## Ordered figure workflow source delivery — 2026-11-13
 
 - Completed 1 → 2 → 3: shared four-panel styling with explicit group colors and

@@ -1,5 +1,15 @@
 # Tasks
 
+## Public source refresh and v0.4.4 candidate (2026-11-13)
+
+- [x] Rewrite matched English/Chinese README around AI and local spotlight homes.
+- [x] Review tracked source and screenshot metadata for private data/credentials;
+  preserve third-party notices, user data and spotlight assets.
+- [ ] Build v0.4.4 with synchronized version metadata and existing reviewed tools.
+- [ ] Verify extracted packaged startup/project roundtrip and persistent queue;
+  scan final payload and prepare installer/source/checksums/bilingual notes.
+- [ ] Publish reviewed code/docs to GitHub main/develop without rewriting tags.
+
 ## Ordered core workflow: 1 → 2 → 3 (2026-11-13)
 
 - [x] 1: Shared four-panel styling, explicit group mapping, review/apply/undo,

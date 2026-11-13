@@ -1,5 +1,18 @@
 # Decisions
 
+## Public source refresh and next candidate (2026-11-13)
+
+The user authorized updating GitHub code and bilingual README, then requested
+the new installer/release attachments. Describe actual AI/local home workflows,
+keep model/connector limits explicit and distinguish old v0.4.3 packages from
+current source. Prepare a new v0.4.4 candidate with synchronized desktop versions;
+never replace old tags/assets. Reuse reviewed tools and prior unchanged checks,
+but verify actual newly frozen queue workers and current packaged project paths.
+Keep logs, local model/runtime caches and credentials outside published source.
+
+中文：本次授权同步源码文档并准备新版附件，使用 0.4.4 候选版本；保留旧标签及安装包，
+双语说明双主页流程和能力边界。新冻结程序须实际检查，不以源码测试替代。
+
 ## Ordered figure workflow (2026-11-13)
 
 Reuse existing FigureSpec, ThemeDraft, IllustrationSpec, rendering and undo paths.
