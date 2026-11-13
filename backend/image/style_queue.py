@@ -7,6 +7,8 @@ from io import BytesIO
 import json
 import multiprocessing as mp
 import os
+import subprocess
+import sys
 from pathlib import Path
 import sqlite3
 from threading import Event, RLock, Thread
@@ -38,6 +40,48 @@ def digest_file(path:Path)->str:
 
 
 class QueueInputError(ValueError):pass
+
+
+def frozen_worker():
+    """Fixed local worker protocol; no inherited Python process handles required."""
+    payload=json.loads(sys.stdin.buffer.read(8193))
+    if set(payload)!={'id','sha256','label','style','parameters'}:raise ValueError('Invalid worker payload')
+    identifier=payload['id']
+    if not isinstance(identifier,str) or len(identifier)!=32 or any(c not in '0123456789abcdef' for c in identifier):raise ValueError('Invalid worker id')
+    if payload['style'] not in STYLES:raise ValueError('Invalid worker style')
+    parameters=payload['parameters']
+    import re
+    if set(parameters)!={'background','border','ink','margin','font_size'}:raise ValueError('Invalid style snapshot')
+    if any(not isinstance(parameters[k],str) or not re.fullmatch(r'#[0-9a-fA-F]{6}',parameters[k]) for k in ('background','border','ink')):raise ValueError('Invalid style color')
+    if any(type(parameters[k]) is not int or not 1<=parameters[k]<=128 for k in ('margin','font_size')):raise ValueError('Invalid style dimensions')
+    if not isinstance(payload['label'],str) or len(payload['label'])>200:raise ValueError('Invalid worker label')
+    if not isinstance(payload['sha256'],str) or not re.fullmatch(r'[0-9a-f]{64}',payload['sha256']):raise ValueError('Invalid source digest')
+    root=image_work_dir('image-style-queue')
+    render_presentation(str(root/(identifier+'.source')),str(root/(identifier+'.zip')),str(root/(identifier+'.report')),
+                        payload['sha256'],payload['label'],payload['style'],parameters)
+
+
+class FrozenPresentationProcess:
+    """Expose the small worker lifecycle used by the existing bounded coordinator."""
+    def __init__(self,payload):self.payload=payload;self.process=None
+    def start(self):
+        self.process=subprocess.Popen([sys.executable,'--image-presentation-worker'],stdin=subprocess.PIPE,
+                                      stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,
+                                      creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+        try:
+            self.process.stdin.write(json.dumps(self.payload,ensure_ascii=False).encode('utf-8'))
+            self.process.stdin.close()
+        except BaseException:
+            self.terminate();self.process.wait(timeout=5);raise
+    def is_alive(self):return self.process is not None and self.process.poll() is None
+    def join(self,timeout):
+        if self.process is not None:
+            try:self.process.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:pass
+    def terminate(self):
+        if self.is_alive():self.process.terminate()
+    def close(self):
+        if self.process is not None:self.process.wait(timeout=5)
 
 
 def render_presentation(source:str,output:str,report:str,expected:str,label:str,style_id:str,parameters=None):
@@ -238,7 +282,11 @@ class StyleQueue:
             require_disk_space([(self.root,192*1024*1024)])
             if sum(p.stat().st_size for p in self.root.iterdir() if p.is_file())+192*1024*1024>MAX_DISK_BYTES:
                 raise ValueError('Queue disk budget reached.')
-            process=mp.get_context('spawn').Process(target=render_presentation,args=(str(source),str(output),str(report),job['source_sha256'],job['name'],job['style'],json.loads(job['style_json'])),daemon=True)
+            if getattr(sys,'frozen',False):
+                process=FrozenPresentationProcess({'id':identifier,'sha256':job['source_sha256'],'label':job['name'],
+                                                  'style':job['style'],'parameters':json.loads(job['style_json'])})
+            else:
+                process=mp.get_context('spawn').Process(target=render_presentation,args=(str(source),str(output),str(report),job['source_sha256'],job['name'],job['style'],json.loads(job['style_json'])),daemon=True)
             process.start();deadline=monotonic()+JOB_SECONDS
             while process.is_alive():
                 process.join(.1)
@@ -284,6 +332,10 @@ class StyleQueue:
 
 _manager=None
 _manager_lock=RLock()
+def close_style_queue():
+    with _manager_lock:
+        if _manager is not None:_manager.close()
+
 def style_queue()->StyleQueue:
     global _manager
     with _manager_lock:

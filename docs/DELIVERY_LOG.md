@@ -17,6 +17,12 @@
   Pins and third-party notice updated; no runtime installation performed.
 - Fixed the native export gate to admit actual project/ZIP/TIFF formats and local
   API downloads while preserving local-origin and non-executable restrictions.
+- First frozen queue check found Windows denying multiprocessing parent-handle
+  duplication. This candidate was withheld. Replaced only the frozen startup path
+  with a fixed stdin protocol and isolated subprocess, retaining one-worker/time/
+  disk limits and validating owned UUID paths, hash and style snapshot. Source
+  multiprocessing remains unchanged. Engine shutdown now closes its queue worker
+  before exit. Relevant protocol and packaged checks must pass before delivery.
 
 中文：双语 README 和源码脱敏检查已整理；新版安装包另行构建核验，尚未声称完成。
 

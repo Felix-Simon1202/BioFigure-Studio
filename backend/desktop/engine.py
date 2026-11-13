@@ -40,6 +40,8 @@ def main():
     def watch_parent():
         sys.stdin.readline()
         runtime.stop(4)
+        from backend.image.style_queue import close_style_queue
+        close_style_queue()
         os._exit(0)
     threading.Thread(target=watch_parent, daemon=True).start()
     while runtime.thread.is_alive():

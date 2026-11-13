@@ -14,6 +14,32 @@ def source_png():
     output=BytesIO();image.save(output,format='PNG');return output.getvalue()
 
 
+def test_frozen_worker_protocol_uses_only_owned_files(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    import backend.image.style_queue as module
+    identifier='a'*32;source=source_png()
+    (tmp_path/(identifier+'.source')).write_bytes(source)
+    payload={'id':identifier,'sha256':sha256(source).hexdigest(),'label':'Original label A.png',
+             'style':'soft','parameters':module.STYLES['soft']}
+    monkeypatch.setattr(module,'image_work_dir',lambda name:tmp_path)
+    monkeypatch.setattr(module.sys,'stdin',SimpleNamespace(buffer=BytesIO(json.dumps(payload).encode())))
+    module.frozen_worker()
+    assert json.loads((tmp_path/(identifier+'.report')).read_text())['ok']
+    with zipfile.ZipFile(tmp_path/(identifier+'.zip')) as result:
+        assert result.read('source/original.png')==source
+
+
+@pytest.mark.parametrize('change',[{'id':'../outside'},{'parameters':{'ink':'url(file:///private)'}},{'sha256':'invalid'}])
+def test_frozen_worker_rejects_path_and_style_injection(tmp_path,monkeypatch,change):
+    from types import SimpleNamespace
+    import backend.image.style_queue as module
+    payload={'id':'a'*32,'sha256':'a'*64,'label':'Synthetic.png','style':'clean','parameters':module.STYLES['clean'],**change}
+    monkeypatch.setattr(module,'image_work_dir',lambda name:tmp_path)
+    monkeypatch.setattr(module.sys,'stdin',SimpleNamespace(buffer=BytesIO(json.dumps(payload).encode())))
+    with pytest.raises(ValueError):module.frozen_worker()
+    assert not list(tmp_path.iterdir())
+
+
 def test_original_bytes_labels_and_style_survive_output(tmp_path):
     source=source_png();queue=StyleQueue(tmp_path,start=False)
     job=queue.submit(BytesIO(source),'Original label A.png','soft')
