@@ -10,6 +10,13 @@
 - User additionally requested installer attachments. Version metadata synchronized
   to 0.4.4; package build/checks and final GitHub synchronization remain pending.
   Existing source-only evidence is retained; no new package success is claimed yet.
+- Initial bundling stopped before compilation because Microsoft's download GUID
+  changed. Reviewed replacement: Microsoft signature valid, file version
+  1.3.315.17, 215195856 bytes, SHA-256
+  1D1C838E5971343C060415DA7C630C3C1CA7AD33FBB61CCA660F3C1122F4CCA8.
+  Pins and third-party notice updated; no runtime installation performed.
+- Fixed the native export gate to admit actual project/ZIP/TIFF formats and local
+  API downloads while preserving local-origin and non-executable restrictions.
 
 中文：双语 README 和源码脱敏检查已整理；新版安装包另行构建核验，尚未声称完成。
 

@@ -27,8 +27,8 @@ if (!(Test-Path 'apps/desktop/node_modules/.bin/tauri.cmd')) {
     throw 'Reviewed local Tauri CLI is missing; release build will not install or download it automatically'
 }
 if (!$NoBundle) {
-    $approvedGuid = '199041ce-790a-4bbc-9111-b81b4c926e9f'
-    $approvedHash = '1BE9D2926954D99DD62653A22EFE813160FE0C40F1E422B44E6AAF5473F68EEC'
+    $approvedGuid = '14f2cd10-e392-45ff-a699-5e08c803d4c7'
+    $approvedHash = '1D1C838E5971343C060415DA7C630C3C1CA7AD33FBB61CCA660F3C1122F4CCA8'
     $installerName = 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe'
     $urlPrefix = 'https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/'
     try {
@@ -48,7 +48,7 @@ if (!$NoBundle) {
     if ((Get-FileHash -LiteralPath $webviewCache -Algorithm SHA256).Hash -ne $approvedHash) {
         throw 'WebView2 cache hash differs from the reviewed installer'
     }
-    if ((Get-Item -LiteralPath $webviewCache).Length -ne 214990032) {
+    if ((Get-Item -LiteralPath $webviewCache).Length -ne 215195856) {
         throw 'WebView2 cache size differs from the reviewed installer'
     }
     $signature = Get-AuthenticodeSignature -LiteralPath $webviewCache

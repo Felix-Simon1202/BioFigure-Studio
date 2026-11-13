@@ -10,15 +10,24 @@ use windows_sys::Win32::{Foundation::{CloseHandle, GetLastError, HANDLE, ERROR_A
 fn wide(text: &str) -> Vec<u16> { text.encode_utf16().chain(Some(0)).collect() }
 fn notice(text: &str) { unsafe { MessageBoxW(std::ptr::null_mut(), wide(text).as_ptr(), wide("BioFigure Studio").as_ptr(), MB_OK | MB_ICONERROR); } }
 
+fn supported_export(extension: &str) -> bool {
+    matches!(extension, "svg" | "pdf" | "png" | "tif" | "tiff" | "csv" | "json" | "zip" | "bfsproj" | "bfsimg" | "bfsworkspace")
+}
+
+fn local_download(url: &tauri::Url, origin: &str) -> bool {
+    url.as_str().starts_with(&format!("blob:{origin}/")) ||
+        (url.origin().ascii_serialization() == origin && url.path().starts_with("/api/"))
+}
+
 fn save_location(destination: &mut std::path::PathBuf, owner: windows_sys::Win32::Foundation::HWND) -> bool {
     let suggested = destination.file_name().and_then(|n| n.to_str()).unwrap_or("biofigure.png");
     let extension = destination.extension().and_then(|n| n.to_str()).unwrap_or("png");
-    if !["svg", "pdf", "png"].contains(&extension) { return false; }
+    if !supported_export(extension) { return false; }
     let mut filename = vec![0u16; 32768];
     let name = wide(suggested);
     if name.len() >= filename.len() { return false; }
     filename[..name.len()].copy_from_slice(&name);
-    let filter = wide(&format!("{} 图像\0*.{}\0\0", extension.to_uppercase(), extension));
+    let filter = wide(&format!("{}\0*.{}\0\0", extension.to_uppercase(), extension));
     let default_extension = wide(extension);
     let mut dialog: OPENFILENAMEW = unsafe { std::mem::zeroed() };
     dialog.lStructSize = std::mem::size_of_val(&dialog) as u32;
@@ -98,7 +107,7 @@ fn main() {
     let result = tauri::Builder::default().setup(|app| {
         let (engine, url) = launch(app)?;
         let origin = url.origin();
-        let download_origin = format!("blob:{}/", origin.ascii_serialization());
+        let download_origin = origin.ascii_serialization();
         app.manage(engine);
         WebviewWindowBuilder::new(app, "main", WebviewUrl::External(url))
             .title("BioFigure Studio").inner_size(1280.0, 850.0).min_inner_size(760.0, 600.0)
@@ -108,7 +117,7 @@ fn main() {
             .on_new_window(|_, _| tauri::webview::NewWindowResponse::Deny)
             .on_download(move |webview, event| match event {
                 tauri::webview::DownloadEvent::Requested { url, destination } => {
-                    url.as_str().starts_with(&download_origin) && save_location(destination,
+                    local_download(&url, &download_origin) && save_location(destination,
                         webview.window().hwnd().map(|h| h.0 as _).unwrap_or(std::ptr::null_mut()))
                 }
                 tauri::webview::DownloadEvent::Finished { success, .. } => {
@@ -136,4 +145,28 @@ fn main() {
         Err(_) => notice("桌面程序启动失败，请确认安装完整及 WebView2 可用。")
     }
     unsafe { CloseHandle(mutex); }
+}
+
+#[cfg(test)]
+mod export_tests {
+    use super::*;
+
+    #[test]
+    fn current_project_and_queue_formats_are_savable() {
+        for extension in ["svg", "pdf", "png", "tiff", "json", "zip", "bfsproj", "bfsimg", "bfsworkspace"] {
+            assert!(supported_export(extension));
+        }
+        for extension in ["exe", "ps1", "html", "bat"] { assert!(!supported_export(extension)); }
+    }
+
+    #[test]
+    fn downloads_stay_on_the_engine_origin() {
+        let origin = "http://127.0.0.1:12345";
+        for path in ["blob:http://127.0.0.1:12345/test", "http://127.0.0.1:12345/api/image/style-queue/jobs/test/download"] {
+            assert!(local_download(&tauri::Url::parse(path).unwrap(), origin));
+        }
+        for path in ["https://example.com/api/file", "http://127.0.0.1:54321/api/file", "blob:https://example.com/test", "file:///tmp/test.zip", "http://127.0.0.1:12345/readme"] {
+            assert!(!local_download(&tauri::Url::parse(path).unwrap(), origin));
+        }
+    }
 }

@@ -16,7 +16,7 @@ Biodot 人格框架小段改编自上述固定版本，保留 Apache-2.0 许可�
 
 项目原创代码现采用 MIT；下列第三方条款保持不变。此版只补齐 Matplotlib/pandas 已有版本的元数据，没有增加运行时依赖。
 
-- 安装包附带 Microsoft Evergreen WebView2 x64 独立离线安装器。审核构件 SHA-256 为 1BE9D2926954D99DD62653A22EFE813160FE0C40F1E422B44E6AAF5473F68EEC，微软签名已核验。微软条款见 [WebView2 Runtime EULA](licenses/desktop/Microsoft-WebView2-Runtime-EULA.html)。
+- 安装包附带 Microsoft Evergreen WebView2 x64 独立离线安装器。审核构件 SHA-256 为 1D1C838E5971343C060415DA7C630C3C1CA7AD33FBB61CCA660F3C1122F4CCA8，微软签名已核验。微软条款见 [WebView2 Runtime EULA](licenses/desktop/Microsoft-WebView2-Runtime-EULA.html)。
 - 安装目录的 third-party 保存依赖许可证、适用的第三方源码及构建来源记录。Fiji 原生命令使用独立配置的 Fiji 20261013-1517 运行时。
 - Windows 上的 WebView2 可能向 Microsoft 发送诊断数据。SmartScreen 默认启用时可能与 Microsoft 通信。[WebView2 数据与隐私](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/data-privacy)
 - 下方按阶段保留的 0.3.0 及更早构建记录供追溯。

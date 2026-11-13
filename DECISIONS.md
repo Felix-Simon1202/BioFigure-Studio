@@ -2,6 +2,16 @@
 
 ## Public source refresh and next candidate (2026-11-13)
 
+Packaging found two concrete prerequisites: Microsoft's moving WebView2 URL no
+longer matched the old reviewed cache, and the native download gate accepted only
+blob SVG/PDF/PNG, blocking project and queue archives. The new Microsoft-hosted
+offline installer was downloaded into an ignored review directory, its valid
+Microsoft signature/size/SHA-256 checked, and its exact GUID/hash pinned in build
+and provenance scripts. It was not executed or installed on this computer.
+Extend native downloads only to current export/project formats and the same local
+engine's API or blob origin; preserve rejection of remote and executable downloads.
+Use extension-only native file-filter names (language-neutral) and test the gate.
+
 The user authorized updating GitHub code and bilingual README, then requested
 the new installer/release attachments. Describe actual AI/local home workflows,
 keep model/connector limits explicit and distinguish old v0.4.3 packages from
